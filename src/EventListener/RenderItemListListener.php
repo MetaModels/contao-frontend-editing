@@ -25,9 +25,9 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GenerateFrontendUr
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GetPageDetailsEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
-use MetaModels\Contao\FrontendEditing\FrontendEditHybrid;
 use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
+use MetaModels\FrontendIntegration\HybridList;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -86,7 +86,7 @@ class RenderItemListListener
     public function handleFrontendEditingInListRendering(RenderItemListEvent $event)
     {
         $caller = $event->getCaller();
-        if (!($caller instanceof FrontendEditHybrid)) {
+        if (!($caller instanceof HybridList)) {
             return;
         }
 

@@ -146,7 +146,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
         $template       = new Template();
         $caller         = $this
-            ->getMockBuilder('MetaModels\Contao\FrontendEditing\FrontendEditHybrid')
+            ->getMockBuilder('MetaModels\FrontendIntegration\HybridList')
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
@@ -216,7 +216,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
         $template       = new Template();
         $caller         = $this
-            ->getMockBuilder('MetaModels\Contao\FrontendEditing\FrontendEditHybrid')
+            ->getMockBuilder('MetaModels\FrontendIntegration\HybridList')
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
@@ -258,7 +258,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
         $template       = new Template();
         $caller         = $this
-            ->getMockBuilder('MetaModels\Contao\FrontendEditing\FrontendEditHybrid')
+            ->getMockBuilder('MetaModels\FrontendIntegration\HybridList')
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
