@@ -22,3 +22,8 @@ $GLOBALS['TL_LANG']['FMD']['metamodels_frontendediting'] = [
     'MetaModels frontend editing',
     'Add a frontend editor for a MetaModel.'
 ];
+
+$GLOBALS['TL_LANG']['CTE']['metamodels_frontendediting'] = [
+    'MetaModels frontend editing',
+    'Add a frontend editor for a MetaModel.'
+];
