@@ -23,6 +23,6 @@
  */
 TemplateLoader::addFiles(array
 (
-    'ce_metamodel_frontend_edit'  => 'system/modules/metamodels/templates',
-    'mod_metamodel_frontend_edit' => 'system/modules/metamodels/templates',
+    'ce_metamodel_frontend_edit'  => 'system/modules/metamodels-contao-frontend-editing/templates',
+    'mod_metamodel_frontend_edit' => 'system/modules/metamodels-contao-frontend-editing/templates',
 ));
