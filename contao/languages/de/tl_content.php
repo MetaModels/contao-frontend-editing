@@ -8,9 +8,10 @@
  *
  * @license http://www.gnu.org/licenses/lgpl-3.0.html LGPL
  *
- * last-updated: 2016-12-21T22:29:54+01:00
+ * last-updated: 2016-12-21T22:23:37+01:00
  */
 
-$GLOBALS['TL_LANG']['MSC']['metamodel_add_item']  = 'Datensatz hinzufügen';
-$GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'] = 'Datensatz bearbeiten';
+
+$GLOBALS['TL_LANG']['tl_content']['metamodel_fe_editing']['0'] = 'Frontend-Bearbeitung aktivieren';
+$GLOBALS['TL_LANG']['tl_content']['mm_editing_legend']         = 'MetaModels Frontend Bearbeitung';
 
