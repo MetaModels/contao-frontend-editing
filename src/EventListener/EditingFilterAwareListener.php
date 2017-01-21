@@ -42,6 +42,7 @@ class EditingFilterAwareListener
     public function applyFilterOnModelEdit(PreEditModelEvent $event)
     {
         $environment = $event->getEnvironment();
+        //@todo We need a way to provide the calling module. Session is not cool at all
         $caller      = $environment->getSessionStorage()->get('frontend-editor-caller');
         $model       = $event->getModel();
 

@@ -59,7 +59,7 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
     {
         $container = $this->getServiceContainer();
         $metaModel = $container->getFactory()->translateIdToMetaModelName($this->metamodel);
-        $editor    = new FrontendEditor($container->getEventDispatcher(), $this->getTranslator());
+        $editor    = new FrontendEditor($container->getEventDispatcher(), $this->getTranslator(), $this); //@todo We need a way to provide the calling module
 
         $this->Template->editor = $editor->editFor($metaModel, 'create');
     }
