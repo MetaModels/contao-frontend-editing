@@ -27,6 +27,7 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodel_content'] = str_replace(
 $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodels_frontendediting'] =
     '{type_legend},name,headline,type;' .
     '{mm_config_legend},metamodel;' .
+    '{mm_filter_legend},metamodel_filtering,metamodel_filterparams;' . //@todo filterparams subdca not loaded
     '{protected_legend:hide},protected;' .
     '{expert_legend:hide},guests,invisible,cssID,space';
 
