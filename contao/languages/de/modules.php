@@ -8,12 +8,11 @@
  *
  * @license http://www.gnu.org/licenses/lgpl-3.0.html LGPL
  *
- * last-updated: 2016-12-21T22:23:37+01:00
+ * last-updated: 2016-12-22T00:17:39+01:00
  */
 
-
-$GLOBALS['TL_LANG']['CTE']['metamodels_frontendediting']['0'] = 'MetaModels Frontend Bearbeitung';
+$GLOBALS['TL_LANG']['CTE']['metamodels_frontendediting']['0'] = 'MetaModels Frontend-Bearbeitung';
 $GLOBALS['TL_LANG']['CTE']['metamodels_frontendediting']['1'] = 'Fügt einen Frontend-Editor für ein MetaModel hinzu.';
-$GLOBALS['TL_LANG']['FMD']['metamodels_frontendediting']['0'] = 'MetaModels Frontend Bearbeitung';
+$GLOBALS['TL_LANG']['FMD']['metamodels_frontendediting']['0'] = 'MetaModels Frontend-Bearbeitung';
 $GLOBALS['TL_LANG']['FMD']['metamodels_frontendediting']['1'] = 'Fügt einen Frontend-Editor für ein MetaModel hinzu.';
 
