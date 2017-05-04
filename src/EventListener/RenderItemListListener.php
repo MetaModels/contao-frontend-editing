@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2016 The MetaModels team.
+ * (c) 2016-2017 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    MetaModels
  * @subpackage ContaoFrontendEditing
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2016 The MetaModels team.
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @copyright  2016-2017 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -64,11 +65,16 @@ class RenderItemListListener
         $parsed     = $event->getResult();
         $item       = $event->getItem();
 
-        $parsed['editUrl'] = $this->generateEditUrl(
-            $dispatcher,
-            $settings->get(self::FRONTEND_EDITING_PAGE),
-            ModelId::fromValues($item->getMetaModel()->getTableName(), $event->getItem()->get('id'))->getSerialized()
-        );
+        $parsed['actions']['edit'] = [
+            'label' => $GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'],
+            'href'  => $this->generateEditUrl(
+                $dispatcher,
+                $settings->get(self::FRONTEND_EDITING_PAGE),
+                ModelId::fromValues($item->getMetaModel()->getTableName(), $event->getItem()->get('id'))
+                    ->getSerialized()
+            ),
+            'class' => 'edit',
+        ];
 
         $event->setResult($parsed);
     }
@@ -103,10 +109,9 @@ class RenderItemListListener
         if ($enabled) {
             $url = $this->generateAddUrl($dispatcher, $page);
 
-            $event->getTemplate()->addUrl    = $url;
-            $event->getTemplate()->editLabel = $GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'];
             $caller->Template->addUrl        = $url;
             $caller->Template->addNewLabel   = $GLOBALS['TL_LANG']['MSC']['metamodel_add_item'];
+            $event->getTemplate()->addUrl    = $url;
 
             $event->getList()->getView()->set(self::FRONTEND_EDITING_PAGE, $page);
         }

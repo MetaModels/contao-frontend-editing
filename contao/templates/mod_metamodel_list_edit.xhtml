@@ -1,0 +1,9 @@
+<?php $this->extend('ce_metamodel_list'); ?>
+
+<?php $this->block('content'); ?>
+<?php if ($this->editEnable): ?>
+<div class="addUrl"><a href="<?= $this->addUrl ?>"><?= $this->addNewLabel ?></a></div>
+<?php endif; ?>
+
+<?php $this->parent(); ?>
+<?php $this->endblock(); ?>
