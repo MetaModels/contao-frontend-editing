@@ -16,18 +16,13 @@ How to use it.
 
 MetaModels and all its dependencies are available through the great [composer extension](https://c-c-a.org/ueber-composer) 
 
-When your Contao Installation is composered, you can simply installing metamodels by adding following packages
+When your Contao Installation is composered, you can simply install the frontend editing feature by adding following packages
 
-* MetaModels/core 
-* MetaModels/bundle_all 
-
-If you do not need all attributes & filters, feel free to just install the core and grab some filter and attributes of your choice. (Or another [bundle](https://github.com/MetaModels?query=bundle)
+* MetaModels/contao-frontend-editing
 
 ### Nightly
 
-Use the nightly package from our project website:
-
-http://now.metamodel.me/
+As the frontend editing is not part of the bundle_all, this package is not available via the nighlty packages. If you cannot set up Composer on your live environment, you should consider a local environment with composer and depoloy this to your live environment.
 
 Docs:
 -----------
