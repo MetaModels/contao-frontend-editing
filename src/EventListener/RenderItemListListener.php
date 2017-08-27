@@ -52,6 +52,9 @@ class RenderItemListListener
      * @param ParseItemEvent $event The event to process.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function handleForItemRendering(ParseItemEvent $event)
     {
@@ -109,9 +112,9 @@ class RenderItemListListener
         if ($enabled) {
             $url = $this->generateAddUrl($dispatcher, $page);
 
-            $caller->Template->addUrl        = $url;
-            $caller->Template->addNewLabel   = $GLOBALS['TL_LANG']['MSC']['metamodel_add_item'];
-            $event->getTemplate()->addUrl    = $url;
+            $caller->Template->addUrl      = $url;
+            $caller->Template->addNewLabel = $GLOBALS['TL_LANG']['MSC']['metamodel_add_item'];
+            $event->getTemplate()->addUrl  = $url;
 
             $event->getList()->getView()->set(self::FRONTEND_EDITING_PAGE, $page);
         }
