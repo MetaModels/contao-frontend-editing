@@ -18,16 +18,21 @@
  * @filesource
  */
 
+use ContaoCommunityAlliance\DcGeneral\Event\PreEditModelEvent;
+use MetaModels\Contao\FrontendEditing\EventListener\EditingFilterAwareListener;
 use MetaModels\Contao\FrontendEditing\EventListener\RenderItemListListener;
 use MetaModels\MetaModelsEvents;
 
 $handler = new RenderItemListListener();
 
 return [
-    MetaModelsEvents::PARSE_ITEM => [
+    MetaModelsEvents::PARSE_ITEM       => [
         [$handler, 'handleForItemRendering']
     ],
     MetaModelsEvents::RENDER_ITEM_LIST => [
         [$handler, 'handleFrontendEditingInListRendering']
+    ],
+    PreEditModelEvent::NAME            => [
+        [new EditingFilterAwareListener(), 'applyFilterOnModelEdit']
     ],
 ];
