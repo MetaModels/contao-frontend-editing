@@ -114,9 +114,11 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
 
         $listener->handleForItemRendering($event, MetaModelsEvents::PARSE_ITEM, $dispatcher);
 
+        $result = $event->getResult();
+        $this->assertArrayHasKey('edit', $result['actions']);
         $this->assertEquals(
-            ['editUrl' => 'act=edit&id=' . ModelId::fromValues('mm_test', 'item-id')->getSerialized()],
-            $event->getResult()
+            'act=edit&id=' . ModelId::fromValues('mm_test', 'item-id')->getSerialized(),
+            $result['actions']['edit']['href']
         );
     }
 
