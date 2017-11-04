@@ -78,6 +78,16 @@ class RenderItemListListener
             ),
             'class' => 'edit',
         ];
+        $parsed['actions']['copy'] = [
+            'label' => $GLOBALS['TL_LANG']['MSC']['metamodel_copy_item'],
+            'href'  => $this->generateCopyUrl(
+                $dispatcher,
+                $settings->get(self::FRONTEND_EDITING_PAGE),
+                ModelId::fromValues($item->getMetaModel()->getTableName(), $event->getItem()->get('id'))
+                    ->getSerialized()
+            ),
+            'class' => 'copy',
+        ];
 
         $event->setResult($parsed);
     }
@@ -161,6 +171,30 @@ class RenderItemListListener
         $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'edit')
             ->setQueryParameter('id', $itemId);
+
+        return $url->getUrl();
+    }
+
+    /**
+     * Generate the url to edit an item.
+     *
+     * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     *
+     * @param array                    $page       The page details.
+     *
+     * @param string                   $itemId     The id of the item.
+     *
+     * @return string
+     */
+    private function generateCopyUrl(EventDispatcherInterface $dispatcher, array $page, $itemId)
+    {
+        $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
+
+        $dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+
+        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
+            ->setQueryParameter('act', 'copy')
+            ->setQueryParameter('source', $itemId);
 
         return $url->getUrl();
     }
