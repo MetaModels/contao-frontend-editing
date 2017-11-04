@@ -78,6 +78,20 @@ class RenderItemListListener
             ),
             'class' => 'edit',
         ];
+        $parsed['actions']['delete'] = [
+            'label'     => $GLOBALS['TL_LANG']['MSC']['metamodel_delete_item'],
+            'href'      => $this->generateDeleteUrl(
+                $dispatcher,
+                $settings->get(self::FRONTEND_EDITING_PAGE),
+                ModelId::fromValues($item->getMetaModel()->getTableName(), $event->getItem()->get('id'))
+                    ->getSerialized()
+            ),
+            'attribute' => sprintf(
+                'onclick="if (!confirm(\'%s\')) return false;"',
+                $this->getDeleteConfirmLabel($event->getItem()->get('id'))
+            ),
+            'class'     => 'delete',
+        ];
 
         $event->setResult($parsed);
     }
@@ -163,6 +177,45 @@ class RenderItemListListener
             ->setQueryParameter('id', $itemId);
 
         return $url->getUrl();
+    }
+
+    /**
+     * Generate the url to delete an item.
+     *
+     * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     *
+     * @param array                    $page       The page details.
+     *
+     * @param string                   $itemId     The id of the item.
+     *
+     * @return string
+     */
+    private function generateDeleteUrl(EventDispatcherInterface $dispatcher, array $page, $itemId)
+    {
+        $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
+
+        $dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+
+        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
+            ->setQueryParameter('act', 'delete')
+            ->setQueryParameter('id', $itemId);
+
+        return $url->getUrl();
+    }
+
+    /**
+     * Get the "do you really want to delete" label.
+     *
+     * @param string $modelId
+     *
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
+    private function getDeleteConfirmLabel($modelId)
+    {
+        return sprintf($GLOBALS['TL_LANG']['MSC']['deleteConfirm'], $modelId);
     }
 
     /**
