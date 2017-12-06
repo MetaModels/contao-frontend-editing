@@ -1,9 +1,9 @@
 services:
     metamodels.contao_frontend_editing.parse_item_listener:
-        class: MetaModels\Contao\FrontendEditing\EventListener\RenderItemListListener
+        class: MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener
         tags:
           - { name: kernel.event_listener, event: 'metamodels.parse-item', method: handleForItemRendering }
     metamodels.contao_frontend_editing.render_item_list_listener:
-        class: MetaModels\Contao\FrontendEditing\EventListener\RenderItemListListener
+        class: MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener
         tags:
           - { name: kernel.event_listener, event: 'metamodels.render-item-list', method: handleFrontendEditingInListRendering }

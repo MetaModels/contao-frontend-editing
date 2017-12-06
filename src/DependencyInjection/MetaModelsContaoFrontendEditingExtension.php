@@ -18,7 +18,7 @@
  * @filesource
  */
 
-namespace MetaModels\Contao\FrontendEditing\DependencyInjection;
+namespace MetaModels\ContaoFrontendEditingBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

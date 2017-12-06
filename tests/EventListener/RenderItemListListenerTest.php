@@ -19,12 +19,12 @@
  * @filesource
  */
 
-namespace MetaModels\Test\Contao\FrontendEditing\EventListener;
+namespace MetaModels\ContaoFrontendEditingBundle\Test\EventListener;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GetPageDetailsEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use MetaModels\Contao\FrontendEditing\EventListener\RenderItemListListener;
+use MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener;
 use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
 use MetaModels\IItem;
@@ -186,7 +186,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
         $template       = new Template();
         $caller         = $this
-            ->getMockBuilder('MetaModels\Contao\FrontendEditing\FrontendEditHybrid')
+            ->getMockBuilder('MetaModels\ContaoFrontendEditingBundle\FrontendEditHybrid')
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 

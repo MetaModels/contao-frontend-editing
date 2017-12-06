@@ -18,12 +18,12 @@
  * @filesource
  */
 
-namespace MetaModels\Contao\FrontendEditing\ContaoManager;
+namespace MetaModels\ContaoFrontendEditingBundle\ContaoManager;
 
 use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
 use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
-use MetaModels\Contao\FrontendEditing\MetaModelsContaoFrontendEditingBundle;
+use MetaModels\ContaoFrontendEditingBundle\MetaModelsContaoFrontendEditingBundle;
 use MetaModels\CoreBundle\MetaModelsCoreBundle;
 
 /**

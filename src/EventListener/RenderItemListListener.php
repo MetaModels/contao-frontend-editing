@@ -19,7 +19,7 @@
  * @filesource
  */
 
-namespace MetaModels\Contao\FrontendEditing\EventListener;
+namespace MetaModels\ContaoFrontendEditingBundle\EventListener;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GenerateFrontendUrlEvent;

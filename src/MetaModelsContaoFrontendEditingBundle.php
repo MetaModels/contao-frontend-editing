@@ -18,7 +18,7 @@
  * @filesource
  */
 
-namespace MetaModels\Contao\FrontendEditing;
+namespace MetaModels\ContaoFrontendEditingBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

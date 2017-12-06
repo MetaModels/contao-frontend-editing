@@ -46,16 +46,16 @@
   },
   "autoload": {
     "psr-4": {
-      "MetaModels\\Contao\\FrontendEditing\\": "src"
+      "MetaModels\\ContaoFrontendEditingBundle\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "MetaModels\\Test\\Contao\\FrontendEditing\\": "tests"
+      "MetaModels\\ContaoFrontendEditingBundle\\Test\\": "tests"
     }
   },
   "extra": {
-    "contao-manager-plugin": "MetaModels\\Contao\\FrontendEditing\\ContaoManager\\Plugin",
+    "contao-manager-plugin": "MetaModels\\ContaoFrontendEditingBundle\\ContaoManager\\Plugin",
     "contao": {
       "sources": {
         "contao": "system/modules/metamodels-contao-frontend-editing"

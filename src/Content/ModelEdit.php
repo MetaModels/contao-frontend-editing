@@ -18,9 +18,9 @@
  * @filesource
  */
 
-namespace MetaModels\Contao\FrontendEditing\Content;
+namespace MetaModels\ContaoFrontendEditingBundle\Content;
 
-use MetaModels\Contao\FrontendEditing\FrontendEditHybrid;
+use MetaModels\ContaoFrontendEditingBundle\FrontendEditHybrid;
 
 /**
  * This class is the integration as Contao content element.
