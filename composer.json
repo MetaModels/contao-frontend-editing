@@ -74,11 +74,5 @@
       "dev-master": "2.0.x-dev",
       "dev-contao4": "2.1.x-dev"
     }
-  },
- "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@github.com:richardhj/dc-general-contao-frontend.git"
-    }
-  ]
+  }
 }
