@@ -21,7 +21,9 @@
 
 namespace MetaModels\ContaoFrontendEditingBundle;
 
+use Contao\CoreBundle\Exception\AccessDeniedException;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use MetaModels\FrontendIntegration\MetaModelHybrid;
 
@@ -62,7 +64,11 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
         $metaModel = $container->getFactory()->translateIdToMetaModelName($this->metamodel);
         $editor    = new FrontendEditor($container->getEventDispatcher(), $this->getTranslator());
 
-        $this->Template->editor = $editor->editFor($metaModel, 'create');
+        try {
+            $this->Template->editor = $editor->editFor($metaModel, 'create');
+        } catch (DcGeneralRuntimeException $e) {
+            throw new AccessDeniedException($e->getMessage());
+        }
     }
 
     /**
