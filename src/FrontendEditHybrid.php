@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2016-2017 The MetaModels team.
+ * (c) 2016-2018 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,18 +14,24 @@
  * @subpackage ContaoFrontendEditing
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2016-2017 The MetaModels team.
+ * @copyright  2016-2018 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
 namespace MetaModels\ContaoFrontendEditingBundle;
 
+use Contao\ContentModel;
 use Contao\CoreBundle\Exception\AccessDeniedException;
+use Contao\FormModel;
+use Contao\ModuleModel;
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use MetaModels\FrontendIntegration\MetaModelHybrid;
+use MetaModels\IFactory;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
  * This class is the base for the frontend integrations.
@@ -47,11 +53,31 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
     protected $wildCardName = '### METAMODELS FRONTEND EDITING ###';
 
     /**
-     * The table name to generate the frontend editing for.
-     *
-     * @var string
+     * @var IFactory
      */
-    protected $table;
+    private $factory;
+
+    /**
+     * @var FrontendEditor
+     */
+    private $editor;
+
+    /**
+     * FrontendEditHybrid constructor.
+     *
+     * @param ContentModel|ModuleModel|FormModel $element
+     * @param string                             $column
+     *
+     * @throws ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     */
+    public function __construct($element, $column = 'main')
+    {
+        parent::__construct($element, $column);
+
+        $this->factory = System::getContainer()->get('metamodels.factory');
+        $this->editor  = System::getContainer()->get('cca.dc-general.contao_frontend.editor');
+    }
 
     /**
      * Compile the content element.
@@ -60,39 +86,12 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      */
     protected function compile()
     {
-        $container = $this->getServiceContainer();
-        $metaModel = $container->getFactory()->translateIdToMetaModelName($this->metamodel);
-        $editor    = new FrontendEditor($container->getEventDispatcher(), $this->getTranslator());
+        $metaModel = $this->factory->translateIdToMetaModelName($this->metamodel);
 
         try {
-            $this->Template->editor = $editor->editFor($metaModel, 'create');
+            $this->Template->editor = $this->editor->editFor($metaModel, 'create');
         } catch (DcGeneralRuntimeException $e) {
             throw new AccessDeniedException($e->getMessage());
         }
-    }
-
-    /**
-     * Get the translator from the service container.
-     *
-     * @return TranslatorInterface
-     *
-     * @throws \RuntimeException When the DIC or translator have not been correctly initialized.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     */
-    private function getTranslator()
-    {
-        if (!($container = $GLOBALS['container']) instanceof \Pimple) {
-            throw new \RuntimeException('The dependency container has not been initialized correctly.');
-        }
-
-        $translator = $container['translator'];
-
-        if (!$translator instanceof TranslatorInterface) {
-            throw new \RuntimeException('The dependency container has not been initialized correctly.');
-        }
-
-        return $translator;
     }
 }
