@@ -2,6 +2,7 @@ services:
     metamodels.contao_frontend_editing.render_item_list_listener:
         class: MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener
         arguments:
+          - '@contao.translation.translator'
           - '@event_dispatcher'
         tags:
           - { name: kernel.event_listener, event: 'metamodels.render-item-list', method: handleFrontendEditingInListRendering }

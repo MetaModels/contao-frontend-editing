@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2016-2017 The MetaModels team.
+ * (c) 2016-2018 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @subpackage ContaoFrontendEditing
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2016-2017 The MetaModels team.
+ * @copyright  2016-2018 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -30,6 +30,7 @@ use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
 use MetaModels\FrontendIntegration\HybridList;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * This class handles the processing of list rendering.
@@ -47,6 +48,11 @@ class RenderItemListListener
     const FRONTEND_EDITING_PAGE = '$frontend-editing-page';
 
     /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
      * @var EventDispatcherInterface
      */
     private $dispatcher;
@@ -54,10 +60,12 @@ class RenderItemListListener
     /**
      * RenderItemListListener constructor.
      *
-     * @param EventDispatcherInterface $dispatcher
+     * @param TranslatorInterface      $translator The translator.
+     * @param EventDispatcherInterface $dispatcher The event dispatcher.
      */
-    public function __construct(EventDispatcherInterface $dispatcher)
+    public function __construct(TranslatorInterface $translator, EventDispatcherInterface $dispatcher)
     {
+        $this->translator = $translator;
         $this->dispatcher = $dispatcher;
     }
 
@@ -68,8 +76,7 @@ class RenderItemListListener
      *
      * @return void
      *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @throws \Symfony\Component\Translation\Exception\InvalidArgumentException
      */
     public function handleForItemRendering(ParseItemEvent $event)
     {
@@ -82,7 +89,7 @@ class RenderItemListListener
         $item   = $event->getItem();
 
         $parsed['actions']['edit'] = [
-            'label' => $GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'],
+            'label' => $this->translator->trans('MSC.metamodel_edit_item', [], 'contao_default'),
             'href'  => $this->generateEditUrl(
                 $settings->get(self::FRONTEND_EDITING_PAGE),
                 ModelId::fromValues($item->getMetaModel()->getTableName(), $event->getItem()->get('id'))
@@ -101,8 +108,7 @@ class RenderItemListListener
      *
      * @return void
      *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @throws \Symfony\Component\Translation\Exception\InvalidArgumentException
      */
     public function handleFrontendEditingInListRendering(RenderItemListEvent $event)
     {
@@ -123,7 +129,7 @@ class RenderItemListListener
             $url = $this->generateAddUrl($page);
 
             $caller->Template->addUrl      = $url;
-            $caller->Template->addNewLabel = $GLOBALS['TL_LANG']['MSC']['metamodel_add_item'];
+            $caller->Template->addNewLabel = $this->translator->trans('MSC.metamodel_add_item', [], 'contao_default');
             $event->getTemplate()->addUrl  = $url;
 
             $event->getList()->getView()->set(self::FRONTEND_EDITING_PAGE, $page);
