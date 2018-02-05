@@ -47,6 +47,21 @@ class RenderItemListListener
     const FRONTEND_EDITING_PAGE = '$frontend-editing-page';
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * RenderItemListListener constructor.
+     *
+     * @param EventDispatcherInterface $dispatcher
+     */
+    public function __construct(EventDispatcherInterface $dispatcher)
+    {
+        $this->dispatcher = $dispatcher;
+    }
+
+    /**
      * Handle the url injection for item rendering.
      *
      * @param ParseItemEvent $event The event to process.
@@ -63,15 +78,12 @@ class RenderItemListListener
             return;
         }
 
-        /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = func_get_arg(2);
-        $parsed     = $event->getResult();
-        $item       = $event->getItem();
+        $parsed = $event->getResult();
+        $item   = $event->getItem();
 
         $parsed['actions']['edit'] = [
             'label' => $GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'],
             'href'  => $this->generateEditUrl(
-                $dispatcher,
                 $settings->get(self::FRONTEND_EDITING_PAGE),
                 ModelId::fromValues($item->getMetaModel()->getTableName(), $event->getItem()->get('id'))
                     ->getSerialized()
@@ -99,18 +111,16 @@ class RenderItemListListener
             return;
         }
 
-        /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = func_get_arg(2);
-        $enabled    = (bool) $caller->metamodel_fe_editing;
+        $enabled = (bool)$caller->metamodel_fe_editing;
         if ($enabled) {
-            $page    = $this->getPageDetails($dispatcher, $caller->metamodel_fe_editing_page);
+            $page    = $this->getPageDetails($caller->metamodel_fe_editing_page);
             $enabled = (null !== $page);
         }
 
         $event->getTemplate()->editEnable = $caller->Template->editEnable = $enabled;
         $event->getList()->getView()->set(self::FRONTEND_EDITING_ENABLED_FLAG, $enabled);
         if ($enabled) {
-            $url = $this->generateAddUrl($dispatcher, $page);
+            $url = $this->generateAddUrl($page);
 
             $caller->Template->addUrl      = $url;
             $caller->Template->addNewLabel = $GLOBALS['TL_LANG']['MSC']['metamodel_add_item'];
@@ -123,19 +133,17 @@ class RenderItemListListener
     /**
      * Generate the url to add an item.
      *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     *
-     * @param array                    $page       The page details.
+     * @param array $page The page details.
      *
      * @return string
      */
-    private function generateAddUrl(EventDispatcherInterface $dispatcher, array $page)
+    private function generateAddUrl(array $page)
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
-        $dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
 
-        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
+        $url = UrlBuilder::fromUrl($event->getUrl().'?')
             ->setQueryParameter('act', 'create');
 
         return $url->getUrl();
@@ -144,21 +152,19 @@ class RenderItemListListener
     /**
      * Generate the url to edit an item.
      *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     * @param array  $page   The page details.
      *
-     * @param array                    $page       The page details.
-     *
-     * @param string                   $itemId     The id of the item.
+     * @param string $itemId The id of the item.
      *
      * @return string
      */
-    private function generateEditUrl(EventDispatcherInterface $dispatcher, array $page, $itemId)
+    private function generateEditUrl(array $page, $itemId)
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
-        $dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
 
-        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
+        $url = UrlBuilder::fromUrl($event->getUrl().'?')
             ->setQueryParameter('act', 'edit')
             ->setQueryParameter('id', $itemId);
 
@@ -168,18 +174,17 @@ class RenderItemListListener
     /**
      * Retrieve the details for the page with the given id.
      *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     * @param string                   $pageId     The id of the page to retrieve the details for.
+     * @param string $pageId The id of the page to retrieve the details for.
      *
      * @return array
      */
-    private function getPageDetails(EventDispatcherInterface $dispatcher, $pageId)
+    private function getPageDetails($pageId)
     {
         if (empty($pageId)) {
             return null;
         }
         $event = new GetPageDetailsEvent($pageId);
-        $dispatcher->dispatch(ContaoEvents::CONTROLLER_GET_PAGE_DETAILS, $event);
+        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GET_PAGE_DETAILS, $event);
 
         return $event->getPageDetails();
     }
