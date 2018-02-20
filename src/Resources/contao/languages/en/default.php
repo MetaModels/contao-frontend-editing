@@ -18,6 +18,7 @@
  * @filesource
  */
 
-$GLOBALS['TL_LANG']['MSC']['metamodel_add_item']  = 'Add item';
-$GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'] = 'Edit item';
-$GLOBALS['TL_LANG']['MSC']['metamodel_copy_item'] = 'Copy item';
+$GLOBALS['TL_LANG']['MSC']['metamodel_add_item']    = 'Add item';
+$GLOBALS['TL_LANG']['MSC']['metamodel_edit_item']   = 'Edit item';
+$GLOBALS['TL_LANG']['MSC']['metamodel_copy_item']   = 'Copy item';
+$GLOBALS['TL_LANG']['MSC']['metamodel_delete_item'] = 'Delete item';
