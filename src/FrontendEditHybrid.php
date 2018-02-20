@@ -22,7 +22,6 @@
 namespace MetaModels\ContaoFrontendEditingBundle;
 
 use Contao\ContentModel;
-use Contao\CoreBundle\Exception\AccessDeniedException;
 use Contao\FormModel;
 use Contao\ModuleModel;
 use Contao\System;
@@ -83,15 +82,13 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      * Compile the content element.
      *
      * @return void
+     *
+     * @throws DcGeneralRuntimeException
      */
     protected function compile()
     {
         $metaModel = $this->factory->translateIdToMetaModelName($this->metamodel);
 
-        try {
-            $this->Template->editor = $this->editor->editFor($metaModel, 'create');
-        } catch (DcGeneralRuntimeException $e) {
-            throw new AccessDeniedException($e->getMessage());
-        }
+        $this->Template->editor = $this->editor->editFor($metaModel, 'create');
     }
 }
