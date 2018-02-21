@@ -32,6 +32,7 @@ use MetaModels\Events\RenderItemListEvent;
 use MetaModels\FrontendIntegration\HybridList;
 use MetaModels\IFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Translation\Exception\InvalidArgumentException;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -96,7 +97,7 @@ class RenderItemListListener
      *
      * @return void
      *
-     * @throws \Symfony\Component\Translation\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function handleForItemRendering(ParseItemEvent $event)
     {
@@ -117,7 +118,7 @@ class RenderItemListListener
         // Add edit action
         if ($basicDefinition->isEditable()) {
             $parsed['actions']['edit'] = [
-                'label' => $this->translator->trans('MSC.metamodel_edit_item', [], 'contao_default'),
+                'label' => $this->translateLabel('metamodel_edit_item', $definition->getName()),
                 'href'  => $this->generateEditUrl($editingPage, $modelId),
                 'class' => 'edit',
             ];
@@ -126,7 +127,7 @@ class RenderItemListListener
         // Add copy action
         if ($basicDefinition->isCreatable()) {
             $parsed['actions']['copy'] = [
-                'label' => $this->translator->trans('MSC.metamodel_copy_item', [], 'contao_default'),
+                'label' => $this->translateLabel('metamodel_copy_item', $definition->getName()),
                 'href'  => $this->generateCopyUrl($editingPage, $modelId),
                 'class' => 'copy',
             ];
@@ -135,7 +136,7 @@ class RenderItemListListener
         // Add create variant action
         if (false === $item->isVariant() && $basicDefinition->isCreatable() && $item->getMetaModel()->hasVariants()) {
             $parsed['actions']['createvariant'] = [
-                'label' => $this->translator->trans('MSC.metamodel_create_variant', [], 'contao_default'),
+                'label' => $this->translateLabel('metamodel_create_variant', $definition->getName()),
                 'href'  => $this->generateCreateVariantUrl($editingPage, $modelId),
                 'class' => 'createvariant',
             ];
@@ -144,7 +145,7 @@ class RenderItemListListener
         // Add delete action
         if ($basicDefinition->isDeletable()) {
             $parsed['actions']['delete'] = [
-                'label'     => $this->translator->trans('MSC.metamodel_delete_item', [], 'contao_default'),
+                'label'     => $this->translateLabel('metamodel_delete_item', $definition->getName()),
                 'href'      => $this->generateDeleteUrl($editingPage, $modelId),
                 'attribute' => sprintf(
                     'onclick="if (!confirm(\'%s\')) return false;"',
@@ -164,7 +165,7 @@ class RenderItemListListener
      *
      * @return void
      *
-     * @throws \Symfony\Component\Translation\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function handleFrontendEditingInListRendering(RenderItemListEvent $event)
     {
@@ -194,8 +195,7 @@ class RenderItemListListener
                 $url = $this->generateAddUrl($page);
 
                 $caller->Template->addUrl      = $url;
-                $caller->Template->addNewLabel =
-                    $this->translator->trans('MSC.metamodel_add_item', [], 'contao_default');
+                $caller->Template->addNewLabel = $this->translateLabel('metamodel_add_item', $tableName);
                 $event->getTemplate()->addUrl  = $url;
             }
         }
@@ -326,5 +326,45 @@ class RenderItemListListener
         $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GET_PAGE_DETAILS, $event);
 
         return $event->getPageDetails();
+    }
+
+    /**
+     * Get a translated label from the translator.
+     *
+     * The fallback is as follows:
+     * 1. Try to translate via the data definition name as translation section.
+     * 2. Try to translate with the prefix 'MSC.'.
+     * 3. Return the input value as nothing worked out.
+     *
+     * @param string $transString    The non translated label for the button.
+     *
+     * @param string $definitionName The data definition of the current item.
+     *
+     * @param array  $parameters     The parameters to pass to the translator.
+     *
+     * @return string
+     */
+    private function translateLabel($transString, $definitionName, array $parameters = [])
+    {
+        $translator = $this->translator;
+        try {
+            if ($transString !== ($label = $translator->trans($transString, $parameters, 'contao_'.$definitionName))) {
+                return $label;
+            }
+        } catch (InvalidArgumentException $e) {
+            // Ok. Next try.
+        }
+
+
+        try {
+            if ($transString !== ($label = $translator->trans('MSC.'.$transString, $parameters, 'contao_default'))) {
+                return $label;
+            }
+        } catch (InvalidArgumentException $e) {
+            // Ok. Next try.
+        }
+
+        // Fallback, just return the key as is it.
+        return $transString;
     }
 }
