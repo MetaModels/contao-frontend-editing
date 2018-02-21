@@ -24,6 +24,7 @@ namespace MetaModels\ContaoFrontendEditingBundle\EventListener;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GenerateFrontendUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GetPageDetailsEvent;
+use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use MetaModels\Events\ParseItemEvent;
@@ -58,15 +59,25 @@ class RenderItemListListener
     private $dispatcher;
 
     /**
+     * @var FrontendEditor
+     */
+    private $frontendEditor;
+
+    /**
      * RenderItemListListener constructor.
      *
-     * @param TranslatorInterface      $translator The translator.
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     * @param TranslatorInterface      $translator     The translator.
+     * @param EventDispatcherInterface $dispatcher     The event dispatcher.
+     * @param FrontendEditor           $frontendEditor The DCGeneral frontend editor.
      */
-    public function __construct(TranslatorInterface $translator, EventDispatcherInterface $dispatcher)
-    {
-        $this->translator = $translator;
-        $this->dispatcher = $dispatcher;
+    public function __construct(
+        TranslatorInterface $translator,
+        EventDispatcherInterface $dispatcher,
+        FrontendEditor $frontendEditor
+    ) {
+        $this->translator     = $translator;
+        $this->dispatcher     = $dispatcher;
+        $this->frontendEditor = $frontendEditor;
     }
 
     /**
@@ -85,40 +96,45 @@ class RenderItemListListener
             return;
         }
 
-        $parsed = $event->getResult();
-        $item   = $event->getItem();
+        $parsed          = $event->getResult();
+        $item            = $event->getItem();
+        $tableName       = $item->getMetaModel()->getTableName();
+        $environment     = $this->frontendEditor->createDcGeneral($tableName);
+        $definition      = $environment->getDataDefinition();
+        $basicDefinition = $definition->getBasicDefinition();
+        $editingPage     = $settings->get(self::FRONTEND_EDITING_PAGE);
+        $modelId         = ModelId::fromValues($tableName, $item->get('id'))->getSerialized();
 
-        $parsed['actions']['edit'] = [
-            'label' => $this->translator->trans('MSC.metamodel_edit_item', [], 'contao_default'),
-            'href'  => $this->generateEditUrl(
-                $settings->get(self::FRONTEND_EDITING_PAGE),
-                ModelId::fromValues($item->getMetaModel()->getTableName(), $event->getItem()->get('id'))
-                    ->getSerialized()
-            ),
-            'class' => 'edit',
-        ];
-        $parsed['actions']['copy'] = [
-            'label' => $this->translator->trans('MSC.metamodel_copy_item', [], 'contao_default'),
-            'href'  => $this->generateCopyUrl(
-                $settings->get(self::FRONTEND_EDITING_PAGE),
-                ModelId::fromValues($item->getMetaModel()->getTableName(), $event->getItem()->get('id'))
-                    ->getSerialized()
-            ),
-            'class' => 'copy',
-        ];
-        $parsed['actions']['delete'] = [
-            'label'     => $this->translator->trans('MSC.metamodel_delete_item', [], 'contao_default'),
-            'href'      => $this->generateDeleteUrl(
-                $settings->get(self::FRONTEND_EDITING_PAGE),
-                ModelId::fromValues($item->getMetaModel()->getTableName(), $event->getItem()->get('id'))
-                    ->getSerialized()
-            ),
-            'attribute' => sprintf(
-                'onclick="if (!confirm(\'%s\')) return false;"',
-                $this->translator->trans('MSC.deleteConfirm', [$event->getItem()->get('id')], 'contao_default')
-            ),
-            'class'     => 'delete',
-        ];
+        // Add edit action
+        if ($basicDefinition->isEditable()) {
+            $parsed['actions']['edit'] = [
+                'label' => $this->translator->trans('MSC.metamodel_edit_item', [], 'contao_default'),
+                'href'  => $this->generateEditUrl($editingPage, $modelId),
+                'class' => 'edit',
+            ];
+        }
+
+        // Add copy action
+        if ($basicDefinition->isCreatable()) {
+            $parsed['actions']['copy'] = [
+                'label' => $this->translator->trans('MSC.metamodel_copy_item', [], 'contao_default'),
+                'href'  => $this->generateCopyUrl($editingPage, $modelId),
+                'class' => 'copy',
+            ];
+        }
+
+        // Add delete action
+        if ($basicDefinition->isDeletable()) {
+            $parsed['actions']['delete'] = [
+                'label'     => $this->translator->trans('MSC.metamodel_delete_item', [], 'contao_default'),
+                'href'      => $this->generateDeleteUrl($editingPage, $modelId),
+                'attribute' => sprintf(
+                    'onclick="if (!confirm(\'%s\')) return false;"',
+                    $this->translator->trans('MSC.deleteConfirm', [$item->get('id')], 'contao_default')
+                ),
+                'class'     => 'delete',
+            ];
+        }
 
         $event->setResult($parsed);
     }
