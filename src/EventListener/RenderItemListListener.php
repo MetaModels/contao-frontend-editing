@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
 use MetaModels\FrontendIntegration\HybridList;
+use MetaModels\IFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -59,6 +60,11 @@ class RenderItemListListener
     private $dispatcher;
 
     /**
+     * @var IFactory
+     */
+    private $factory;
+
+    /**
      * @var FrontendEditor
      */
     private $frontendEditor;
@@ -68,15 +74,18 @@ class RenderItemListListener
      *
      * @param TranslatorInterface      $translator     The translator.
      * @param EventDispatcherInterface $dispatcher     The event dispatcher.
+     * @param IFactory                 $factory        The MetaModels factory.
      * @param FrontendEditor           $frontendEditor The DCGeneral frontend editor.
      */
     public function __construct(
         TranslatorInterface $translator,
         EventDispatcherInterface $dispatcher,
+        IFactory $factory,
         FrontendEditor $frontendEditor
     ) {
         $this->translator     = $translator;
         $this->dispatcher     = $dispatcher;
+        $this->factory        = $factory;
         $this->frontendEditor = $frontendEditor;
     }
 
@@ -155,23 +164,34 @@ class RenderItemListListener
             return;
         }
 
+        $page    = null;
         $enabled = (bool)$caller->metamodel_fe_editing;
         if ($enabled) {
             $page    = $this->getPageDetails($caller->metamodel_fe_editing_page);
             $enabled = (null !== $page);
+
+            $event->getList()->getView()->set(self::FRONTEND_EDITING_PAGE, $page);
+            $event->getList()->getView()->set(self::FRONTEND_EDITING_ENABLED_FLAG, $enabled);
+        }
+
+        if ($enabled) {
+            $tableName       = $this->factory->translateIdToMetaModelName($caller->metamodel);
+            $environment     = $this->frontendEditor->createDcGeneral($tableName);
+            $definition      = $environment->getDataDefinition();
+            $basicDefinition = $definition->getBasicDefinition();
+            $enabled         = $basicDefinition->isCreatable();
+
+            if ($enabled) {
+                $url = $this->generateAddUrl($page);
+
+                $caller->Template->addUrl      = $url;
+                $caller->Template->addNewLabel =
+                    $this->translator->trans('MSC.metamodel_add_item', [], 'contao_default');
+                $event->getTemplate()->addUrl  = $url;
+            }
         }
 
         $event->getTemplate()->editEnable = $caller->Template->editEnable = $enabled;
-        $event->getList()->getView()->set(self::FRONTEND_EDITING_ENABLED_FLAG, $enabled);
-        if ($enabled) {
-            $url = $this->generateAddUrl($page);
-
-            $caller->Template->addUrl      = $url;
-            $caller->Template->addNewLabel = $this->translator->trans('MSC.metamodel_add_item', [], 'contao_default');
-            $event->getTemplate()->addUrl  = $url;
-
-            $event->getList()->getView()->set(self::FRONTEND_EDITING_PAGE, $page);
-        }
     }
 
     /**

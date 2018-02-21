@@ -4,6 +4,7 @@ services:
         arguments:
           - '@contao.translation.translator'
           - '@event_dispatcher'
+          - '@metamodels.factory'
           - '@cca.dc-general.contao_frontend.editor'
         tags:
           - { name: kernel.event_listener, event: 'metamodels.render-item-list', method: handleFrontendEditingInListRendering }
