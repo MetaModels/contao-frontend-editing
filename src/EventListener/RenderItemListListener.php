@@ -132,6 +132,15 @@ class RenderItemListListener
             ];
         }
 
+        // Add create variant action
+        if (false === $item->isVariant() && $basicDefinition->isCreatable() && $item->getMetaModel()->hasVariants()) {
+            $parsed['actions']['createvariant'] = [
+                'label' => $this->translator->trans('MSC.metamodel_create_variant', [], 'contao_default'),
+                'href'  => $this->generateCreateVariantUrl($editingPage, $modelId),
+                'class' => 'createvariant',
+            ];
+        }
+
         // Add delete action
         if ($basicDefinition->isDeletable()) {
             $parsed['actions']['delete'] = [
@@ -252,6 +261,28 @@ class RenderItemListListener
 
         $url = UrlBuilder::fromUrl($event->getUrl().'?')
             ->setQueryParameter('act', 'copy')
+            ->setQueryParameter('source', $itemId);
+
+        return $url->getUrl();
+    }
+
+    /**
+     * Generate the url to create a variant for an item.
+     *
+     * @param array  $page   The page details.
+     *
+     * @param string $itemId The id of the item.
+     *
+     * @return string
+     */
+    private function generateCreateVariantUrl(array $page, $itemId)
+    {
+        $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
+
+        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+
+        $url = UrlBuilder::fromUrl($event->getUrl().'?')
+            ->setQueryParameter('act', 'createvariant')
             ->setQueryParameter('source', $itemId);
 
         return $url->getUrl();
