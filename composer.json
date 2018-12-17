@@ -39,7 +39,7 @@
     "contao-community-alliance/events-contao-bindings": "~3.2",
     "contao-community-alliance/url-builder": "~1.1",
     "contao/core": "^3.5.5",
-    "metamodels/core": "~2.0@dev"
+    "metamodels/core": "^2.0"
   },
   "require-dev": {
     "cyberspectrum/contao-toolbox": "~0.6",
