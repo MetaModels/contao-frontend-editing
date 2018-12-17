@@ -1,2 +1,2 @@
 exclude:
-  languages
+  - /^contao\/languages/
