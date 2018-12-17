@@ -32,13 +32,50 @@ use MetaModels\MetaModelsEvents;
 use MetaModels\Render\Setting\Collection;
 use MetaModels\Render\Setting\ICollection;
 use MetaModels\Render\Template;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * This tests the RenderItemListListener.
  */
-class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
+class RenderItemListListenerTest extends TestCase
 {
+    /**
+     * This is the hack to mimic the Contao auto loader.
+     *
+     * @return void
+     */
+    public static function contaoAutoload($class)
+    {
+        if (0 === strpos($class, 'Contao\\')) {
+            return;
+        }
+        $result = class_exists('Contao\\' . $class);
+
+        if ($result) {
+            class_alias('Contao\\' . $class, $class);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+        // This is the hack to mimic the Contao auto loader.
+        spl_autoload_register(self::class . '::contaoAutoload');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function tearDown()
+    {
+        spl_autoload_unregister(self::class . '::contaoAutoload');
+        parent::tearDown();
+    }
+
     /**
      * Test that the method works correctly.
      *
@@ -129,7 +166,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFrontendEditingInListRenderingDoesNothingForInvalidCaller()
     {
-        $itemList = $this->getMockForAbstractClass('MetaModels\ItemList');
+        $itemList = $this->getMockBuilder('MetaModels\ItemList')->getMock();
         $template = new Template();
         $event    = new RenderItemListEvent($itemList, $template, new \DateTime());
         $listener = new RenderItemListListener();
@@ -148,7 +185,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
     {
         $renderSettings = $this->getMockForAbstractClass('MetaModels\Render\Setting\ICollection');
         $dispatcher     = new EventDispatcher();
-        $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
+        $itemList       = $this->getMockBuilder('MetaModels\ItemList')->setMethods(['getView'])->getMock();
         $template       = new Template();
         $caller         = $this
             ->getMockBuilder('MetaModels\FrontendIntegration\HybridList')
@@ -183,7 +220,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $metaModel      = $this->getMockForAbstractClass('MetaModels\IMetaModel');
         $renderSettings = new Collection($metaModel, []);
         $dispatcher     = new EventDispatcher();
-        $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
+        $itemList       = $this->getMockBuilder('MetaModels\ItemList')->setMethods(['getView'])->getMock();
         $template       = new Template();
         $caller         = $this
             ->getMockBuilder('MetaModels\Contao\FrontendEditing\FrontendEditHybrid')
@@ -218,7 +255,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $metaModel      = $this->getMockForAbstractClass('MetaModels\IMetaModel');
         $renderSettings = new Collection($metaModel, []);
         $dispatcher     = new EventDispatcher();
-        $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
+        $itemList       = $this->getMockBuilder('MetaModels\ItemList')->setMethods(['getView'])->getMock();
         $template       = new Template();
         $caller         = $this
             ->getMockBuilder('MetaModels\FrontendIntegration\HybridList')
@@ -260,7 +297,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $metaModel      = $this->getMockForAbstractClass('MetaModels\IMetaModel');
         $renderSettings = new Collection($metaModel, []);
         $dispatcher     = new EventDispatcher();
-        $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
+        $itemList       = $this->getMockBuilder('MetaModels\ItemList')->setMethods(['getView'])->getMock();
         $template       = new Template();
         $caller         = $this
             ->getMockBuilder('MetaModels\FrontendIntegration\HybridList')
