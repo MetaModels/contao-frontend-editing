@@ -42,7 +42,6 @@
     "metamodels/core": "^2.0"
   },
   "require-dev": {
-    "cyberspectrum/contao-toolbox": "~0.6",
     "metamodels/base-unit-tests": "~1.0",
     "metamodels/phpunit-contao-database": "~1.0",
     "phpcq/all-tasks": "^1.2"
