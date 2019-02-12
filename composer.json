@@ -30,7 +30,7 @@
     "source": "https://github.com/MetaModels/contao-frontend-editing"
   },
   "require": {
-    "php": ">=5.4",
+    "php": "^7.1",
     "contao/core-bundle": "^4.4",
     "contao-community-alliance/dc-general-contao-frontend": "~2.1@dev",
     "contao-community-alliance/dc-general": "~2.1@dev",
@@ -56,23 +56,11 @@
   },
   "extra": {
     "contao-manager-plugin": "MetaModels\\ContaoFrontendEditingBundle\\ContaoManager\\Plugin",
-    "contao": {
-      "sources": {
-        "contao": "system/modules/metamodels-contao-frontend-editing"
-      },
-      "transifex": {
-        "project": "metamodels",
-        "prefix": "contao-frontend-editing-",
-        "languages_cto": "src/Resources/contao/languages",
-        "languages_tx": ".tx"
-      },
-      "runonce": [
-        "runonce/runonce.php"
-      ]
-    },
     "branch-alias": {
-      "dev-master": "2.0.x-dev",
-      "dev-feature/contao4": "2.1.x-dev"
+      "dev-release/2.1.0": "2.1.x-dev"
     }
+  },
+  "config": {
+    "sort-packages": true
   }
 }
