@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2016-2018 The MetaModels team.
+ * (c) 2016-2019 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @subpackage ContaoFrontendEditing
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2016-2018 The MetaModels team.
+ * @copyright  2016-2019 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -32,7 +32,6 @@ use MetaModels\Events\RenderItemListEvent;
 use MetaModels\FrontendIntegration\HybridList;
 use MetaModels\IFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Translation\Exception\InvalidArgumentException;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -51,21 +50,29 @@ class RenderItemListListener
     const FRONTEND_EDITING_PAGE = '$frontend-editing-page';
 
     /**
+     * The translator.
+     *
      * @var TranslatorInterface
      */
     private $translator;
 
     /**
+     * The event dispatcher.
+     *
      * @var EventDispatcherInterface
      */
     private $dispatcher;
 
     /**
+     * The MetaModels factory.
+     *
      * @var IFactory
      */
     private $factory;
 
     /**
+     * The frontend editor.
+     *
      * @var FrontendEditor
      */
     private $frontendEditor;
@@ -96,10 +103,8 @@ class RenderItemListListener
      * @param ParseItemEvent $event The event to process.
      *
      * @return void
-     *
-     * @throws InvalidArgumentException
      */
-    public function handleForItemRendering(ParseItemEvent $event)
+    public function handleForItemRendering(ParseItemEvent $event): void
     {
         $settings = $event->getRenderSettings();
         if (!$settings->get(self::FRONTEND_EDITING_ENABLED_FLAG)) {
@@ -109,8 +114,7 @@ class RenderItemListListener
         $parsed          = $event->getResult();
         $item            = $event->getItem();
         $tableName       = $item->getMetaModel()->getTableName();
-        $environment     = $this->frontendEditor->createDcGeneral($tableName);
-        $definition      = $environment->getDataDefinition();
+        $definition      = $this->frontendEditor->createDcGeneral($tableName)->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
         $editingPage     = $settings->get(self::FRONTEND_EDITING_PAGE);
         $modelId         = ModelId::fromValues($tableName, $item->get('id'))->getSerialized();
@@ -164,10 +168,8 @@ class RenderItemListListener
      * @param RenderItemListEvent $event The event to process.
      *
      * @return void
-     *
-     * @throws InvalidArgumentException
      */
-    public function handleFrontendEditingInListRendering(RenderItemListEvent $event)
+    public function handleFrontendEditingInListRendering(RenderItemListEvent $event): void
     {
         $caller = $event->getCaller();
         if (!($caller instanceof HybridList)) {
@@ -175,21 +177,21 @@ class RenderItemListListener
         }
 
         $page    = null;
-        $enabled = (bool)$caller->metamodel_fe_editing;
+        $enabled = (bool) $caller->metamodel_fe_editing;
         if ($enabled) {
             $page    = $this->getPageDetails($caller->metamodel_fe_editing_page);
             $enabled = (null !== $page);
 
-            $event->getList()->getView()->set(self::FRONTEND_EDITING_PAGE, $page);
-            $event->getList()->getView()->set(self::FRONTEND_EDITING_ENABLED_FLAG, $enabled);
+            $view = $event->getList()->getView();
+
+            $view->set(self::FRONTEND_EDITING_PAGE, $page);
+            $view->set(self::FRONTEND_EDITING_ENABLED_FLAG, $enabled);
         }
 
         if ($enabled) {
-            $tableName       = $this->factory->translateIdToMetaModelName($caller->metamodel);
-            $environment     = $this->frontendEditor->createDcGeneral($tableName);
-            $definition      = $environment->getDataDefinition();
-            $basicDefinition = $definition->getBasicDefinition();
-            $enabled         = $basicDefinition->isCreatable();
+            $tableName  = $this->factory->translateIdToMetaModelName($caller->metamodel);
+            $definition = $this->frontendEditor->createDcGeneral($tableName)->getDataDefinition();
+            $enabled    = $definition->getBasicDefinition()->isCreatable();
 
             if ($enabled) {
                 $url = $this->generateAddUrl($page);
@@ -210,13 +212,13 @@ class RenderItemListListener
      *
      * @return string
      */
-    private function generateAddUrl(array $page)
+    private function generateAddUrl(array $page): string
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
         $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
 
-        $url = UrlBuilder::fromUrl($event->getUrl().'?')
+        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'create');
 
         return $url->getUrl();
@@ -231,13 +233,13 @@ class RenderItemListListener
      *
      * @return string
      */
-    private function generateEditUrl(array $page, $itemId)
+    private function generateEditUrl(array $page, $itemId): string
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
         $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
 
-        $url = UrlBuilder::fromUrl($event->getUrl().'?')
+        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'edit')
             ->setQueryParameter('id', $itemId);
 
@@ -253,13 +255,13 @@ class RenderItemListListener
      *
      * @return string
      */
-    private function generateCopyUrl(array $page, $itemId)
+    private function generateCopyUrl(array $page, $itemId): string
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
         $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
 
-        $url = UrlBuilder::fromUrl($event->getUrl().'?')
+        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'copy')
             ->setQueryParameter('source', $itemId);
 
@@ -275,13 +277,13 @@ class RenderItemListListener
      *
      * @return string
      */
-    private function generateCreateVariantUrl(array $page, $itemId)
+    private function generateCreateVariantUrl(array $page, $itemId): string
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
         $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
 
-        $url = UrlBuilder::fromUrl($event->getUrl().'?')
+        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'createvariant')
             ->setQueryParameter('source', $itemId);
 
@@ -297,13 +299,13 @@ class RenderItemListListener
      *
      * @return string
      */
-    private function generateDeleteUrl(array $page, $itemId)
+    private function generateDeleteUrl(array $page, $itemId): string
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
         $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
 
-        $url = UrlBuilder::fromUrl($event->getUrl().'?')
+        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'delete')
             ->setQueryParameter('id', $itemId);
 
@@ -317,7 +319,7 @@ class RenderItemListListener
      *
      * @return array
      */
-    private function getPageDetails($pageId)
+    private function getPageDetails($pageId): array
     {
         if (empty($pageId)) {
             return null;
@@ -344,25 +346,18 @@ class RenderItemListListener
      *
      * @return string
      */
-    private function translateLabel($transString, $definitionName, array $parameters = [])
+    private function translateLabel($transString, $definitionName, array $parameters = []): string
     {
         $translator = $this->translator;
-        try {
-            $label = $translator->trans($definitionName.'.'.$transString, $parameters, 'contao_'.$definitionName);
-            if ($label !== $definitionName.'.'.$transString) {
-                return $label;
-            }
-        } catch (InvalidArgumentException $e) {
-            // Ok. Next try.
+
+        $label = $translator->trans($definitionName . '.' . $transString, $parameters, 'contao_' . $definitionName);
+        if ($label !== $definitionName . '.' . $transString) {
+            return $label;
         }
 
-        try {
-            $label = $translator->trans('MSC.'.$transString, $parameters, 'contao_default');
-            if ($label !== $transString) {
-                return $label;
-            }
-        } catch (InvalidArgumentException $e) {
-            // Ok. Next try.
+        $label = $translator->trans('MSC.' . $transString, $parameters, 'contao_default');
+        if ($label !== $transString) {
+            return $label;
         }
 
         // Fallback, just return the key as is it.

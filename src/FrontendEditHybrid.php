@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2016-2018 The MetaModels team.
+ * (c) 2016-2019 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @subpackage ContaoFrontendEditing
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2016-2018 The MetaModels team.
+ * @copyright  2016-2019 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -26,11 +26,8 @@ use Contao\FormModel;
 use Contao\ModuleModel;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use MetaModels\FrontendIntegration\MetaModelHybrid;
 use MetaModels\IFactory;
-use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
  * This class is the base for the frontend integrations.
@@ -52,11 +49,15 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
     protected $wildCardName = '### METAMODELS FRONTEND EDITING ###';
 
     /**
+     * The MetaModels factory.
+     *
      * @var IFactory
      */
     private $factory;
 
     /**
+     * The frontend editor.
+     *
      * @var FrontendEditor
      */
     private $editor;
@@ -64,11 +65,8 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
     /**
      * FrontendEditHybrid constructor.
      *
-     * @param ContentModel|ModuleModel|FormModel $element
-     * @param string                             $column
-     *
-     * @throws ServiceNotFoundException
-     * @throws ServiceCircularReferenceException
+     * @param ContentModel|ModuleModel|FormModel $element The element model, i.e., the module or content element.
+     * @param string                             $column  The column.
      */
     public function __construct($element, $column = 'main')
     {
@@ -82,10 +80,8 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      * Compile the content element.
      *
      * @return void
-     *
-     * @throws DcGeneralRuntimeException
      */
-    protected function compile()
+    protected function compile(): void
     {
         $metaModel = $this->factory->translateIdToMetaModelName($this->metamodel);
 

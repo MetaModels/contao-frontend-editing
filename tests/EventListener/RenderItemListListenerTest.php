@@ -23,37 +23,49 @@ namespace MetaModels\ContaoFrontendEditingBundle\Test\EventListener;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GetPageDetailsEvent;
+use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener;
 use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
+use MetaModels\IFactory;
 use MetaModels\IItem;
 use MetaModels\MetaModelsEvents;
 use MetaModels\Render\Setting\Collection;
 use MetaModels\Render\Setting\ICollection;
 use MetaModels\Render\Template;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Translation\TranslatorInterface;
+use MetaModels\IMetaModel;
+use MetaModels\ItemList;
+use MetaModels\FrontendIntegration\HybridList;
+use MetaModels\ContaoFrontendEditingBundle\FrontendEditHybrid;
 
 /**
  * This tests the RenderItemListListener.
  */
-class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
+class RenderItemListListenerTest extends TestCase
 {
     /**
      * Test that the method works correctly.
      *
      * @return void
      */
-    public function testHandleForItemRenderingDoesNothingWithoutEditFlag()
+    public function testHandleForItemRenderingDoesNothingWithoutEditFlag(): void
     {
-        $renderSettings = $this->getMockForAbstractClass('MetaModels\Render\Setting\ICollection');
-        $item           = $this->getMockForAbstractClass('MetaModels\IItem');
+        $renderSettings  = $this->getMockForAbstractClass(ICollection::class);
+        $item            = $this->getMockForAbstractClass(IItem::class);
+        $translator      = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $factory         = $this->getMockForAbstractClass(IFactory::class);
+        $eventDispatcher = new EventDispatcher();
+        $frontendEditor  = new FrontendEditor($eventDispatcher, $translator);
 
         /** @var ICollection $renderSettings */
         /** @var IItem $item */
 
         $event    = new ParseItemEvent($renderSettings, $item, 'html5', []);
-        $listener = new RenderItemListListener();
+        $listener = new RenderItemListListener($translator, $eventDispatcher, $factory, $frontendEditor);
 
         $listener->handleForItemRendering($event);
 
@@ -69,10 +81,13 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
     {
         $GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'] = 'Edit label';
 
-        $metaModel      = $this->getMockForAbstractClass('MetaModels\IMetaModel');
-        $renderSettings = $this->getMockForAbstractClass('MetaModels\Render\Setting\ICollection');
-        $item           = $this->getMockForAbstractClass('MetaModels\IItem');
+        $metaModel      = $this->getMockForAbstractClass(IMetaModel::class);
+        $renderSettings = $this->getMockForAbstractClass(ICollection::class);
+        $item           = $this->getMockForAbstractClass(IItem::class);
+        $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $factory        = $this->getMockForAbstractClass(IFactory::class);
         $dispatcher     = new EventDispatcher();
+        $frontendEditor = new FrontendEditor($dispatcher, $translator);
 
         $metaModel->expects($this->any())->method('getTableName')->willReturn('mm_test');
         $item
@@ -82,35 +97,39 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $item
             ->expects($this->any())
             ->method('get')
-            ->willReturnCallback(function ($name) {
-                switch ($name) {
-                    case 'id':
-                        return 'item-id';
-                    default:
+            ->willReturnCallback(
+                function ($name) {
+                    switch ($name) {
+                        case 'id':
+                            return 'item-id';
+                        default:
+                    }
+                    return null;
                 }
-                return null;
-            });
+            );
 
         $renderSettings
             ->expects($this->any())
             ->method('get')
             ->with()
-            ->willReturnCallback(function ($name) {
-                switch ($name) {
-                    case RenderItemListListener::FRONTEND_EDITING_ENABLED_FLAG:
-                        return true;
-                    case RenderItemListListener::FRONTEND_EDITING_PAGE:
-                        return ['id' => 11, 'language' => 'en', 'alias' => 'test-page'];
-                    default:
+            ->willReturnCallback(
+                function ($name) {
+                    switch ($name) {
+                        case RenderItemListListener::FRONTEND_EDITING_ENABLED_FLAG:
+                            return true;
+                        case RenderItemListListener::FRONTEND_EDITING_PAGE:
+                            return ['id' => 11, 'language' => 'en', 'alias' => 'test-page'];
+                        default:
+                    }
+                    return null;
                 }
-                return null;
-            });
+            );
 
         /** @var ICollection $renderSettings */
         /** @var IItem $item */
 
         $event    = new ParseItemEvent($renderSettings, $item, 'html5', []);
-        $listener = new RenderItemListListener();
+        $listener = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
 
         $listener->handleForItemRendering($event, MetaModelsEvents::PARSE_ITEM, $dispatcher);
 
@@ -127,12 +146,16 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testFrontendEditingInListRenderingDoesNothingForInvalidCaller()
+    public function testFrontendEditingInListRenderingDoesNothingForInvalidCaller(): void
     {
-        $itemList = $this->getMockForAbstractClass('MetaModels\ItemList');
-        $template = new Template();
-        $event    = new RenderItemListEvent($itemList, $template, new \DateTime());
-        $listener = new RenderItemListListener();
+        $itemList       = $this->createMock(ItemList::class);
+        $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $factory        = $this->getMockForAbstractClass(IFactory::class);
+        $dispatcher     = new EventDispatcher();
+        $frontendEditor = new FrontendEditor($dispatcher, $translator);
+        $template       = new Template();
+        $event          = new RenderItemListEvent($itemList, $template, new \DateTime());
+        $listener       = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
 
         $listener->handleFrontendEditingInListRendering($event);
 
@@ -144,14 +167,17 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testFrontendEditingInListRenderingSetFlagsWithEditFlagBeingFalse()
+    public function testFrontendEditingInListRenderingSetFlagsWithEditFlagBeingFalse(): void
     {
-        $renderSettings = $this->getMockForAbstractClass('MetaModels\Render\Setting\ICollection');
+        $renderSettings = $this->getMockForAbstractClass(ICollection::class);
         $dispatcher     = new EventDispatcher();
-        $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
+        $itemList       = $this->createMock(ItemList::class);
         $template       = new Template();
+        $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $factory        = $this->getMockForAbstractClass(IFactory::class);
+        $frontendEditor = new FrontendEditor($dispatcher, $translator);
         $caller         = $this
-            ->getMockBuilder('MetaModels\FrontendIntegration\HybridList')
+            ->getMockBuilder(HybridList::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
@@ -165,7 +191,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         /** @var ICollection $renderSettings */
 
         $event    = new RenderItemListEvent($itemList, $template, $caller);
-        $listener = new RenderItemListListener();
+        $listener = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
 
         $listener->handleFrontendEditingInListRendering($event, MetaModelsEvents::RENDER_ITEM_LIST, $dispatcher);
 
@@ -180,13 +206,16 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFrontendEditingInListRenderingRevertsWithoutPage()
     {
-        $metaModel      = $this->getMockForAbstractClass('MetaModels\IMetaModel');
-        $renderSettings = new Collection($metaModel, []);
         $dispatcher     = new EventDispatcher();
-        $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
+        $metaModel      = $this->getMockForAbstractClass(IMetaModel::class);
+        $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $renderSettings = new Collection($metaModel, [], $dispatcher, null);
+        $factory        = $this->getMockForAbstractClass(IFactory::class);
+        $frontendEditor = new FrontendEditor($dispatcher, $translator);
+        $itemList       = $this->createMock(ItemList::class);
         $template       = new Template();
         $caller         = $this
-            ->getMockBuilder('MetaModels\ContaoFrontendEditingBundle\FrontendEditHybrid')
+            ->getMockBuilder(FrontendEditHybrid::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
@@ -201,9 +230,9 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $metaModel->expects($this->any())->method('getTableName')->willReturn('mm_test');
 
         $event    = new RenderItemListEvent($itemList, $template, $caller);
-        $listener = new RenderItemListListener();
+        $listener = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
 
-        $listener->handleFrontendEditingInListRendering($event, MetaModelsEvents::RENDER_ITEM_LIST, $dispatcher);
+        $listener->handleFrontendEditingInListRendering($event);
 
         $this->assertEquals(false, $template->editEnable);
     }
@@ -213,15 +242,18 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testFrontendEditingInListRenderingRevertsWithoutPageDetails()
+    public function testFrontendEditingInListRenderingRevertsWithoutPageDetails(): void
     {
-        $metaModel      = $this->getMockForAbstractClass('MetaModels\IMetaModel');
-        $renderSettings = new Collection($metaModel, []);
+        $metaModel      = $this->getMockForAbstractClass(IMetaModel::class);
         $dispatcher     = new EventDispatcher();
-        $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
+        $renderSettings = new Collection($metaModel, [], $dispatcher, null);
+        $itemList       = $this->createMock(ItemList::class);
+        $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $factory        = $this->getMockForAbstractClass(IFactory::class);
+        $frontendEditor = new FrontendEditor($dispatcher, $translator);
         $template       = new Template();
         $caller         = $this
-            ->getMockBuilder('MetaModels\FrontendIntegration\HybridList')
+            ->getMockBuilder(HybridList::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
@@ -237,9 +269,9 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $metaModel->expects($this->any())->method('getTableName')->willReturn('mm_test');
 
         $event    = new RenderItemListEvent($itemList, $template, $caller);
-        $listener = new RenderItemListListener();
+        $listener = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
 
-        $listener->handleFrontendEditingInListRendering($event, MetaModelsEvents::RENDER_ITEM_LIST, $dispatcher);
+        $listener->handleFrontendEditingInListRendering($event);
 
         $this->assertEquals(false, $template->editEnable);
     }
@@ -257,13 +289,16 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         $GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'] = 'Edit label';
         $GLOBALS['TL_LANG']['MSC']['metamodel_add_item']  = 'Add label';
 
-        $metaModel      = $this->getMockForAbstractClass('MetaModels\IMetaModel');
-        $renderSettings = new Collection($metaModel, []);
+        $metaModel      = $this->getMockForAbstractClass(IMetaModel::class);
         $dispatcher     = new EventDispatcher();
-        $itemList       = $this->getMock('MetaModels\ItemList', ['getView']);
+        $renderSettings = new Collection($metaModel, [], $dispatcher, null);
+        $itemList       = $this->createMock(ItemList::class);
+        $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $factory        = $this->getMockForAbstractClass(IFactory::class);
+        $frontendEditor = new FrontendEditor($dispatcher, $translator);
         $template       = new Template();
         $caller         = $this
-            ->getMockBuilder('MetaModels\FrontendIntegration\HybridList')
+            ->getMockBuilder(HybridList::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
@@ -288,7 +323,7 @@ class RenderItemListListenerTest extends \PHPUnit_Framework_TestCase
         );
 
         $event    = new RenderItemListEvent($itemList, $template, $caller);
-        $listener = new RenderItemListListener();
+        $listener = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
 
         $listener->handleFrontendEditingInListRendering($event, MetaModelsEvents::RENDER_ITEM_LIST, $dispatcher);
 
