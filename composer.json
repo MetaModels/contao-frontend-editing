@@ -31,10 +31,10 @@
   },
   "require": {
     "php": "^7.1",
-    "contao/core-bundle": "^4.4",
-    "contao-community-alliance/dc-general-contao-frontend": "~2.1@dev",
     "contao-community-alliance/dc-general": "~2.1@dev",
+    "contao-community-alliance/dc-general-contao-frontend": "~2.1@dev",
     "contao-community-alliance/url-builder": "~1.1",
+    "contao/core-bundle": "^4.4",
     "menatwork/contao-multicolumnwizard-bundle": "^3.4.0@beta",
     "metamodels/core": "~2.1@dev"
   },
