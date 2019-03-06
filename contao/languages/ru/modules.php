@@ -12,7 +12,7 @@
  * Translations are managed automatically using Transifex. To create a new translation
  * or to help to maintain an existing one, please register at transifex.com.
  *
- * Last-updated: 2019-01-14T14:13:49+01:00
+ * Last-updated: 2019-01-14T14:13:52+01:00
  *
  * @copyright 2012-2019 The MetaModels team.
  * @license   https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
@@ -21,6 +21,8 @@
  */
 
 
-$GLOBALS['TL_LANG']['MSC']['metamodel_add_item']  = 'Добавить элемент';
-$GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'] = 'Редактировать элемент';
+$GLOBALS['TL_LANG']['CTE']['metamodels_frontendediting']['0'] = 'Редактирование внешнего интерфейса MetaModel';
+$GLOBALS['TL_LANG']['CTE']['metamodels_frontendediting']['1'] = 'Добавить редактор внешнего интерфейса для MetaModel.';
+$GLOBALS['TL_LANG']['FMD']['metamodels_frontendediting']['0'] = 'Редактирование внешнего интерфейса MetaModel';
+$GLOBALS['TL_LANG']['FMD']['metamodels_frontendediting']['1'] = 'Добавить редактор внешнего интерфейса для MetaModel.';
 

@@ -21,6 +21,6 @@
  */
 
 
-$GLOBALS['TL_LANG']['MSC']['metamodel_add_item']  = 'Добавить элемент';
-$GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'] = 'Редактировать элемент';
+$GLOBALS['TL_LANG']['MSC']['metamodel_add_item']  = 'Lisa kirje';
+$GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'] = 'Muuda kirjet';
 
