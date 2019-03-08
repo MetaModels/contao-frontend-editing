@@ -20,13 +20,19 @@
 
 namespace MetaModels\ContaoFrontendEditingBundle\Test\EventListener;
 
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GetPageDetailsEvent;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslatorInterface;
 use MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener;
 use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
+use MetaModels\Filter\FilterUrlBuilder;
+use MetaModels\Filter\Setting\IFilterSettingFactory;
 use MetaModels\IFactory;
 use MetaModels\IItem;
 use MetaModels\MetaModelsEvents;
@@ -34,12 +40,13 @@ use MetaModels\Render\Setting\Collection;
 use MetaModels\Render\Setting\ICollection;
 use MetaModels\Render\Template;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Translation\TranslatorInterface;
 use MetaModels\IMetaModel;
 use MetaModels\ItemList;
 use MetaModels\FrontendIntegration\HybridList;
 use MetaModels\ContaoFrontendEditingBundle\FrontendEditHybrid;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * This tests the RenderItemListListener.
@@ -56,9 +63,10 @@ class RenderItemListListenerTest extends TestCase
         $renderSettings  = $this->getMockForAbstractClass(ICollection::class);
         $item            = $this->getMockForAbstractClass(IItem::class);
         $translator      = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $ccaTranslator   = $this->getMockForAbstractClass(CcaTranslatorInterface::class);
         $factory         = $this->getMockForAbstractClass(IFactory::class);
         $eventDispatcher = new EventDispatcher();
-        $frontendEditor  = new FrontendEditor($eventDispatcher, $translator);
+        $frontendEditor  = new FrontendEditor($eventDispatcher, $ccaTranslator);
 
         /** @var ICollection $renderSettings */
         /** @var IItem $item */
@@ -78,15 +86,35 @@ class RenderItemListListenerTest extends TestCase
      */
     public function testHandleForItemRenderingAddsWithEditFlag()
     {
-        $GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'] = 'Edit label';
+        $container   = $this->getMockForAbstractClass(ContainerInterface::class);
+        $definitions = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
+        System::setContainer($container);
+        $container
+            ->method('get')
+            ->with('cca.dc-general.data-definition-container')
+            ->willReturn($definitions);
+
+        $basicDefinition = $this->getMockForAbstractClass(BasicDefinitionInterface::class);
+        $basicDefinition->method('isEditable')->willReturn(true);
+
+        $definition = $this->getMockForAbstractClass(
+            \ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface::class
+        );
+        $definition->method('getBasicDefinition')->willReturn($basicDefinition);
+
+        $definitions->method('hasDefinition')->with('mm_test')->willReturn(true);
+        $definitions->method('getDefinition')->with('mm_test')->willReturn($definition);
 
         $metaModel      = $this->getMockForAbstractClass(IMetaModel::class);
         $renderSettings = $this->getMockForAbstractClass(ICollection::class);
         $item           = $this->getMockForAbstractClass(IItem::class);
         $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $ccaTranslator  = $this->getMockForAbstractClass(CcaTranslatorInterface::class);
         $factory        = $this->getMockForAbstractClass(IFactory::class);
         $dispatcher     = new EventDispatcher();
-        $frontendEditor = new FrontendEditor($dispatcher, $translator);
+        $frontendEditor = new FrontendEditor($dispatcher, $ccaTranslator);
+
+        $translator->expects($this->once())->method('trans')->willReturn('');
 
         $metaModel->expects($this->any())->method('getTableName')->willReturn('mm_test');
         $item
@@ -149,9 +177,10 @@ class RenderItemListListenerTest extends TestCase
     {
         $itemList       = $this->createMock(ItemList::class);
         $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $ccaTranslator  = $this->getMockForAbstractClass(CcaTranslatorInterface::class);
         $factory        = $this->getMockForAbstractClass(IFactory::class);
         $dispatcher     = new EventDispatcher();
-        $frontendEditor = new FrontendEditor($dispatcher, $translator);
+        $frontendEditor = new FrontendEditor($dispatcher, $ccaTranslator);
         $template       = new Template();
         $event          = new RenderItemListEvent($itemList, $template, new \DateTime());
         $listener       = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
@@ -173,8 +202,9 @@ class RenderItemListListenerTest extends TestCase
         $itemList       = $this->createMock(ItemList::class);
         $template       = new Template();
         $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $ccaTranslator  = $this->getMockForAbstractClass(CcaTranslatorInterface::class);
         $factory        = $this->getMockForAbstractClass(IFactory::class);
-        $frontendEditor = new FrontendEditor($dispatcher, $translator);
+        $frontendEditor = new FrontendEditor($dispatcher, $ccaTranslator);
         $caller         = $this
             ->getMockBuilder(HybridList::class)
             ->disableOriginalConstructor()
@@ -205,15 +235,18 @@ class RenderItemListListenerTest extends TestCase
      */
     public function testFrontendEditingInListRenderingRevertsWithoutPage()
     {
-        $dispatcher     = new EventDispatcher();
-        $metaModel      = $this->getMockForAbstractClass(IMetaModel::class);
-        $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
-        $renderSettings = new Collection($metaModel, [], $dispatcher, null);
-        $factory        = $this->getMockForAbstractClass(IFactory::class);
-        $frontendEditor = new FrontendEditor($dispatcher, $translator);
-        $itemList       = $this->createMock(ItemList::class);
-        $template       = new Template();
-        $caller         = $this
+        $dispatcher       = new EventDispatcher();
+        $metaModel        = $this->getMockForAbstractClass(IMetaModel::class);
+        $translator       = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $ccaTranslator    = $this->getMockForAbstractClass(CcaTranslatorInterface::class);
+        $filterFactory    = $this->getMockForAbstractClass(IFilterSettingFactory::class);
+        $filterUrlBuilder = $this->getMockBuilder(FilterUrlBuilder::class)->disableOriginalConstructor()->getMock();
+        $renderSettings   = new Collection($metaModel, [], $dispatcher, $filterFactory, $filterUrlBuilder);
+        $factory          = $this->getMockForAbstractClass(IFactory::class);
+        $frontendEditor   = new FrontendEditor($dispatcher, $ccaTranslator);
+        $itemList         = $this->createMock(ItemList::class);
+        $template         = new Template();
+        $caller           = $this
             ->getMockBuilder(FrontendEditHybrid::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
@@ -243,15 +276,18 @@ class RenderItemListListenerTest extends TestCase
      */
     public function testFrontendEditingInListRenderingRevertsWithoutPageDetails(): void
     {
-        $metaModel      = $this->getMockForAbstractClass(IMetaModel::class);
-        $dispatcher     = new EventDispatcher();
-        $renderSettings = new Collection($metaModel, [], $dispatcher, null);
-        $itemList       = $this->createMock(ItemList::class);
-        $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
-        $factory        = $this->getMockForAbstractClass(IFactory::class);
-        $frontendEditor = new FrontendEditor($dispatcher, $translator);
-        $template       = new Template();
-        $caller         = $this
+        $metaModel        = $this->getMockForAbstractClass(IMetaModel::class);
+        $dispatcher       = new EventDispatcher();
+        $filterFactory    = $this->getMockForAbstractClass(IFilterSettingFactory::class);
+        $filterUrlBuilder = $this->getMockBuilder(FilterUrlBuilder::class)->disableOriginalConstructor()->getMock();
+        $renderSettings   = new Collection($metaModel, [], $dispatcher, $filterFactory, $filterUrlBuilder);
+        $itemList         = $this->createMock(ItemList::class);
+        $translator       = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $ccaTranslator    = $this->getMockForAbstractClass(CcaTranslatorInterface::class);
+        $factory          = $this->getMockForAbstractClass(IFactory::class);
+        $frontendEditor   = new FrontendEditor($dispatcher, $ccaTranslator);
+        $template         = new Template();
+        $caller           = $this
             ->getMockBuilder(HybridList::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
@@ -285,30 +321,58 @@ class RenderItemListListenerTest extends TestCase
      */
     public function testFrontendEditingInListRenderingAddsWithEditFlag()
     {
-        $GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'] = 'Edit label';
-        $GLOBALS['TL_LANG']['MSC']['metamodel_add_item']  = 'Add label';
+        $reflection = new \ReflectionProperty(FrontendEditor::class, 'environments');
+        $reflection->setAccessible(true);
+        $reflection->setValue([]);
 
-        $metaModel      = $this->getMockForAbstractClass(IMetaModel::class);
-        $dispatcher     = new EventDispatcher();
-        $renderSettings = new Collection($metaModel, [], $dispatcher, null);
-        $itemList       = $this->createMock(ItemList::class);
-        $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
-        $factory        = $this->getMockForAbstractClass(IFactory::class);
-        $frontendEditor = new FrontendEditor($dispatcher, $translator);
-        $template       = new Template();
-        $caller         = $this
+        $container   = $this->getMockForAbstractClass(ContainerInterface::class);
+        $definitions = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
+        System::setContainer($container);
+        $container
+            ->method('get')
+            ->with('cca.dc-general.data-definition-container')
+            ->willReturn($definitions);
+
+        $basicDefinition = $this->getMockForAbstractClass(BasicDefinitionInterface::class);
+        $basicDefinition->expects($this->once())->method('isCreatable')->willReturn(true);
+
+        $definition = $this->getMockForAbstractClass(
+            \ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface::class
+        );
+        $definition->method('getBasicDefinition')->willReturn($basicDefinition);
+
+        $definitions->method('hasDefinition')->with('mm_test')->willReturn(true);
+        $definitions->method('getDefinition')->with('mm_test')->willReturn($definition);
+
+        $metaModel        = $this->getMockForAbstractClass(IMetaModel::class);
+        $dispatcher       = new EventDispatcher();
+        $filterFactory    = $this->getMockForAbstractClass(IFilterSettingFactory::class);
+        $filterUrlBuilder = $this->getMockBuilder(FilterUrlBuilder::class)->disableOriginalConstructor()->getMock();
+        $renderSettings   = new Collection($metaModel, [], $dispatcher, $filterFactory, $filterUrlBuilder);
+        $itemList         = $this->createMock(ItemList::class);
+        $translator       = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $ccaTranslator    = $this->getMockForAbstractClass(CcaTranslatorInterface::class);
+        $factory          = $this->getMockForAbstractClass(IFactory::class);
+        $frontendEditor   = new FrontendEditor($dispatcher, $ccaTranslator);
+        $template         = new Template();
+        $caller           = $this
             ->getMockBuilder(HybridList::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
+        $translator->expects($this->once())->method('trans')->willReturn('');
+
         $caller->Template                  = new \stdClass();
         $caller->metamodel_fe_editing      = true;
         $caller->metamodel_fe_editing_page = 15;
+        $caller->metamodel                 = 10;
 
         $itemList
             ->expects($this->any())
             ->method('getView')
             ->willReturn($renderSettings);
+
+        $factory->expects($this->once())->method('translateIdToMetaModelName')->with(10)->willReturn('mm_test');
 
         $metaModel->expects($this->any())->method('getTableName')->willReturn('mm_test');
 

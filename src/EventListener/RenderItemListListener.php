@@ -318,7 +318,7 @@ class RenderItemListListener
      *
      * @return array
      */
-    private function getPageDetails($pageId): array
+    private function getPageDetails($pageId): ?array
     {
         if (empty($pageId)) {
             return null;
