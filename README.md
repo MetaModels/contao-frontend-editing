@@ -18,15 +18,12 @@ MetaModels and all its dependencies are available through the great [composer ex
 
 When your Contao Installation is composered, you can simply install the frontend editing feature by adding following packages
 
-* MetaModels/contao-frontend-editing
-
-### Nightly
-
-As the frontend editing is not part of the bundle_all, this package is not available via the nighlty packages. If you cannot set up Composer on your live environment, you should consider a local environment with composer and depoloy this to your live environment.
+* metamodels/contao-frontend-editing
 
 Docs:
 -----------
 
+* [Short manual (de)](https://metamodels.readthedocs.io/de/latest/manual/extended/frontend_editing.html)
 * [The official MetaModel Documentation (en)](http://metamodels.readthedocs.org/en/latest/index.html)
 * [The official MetaModel Documentation - feel free to contribute!](https://github.com/MetaModels/docs)
 
