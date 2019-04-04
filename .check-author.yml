@@ -1,5 +1,5 @@
 exclude:
-  - /^contao\/languages/
+  - /^src\/Resources\/contao\/languages/
 
 ignore:
   - 'Mini Model <minimodel@metamodel.me>'

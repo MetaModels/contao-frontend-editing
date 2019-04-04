@@ -13,28 +13,29 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Mini Model <minimodel@metamodel.me>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2012-2019 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
-$GLOBALS['TL_DCA']['tl_content']['palettes']['metamodel_content'] = str_replace(
+$GLOBALS['TL_DCA']['tl_module']['palettes']['metamodel_content'] = str_replace(
     '{protected_legend:hide}',
     '{mm_editing_legend},metamodel_fe_editing;{protected_legend:hide}',
-    $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodel_content']
+    $GLOBALS['TL_DCA']['tl_module']['palettes']['metamodel_content']
 );
 
-$GLOBALS['TL_DCA']['tl_content']['palettes']['metamodels_frontendediting'] =
+$GLOBALS['TL_DCA']['tl_module']['palettes']['metamodels_frontendediting'] =
     '{type_legend},name,headline,type;' .
     '{mm_config_legend},metamodel;' .
     '{protected_legend:hide},protected;' .
     '{expert_legend:hide},guests,invisible,cssID,space';
 
-$GLOBALS['TL_DCA']['tl_content']['palettes']['__selector__'][]          = 'metamodel_fe_editing';
-$GLOBALS['TL_DCA']['tl_content']['subpalettes']['metamodel_fe_editing'] = 'metamodel_fe_editing_page';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['__selector__'][]          = 'metamodel_fe_editing';
+$GLOBALS['TL_DCA']['tl_module']['subpalettes']['metamodel_fe_editing'] = 'metamodel_fe_editing_page';
 
-$GLOBALS['TL_DCA']['tl_content']['fields']['metamodel_fe_editing'] = [
-    'label'     => &$GLOBALS['TL_LANG']['tl_content']['metamodel_fe_editing'],
+$GLOBALS['TL_DCA']['tl_module']['fields']['metamodel_fe_editing'] = [
+    'label'     => &$GLOBALS['TL_LANG']['tl_module']['metamodel_fe_editing'],
     'exclude'   => true,
     'inputType' => 'checkbox',
     'sql'       => 'char(1) NOT NULL default \'\'',
@@ -43,8 +44,8 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['metamodel_fe_editing'] = [
     ]
 ];
 
-$GLOBALS['TL_DCA']['tl_content']['fields']['metamodel_fe_editing_page'] = [
-    'label'     => &$GLOBALS['TL_LANG']['tl_content']['metamodel_fe_editing_page'],
+$GLOBALS['TL_DCA']['tl_module']['fields']['metamodel_fe_editing_page'] = [
+    'label'     => &$GLOBALS['TL_LANG']['tl_module']['metamodel_fe_editing_page'],
     'exclude'   => true,
     'inputType' => 'pageTree',
     'sql'       => 'int(10) unsigned NOT NULL default \'0\'',

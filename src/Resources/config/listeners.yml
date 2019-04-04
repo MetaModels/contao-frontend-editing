@@ -1,0 +1,19 @@
+services:
+    metamodels.contao_frontend_editing.listener.render_item_list:
+        class: MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener
+        arguments:
+          - '@contao.translation.translator'
+          - '@event_dispatcher'
+          - '@metamodels.factory'
+          - '@cca.dc-general.contao_frontend.editor'
+        tags:
+          - { name: kernel.event_listener, event: 'metamodels.render-item-list', method: handleFrontendEditingInListRendering }
+          - { name: kernel.event_listener, event: 'metamodels.parse-item', method: handleForItemRendering }
+
+    metamodels.contao_frontend_editing.listener.dc-general.action_handler.create_variant:
+        class: MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\ActionEvent\CreateVariantHandler
+        arguments:
+          - '@cca.dc-general.scope-matcher'
+          - '@metamodels.factory'
+        tags:
+          - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }

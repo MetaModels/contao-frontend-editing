@@ -13,16 +13,24 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Mini Model <minimodel@metamodel.me>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2012-2019 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
-namespace MetaModels\Contao\FrontendEditing;
+namespace MetaModels\ContaoFrontendEditingBundle;
 
+use Contao\ContentModel;
+use Contao\CoreBundle\Exception\AccessDeniedException;
+use Contao\FormModel;
+use Contao\ModuleModel;
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
-use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\NotCreatableException;
+use ContaoCommunityAlliance\DcGeneral\Exception\NotEditableException;
 use MetaModels\FrontendIntegration\MetaModelHybrid;
+use MetaModels\IFactory;
 
 /**
  * This class is the base for the frontend integrations.
@@ -44,48 +52,46 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
     protected $wildCardName = '### METAMODELS FRONTEND EDITING ###';
 
     /**
-     * The table name to generate the frontend editing for.
+     * The MetaModels factory.
      *
-     * @var string
+     * @var IFactory
      */
-    protected $table;
+    private $factory;
+
+    /**
+     * The frontend editor.
+     *
+     * @var FrontendEditor
+     */
+    private $editor;
+
+    /**
+     * FrontendEditHybrid constructor.
+     *
+     * @param ContentModel|ModuleModel|FormModel $element The element model, i.e., the module or content element.
+     * @param string                             $column  The column.
+     */
+    public function __construct($element, $column = 'main')
+    {
+        parent::__construct($element, $column);
+
+        $this->factory = System::getContainer()->get('metamodels.factory');
+        $this->editor  = System::getContainer()->get('cca.dc-general.contao_frontend.editor');
+    }
 
     /**
      * Compile the content element.
      *
      * @return void
      */
-    protected function compile()
+    protected function compile(): void
     {
-        $container = $this->getServiceContainer();
-        $metaModel = $container->getFactory()->translateIdToMetaModelName($this->metamodel);
-        $editor    = new FrontendEditor($container->getEventDispatcher(), $this->getTranslator());
+        $metaModel = $this->factory->translateIdToMetaModelName($this->metamodel);
 
-        $this->Template->editor = $editor->editFor($metaModel, 'create');
-    }
-
-    /**
-     * Get the translator from the service container.
-     *
-     * @return TranslatorInterface
-     *
-     * @throws \RuntimeException When the DIC or translator have not been correctly initialized.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     */
-    private function getTranslator()
-    {
-        if (!($container = $GLOBALS['container']) instanceof \Pimple) {
-            throw new \RuntimeException('The dependency container has not been initialized correctly.');
+        try {
+            $this->Template->editor = $this->editor->editFor($metaModel, 'create');
+        } catch (NotEditableException | NotCreatableException $exception) {
+            throw new AccessDeniedException($exception->getMessage());
         }
-
-        $translator = $container['translator'];
-
-        if (!$translator instanceof TranslatorInterface) {
-            throw new \RuntimeException('The dependency container has not been initialized correctly.');
-        }
-
-        return $translator;
     }
 }

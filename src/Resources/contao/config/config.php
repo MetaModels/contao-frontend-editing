@@ -19,33 +19,8 @@
  * @filesource
  */
 
-namespace MetaModels\ContaoFrontendEditingBundle\Content;
+use MetaModels\ContaoFrontendEditingBundle\Content\ModelEdit as ContentModelEdit;
+use MetaModels\ContaoFrontendEditingBundle\Module\ModelEdit as ModuleModelEdit;
 
-use MetaModels\ContaoFrontendEditingBundle\FrontendEditHybrid;
-
-/**
- * This class is the integration as Contao content element.
- */
-class ModelEdit extends FrontendEditHybrid
-{
-    /**
-     * The Template instance.
-     *
-     * @var string
-     */
-    protected $strTemplate = 'ce_metamodel_frontend_edit';
-
-    /**
-     * The link to use in the wildcard.
-     *
-     * @var string
-     */
-    protected $wildCardLink = 'contao/main.php?do=page&amp;table=tl_content&amp;act=edit&amp;id=%s';
-
-    /**
-     * The link to use in the wildcard.
-     *
-     * @var string
-     */
-    protected $typePrefix = 'ce_';
-}
+$GLOBALS['FE_MOD']['metamodels']['metamodels_frontendediting'] = ModuleModelEdit::class;
+$GLOBALS['TL_CTE']['metamodels']['metamodels_frontendediting'] = ContentModelEdit::class;

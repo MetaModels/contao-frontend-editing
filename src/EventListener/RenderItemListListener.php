@@ -19,17 +19,20 @@
  * @filesource
  */
 
-namespace MetaModels\Contao\FrontendEditing\EventListener;
+namespace MetaModels\ContaoFrontendEditingBundle\EventListener;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GenerateFrontendUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GetPageDetailsEvent;
+use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
 use MetaModels\FrontendIntegration\HybridList;
+use MetaModels\IFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * This class handles the processing of list rendering.
@@ -47,37 +50,114 @@ class RenderItemListListener
     const FRONTEND_EDITING_PAGE = '$frontend-editing-page';
 
     /**
+     * The translator.
+     *
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * The event dispatcher.
+     *
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * The MetaModels factory.
+     *
+     * @var IFactory
+     */
+    private $factory;
+
+    /**
+     * The frontend editor.
+     *
+     * @var FrontendEditor
+     */
+    private $frontendEditor;
+
+    /**
+     * RenderItemListListener constructor.
+     *
+     * @param TranslatorInterface      $translator     The translator.
+     * @param EventDispatcherInterface $dispatcher     The event dispatcher.
+     * @param IFactory                 $factory        The MetaModels factory.
+     * @param FrontendEditor           $frontendEditor The DCGeneral frontend editor.
+     */
+    public function __construct(
+        TranslatorInterface $translator,
+        EventDispatcherInterface $dispatcher,
+        IFactory $factory,
+        FrontendEditor $frontendEditor
+    ) {
+        $this->translator     = $translator;
+        $this->dispatcher     = $dispatcher;
+        $this->factory        = $factory;
+        $this->frontendEditor = $frontendEditor;
+    }
+
+    /**
      * Handle the url injection for item rendering.
      *
      * @param ParseItemEvent $event The event to process.
      *
      * @return void
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function handleForItemRendering(ParseItemEvent $event)
+    public function handleForItemRendering(ParseItemEvent $event): void
     {
         $settings = $event->getRenderSettings();
         if (!$settings->get(self::FRONTEND_EDITING_ENABLED_FLAG)) {
             return;
         }
 
-        /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = func_get_arg(2);
-        $parsed     = $event->getResult();
-        $item       = $event->getItem();
+        $parsed          = $event->getResult();
+        $item            = $event->getItem();
+        $tableName       = $item->getMetaModel()->getTableName();
+        $definition      = $this->frontendEditor->createDcGeneral($tableName)->getDataDefinition();
+        $basicDefinition = $definition->getBasicDefinition();
+        $editingPage     = $settings->get(self::FRONTEND_EDITING_PAGE);
+        $modelId         = ModelId::fromValues($tableName, $item->get('id'))->getSerialized();
 
-        $parsed['actions']['edit'] = [
-            'label' => $GLOBALS['TL_LANG']['MSC']['metamodel_edit_item'],
-            'href'  => $this->generateEditUrl(
-                $dispatcher,
-                $settings->get(self::FRONTEND_EDITING_PAGE),
-                ModelId::fromValues($item->getMetaModel()->getTableName(), $event->getItem()->get('id'))
-                    ->getSerialized()
-            ),
-            'class' => 'edit',
-        ];
+        // Add edit action
+        if ($basicDefinition->isEditable()) {
+            $parsed['actions']['edit'] = [
+                'label' => $this->translateLabel('metamodel_edit_item', $definition->getName()),
+                'href'  => $this->generateEditUrl($editingPage, $modelId),
+                'class' => 'edit',
+            ];
+        }
+
+        // Add copy action
+        if ($basicDefinition->isCreatable()) {
+            $parsed['actions']['copy'] = [
+                'label' => $this->translateLabel('metamodel_copy_item', $definition->getName()),
+                'href'  => $this->generateCopyUrl($editingPage, $modelId),
+                'class' => 'copy',
+            ];
+        }
+
+        // Add create variant action
+        if (false === $item->isVariant() && $basicDefinition->isCreatable() && $item->getMetaModel()->hasVariants()) {
+            $parsed['actions']['createvariant'] = [
+                'label' => $this->translateLabel('metamodel_create_variant', $definition->getName()),
+                'href'  => $this->generateCreateVariantUrl($editingPage, $modelId),
+                'class' => 'createvariant',
+            ];
+        }
+
+        // Add delete action
+        if ($basicDefinition->isDeletable()) {
+            $parsed['actions']['delete'] = [
+                'label'     => $this->translateLabel('metamodel_delete_item', $definition->getName()),
+                'href'      => $this->generateDeleteUrl($editingPage, $modelId),
+                'attribute' => sprintf(
+                    'onclick="if (!confirm(\'%s\')) return false;"',
+                    $this->translator->trans('MSC.deleteConfirm', [$item->get('id')], 'contao_default')
+                ),
+                'class'     => 'delete',
+            ];
+        }
 
         $event->setResult($parsed);
     }
@@ -88,52 +168,55 @@ class RenderItemListListener
      * @param RenderItemListEvent $event The event to process.
      *
      * @return void
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function handleFrontendEditingInListRendering(RenderItemListEvent $event)
+    public function handleFrontendEditingInListRendering(RenderItemListEvent $event): void
     {
         $caller = $event->getCaller();
         if (!($caller instanceof HybridList)) {
             return;
         }
 
-        /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = func_get_arg(2);
-        $enabled    = (bool) $caller->metamodel_fe_editing;
+        $page    = null;
+        $enabled = (bool) $caller->metamodel_fe_editing;
         if ($enabled) {
-            $page    = $this->getPageDetails($dispatcher, $caller->metamodel_fe_editing_page);
+            $page    = $this->getPageDetails($caller->metamodel_fe_editing_page);
             $enabled = (null !== $page);
+
+            $view = $event->getList()->getView();
+
+            $view->set(self::FRONTEND_EDITING_PAGE, $page);
+            $view->set(self::FRONTEND_EDITING_ENABLED_FLAG, $enabled);
+        }
+
+        if ($enabled) {
+            $tableName  = $this->factory->translateIdToMetaModelName($caller->metamodel);
+            $definition = $this->frontendEditor->createDcGeneral($tableName)->getDataDefinition();
+            $enabled    = $definition->getBasicDefinition()->isCreatable();
+
+            if ($enabled) {
+                $url = $this->generateAddUrl($page);
+
+                $caller->Template->addUrl      = $url;
+                $caller->Template->addNewLabel = $this->translateLabel('metamodel_add_item', $tableName);
+                $event->getTemplate()->addUrl  = $url;
+            }
         }
 
         $event->getTemplate()->editEnable = $caller->Template->editEnable = $enabled;
-        $event->getList()->getView()->set(self::FRONTEND_EDITING_ENABLED_FLAG, $enabled);
-        if ($enabled) {
-            $url = $this->generateAddUrl($dispatcher, $page);
-
-            $caller->Template->addUrl      = $url;
-            $caller->Template->addNewLabel = $GLOBALS['TL_LANG']['MSC']['metamodel_add_item'];
-            $event->getTemplate()->addUrl  = $url;
-
-            $event->getList()->getView()->set(self::FRONTEND_EDITING_PAGE, $page);
-        }
     }
 
     /**
      * Generate the url to add an item.
      *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     *
-     * @param array                    $page       The page details.
+     * @param array $page The page details.
      *
      * @return string
      */
-    private function generateAddUrl(EventDispatcherInterface $dispatcher, array $page)
+    private function generateAddUrl(array $page): string
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
-        $dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
 
         $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'create');
@@ -144,19 +227,17 @@ class RenderItemListListener
     /**
      * Generate the url to edit an item.
      *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     * @param array  $page   The page details.
      *
-     * @param array                    $page       The page details.
-     *
-     * @param string                   $itemId     The id of the item.
+     * @param string $itemId The id of the item.
      *
      * @return string
      */
-    private function generateEditUrl(EventDispatcherInterface $dispatcher, array $page, $itemId)
+    private function generateEditUrl(array $page, $itemId): string
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
-        $dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
 
         $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'edit')
@@ -166,21 +247,120 @@ class RenderItemListListener
     }
 
     /**
+     * Generate the url to edit an item.
+     *
+     * @param array  $page   The page details.
+     *
+     * @param string $itemId The id of the item.
+     *
+     * @return string
+     */
+    private function generateCopyUrl(array $page, $itemId): string
+    {
+        $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
+
+        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+
+        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
+            ->setQueryParameter('act', 'copy')
+            ->setQueryParameter('source', $itemId);
+
+        return $url->getUrl();
+    }
+
+    /**
+     * Generate the url to create a variant for an item.
+     *
+     * @param array  $page   The page details.
+     *
+     * @param string $itemId The id of the item.
+     *
+     * @return string
+     */
+    private function generateCreateVariantUrl(array $page, $itemId): string
+    {
+        $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
+
+        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+
+        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
+            ->setQueryParameter('act', 'createvariant')
+            ->setQueryParameter('source', $itemId);
+
+        return $url->getUrl();
+    }
+
+    /**
+     * Generate the url to delete an item.
+     *
+     * @param array  $page   The page details.
+     *
+     * @param string $itemId The id of the item.
+     *
+     * @return string
+     */
+    private function generateDeleteUrl(array $page, $itemId): string
+    {
+        $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
+
+        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+
+        $url = UrlBuilder::fromUrl($event->getUrl() . '?')
+            ->setQueryParameter('act', 'delete')
+            ->setQueryParameter('id', $itemId);
+
+        return $url->getUrl();
+    }
+
+    /**
      * Retrieve the details for the page with the given id.
      *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     * @param string                   $pageId     The id of the page to retrieve the details for.
+     * @param string $pageId The id of the page to retrieve the details for.
      *
      * @return array
      */
-    private function getPageDetails(EventDispatcherInterface $dispatcher, $pageId)
+    private function getPageDetails($pageId): ?array
     {
         if (empty($pageId)) {
             return null;
         }
         $event = new GetPageDetailsEvent($pageId);
-        $dispatcher->dispatch(ContaoEvents::CONTROLLER_GET_PAGE_DETAILS, $event);
+        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GET_PAGE_DETAILS, $event);
 
         return $event->getPageDetails();
+    }
+
+    /**
+     * Get a translated label from the translator.
+     *
+     * The fallback is as follows:
+     * 1. Try to translate via the data definition name as translation section.
+     * 2. Try to translate with the prefix 'MSC.'.
+     * 3. Return the input value as nothing worked out.
+     *
+     * @param string $transString    The non translated label for the button.
+     *
+     * @param string $definitionName The data definition of the current item.
+     *
+     * @param array  $parameters     The parameters to pass to the translator.
+     *
+     * @return string
+     */
+    private function translateLabel($transString, $definitionName, array $parameters = []): string
+    {
+        $translator = $this->translator;
+
+        $label = $translator->trans($definitionName . '.' . $transString, $parameters, 'contao_' . $definitionName);
+        if ($label !== $definitionName . '.' . $transString) {
+            return $label;
+        }
+
+        $label = $translator->trans('MSC.' . $transString, $parameters, 'contao_default');
+        if ($label !== $transString) {
+            return $label;
+        }
+
+        // Fallback, just return the key as is it.
+        return $transString;
     }
 }

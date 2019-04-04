@@ -13,14 +13,15 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Mini Model <minimodel@metamodel.me>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2012-2019 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
-namespace MetaModels\Contao\FrontendEditing\Module;
+namespace MetaModels\ContaoFrontendEditingBundle\Module;
 
-use MetaModels\Contao\FrontendEditing\FrontendEditHybrid;
+use MetaModels\ContaoFrontendEditingBundle\FrontendEditHybrid;
 
 /**
  * This class is the integration as module.
