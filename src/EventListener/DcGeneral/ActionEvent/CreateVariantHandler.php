@@ -21,7 +21,6 @@ namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\ActionE
 
 use Contao\CoreBundle\Exception\RedirectResponseException;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\AbstractRequestScopeDeterminatorHandler;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\View\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -29,7 +28,6 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreCreateModelEvent;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Exception\NotCreatableException;
 use MetaModels\DcGeneral\Data\Driver;
@@ -38,16 +36,25 @@ use MetaModels\IFactory;
 /**
  * This class handles the "create variant" actions in the frontend.
  */
-class CreateVariantHandler extends AbstractRequestScopeDeterminatorHandler
+class CreateVariantHandler
 {
 
     /**
+     * The request mode determinator.
+     *
+     * @var RequestScopeDeterminator
+     */
+    private $scopeDeterminator;
+
+    /**
+     * The MetaModels factory.
+     *
      * @var IFactory
      */
     private $factory;
 
     /**
-     * CopyHandler constructor.
+     * CreateVariantHandler constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
      *
@@ -55,17 +62,17 @@ class CreateVariantHandler extends AbstractRequestScopeDeterminatorHandler
      */
     public function __construct(RequestScopeDeterminator $scopeDeterminator, IFactory $factory)
     {
-        parent::__construct($scopeDeterminator);
-
-        $this->factory = $factory;
+        $this->scopeDeterminator = $scopeDeterminator;
+        $this->factory           = $factory;
     }
 
     /**
      * Handle the event to process the action.
      *
-     * @param ActionEvent $event
+     * @param ActionEvent $event The action event.
      *
-     * @throws DcGeneralInvalidArgumentException If an unknown property is encountered in the palette.
+     * @return void
+     *
      * @throws RedirectResponseException         To redirect to the edit mask with cloned model.
      * @throws DcGeneralRuntimeException         When the DataContainer is not creatable.
      */
@@ -102,9 +109,8 @@ class CreateVariantHandler extends AbstractRequestScopeDeterminatorHandler
      *
      * @return string|false
      *
-     * @throws DcGeneralInvalidArgumentException If an unknown property is encountered in the palette.
-     * @throws DcGeneralRuntimeException         When the DataContainer is not creatable.
-     * @throws DcGeneralRuntimeException         When the model to create a variant from was not found.
+     * @throws NotCreatableException     When the DataContainer is not creatable.
+     * @throws DcGeneralRuntimeException When the model to create a variant from was not found.
      */
     public function process(EnvironmentInterface $environment)
     {

@@ -83,6 +83,8 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      * Compile the content element.
      *
      * @return void
+     *
+     * @throws AccessDeniedException In case the data container is not allowed to edit.
      */
     protected function compile(): void
     {
@@ -90,7 +92,9 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
 
         try {
             $this->Template->editor = $this->editor->editFor($metaModel, 'create');
-        } catch (NotEditableException | NotCreatableException $exception) {
+        } catch (NotEditableException $exception) {
+            throw new AccessDeniedException($exception->getMessage());
+        } catch (NotCreatableException $exception) {
             throw new AccessDeniedException($exception->getMessage());
         }
     }
