@@ -1,2 +1,5 @@
 exclude:
-  languages
+  - /^contao\/languages/
+
+ignore:
+  - 'Mini Model <minimodel@metamodel.me>'
