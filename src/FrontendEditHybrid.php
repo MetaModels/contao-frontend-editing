@@ -21,10 +21,13 @@
 namespace MetaModels\ContaoFrontendEditingBundle;
 
 use Contao\ContentModel;
+use Contao\CoreBundle\Exception\AccessDeniedException;
 use Contao\FormModel;
 use Contao\ModuleModel;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
+use ContaoCommunityAlliance\DcGeneral\Exception\NotCreatableException;
+use ContaoCommunityAlliance\DcGeneral\Exception\NotEditableException;
 use MetaModels\FrontendIntegration\MetaModelHybrid;
 use MetaModels\IFactory;
 
@@ -84,6 +87,10 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
     {
         $metaModel = $this->factory->translateIdToMetaModelName($this->metamodel);
 
-        $this->Template->editor = $this->editor->editFor($metaModel, 'create');
+        try {
+            $this->Template->editor = $this->editor->editFor($metaModel, 'create');
+        } catch (NotEditableException | NotCreatableException $exception) {
+            throw new AccessDeniedException($exception->getMessage());
+        }
     }
 }
