@@ -1,65 +1,65 @@
 {
-  "name": "metamodels/contao-frontend-editing",
-  "description": "MetaModels frontend editing integrations",
-  "keywords": [
-    "contao",
-    "metamodels",
-    "frontend-editing"
-  ],
-  "type": "contao-bundle",
-  "homepage": "http://now.metamodel.me/",
-  "license": "LGPL-3.0-or-later",
-  "authors": [
-    {
-      "name": "Christian Schiffler",
-      "email": "c.schiffler@cyberspectrum.de",
-      "homepage": "http://www.cyberspectrum.de",
-      "role": "Developer"
+    "name": "metamodels/contao-frontend-editing",
+    "description": "MetaModels frontend editing integrations",
+    "keywords": [
+        "contao",
+        "metamodels",
+        "frontend-editing"
+    ],
+    "type": "contao-bundle",
+    "homepage": "http://now.metamodel.me/",
+    "license": "LGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Christian Schiffler",
+            "email": "c.schiffler@cyberspectrum.de",
+            "homepage": "http://www.cyberspectrum.de",
+            "role": "Developer"
+        },
+        {
+            "name": "Stefan Heimes",
+            "email": "stefan_heimes@hotmail.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "mail@metamodel.me",
+        "issues": "https://github.com/MetaModels/contao-frontend-editing/issues",
+        "wiki": "http://de.contaowiki.org/MetaModels",
+        "irc": "irc://irc.freenode.org/contao.mm",
+        "source": "https://github.com/MetaModels/contao-frontend-editing"
     },
-    {
-      "name": "Stefan Heimes",
-      "email": "stefan_heimes@hotmail.com",
-      "role": "Developer"
+    "require": {
+        "php": "^7.1",
+        "contao-community-alliance/dc-general": "^2.1.3",
+        "contao-community-alliance/dc-general-contao-frontend": "~2.1@dev",
+        "contao-community-alliance/url-builder": "~1.1",
+        "contao/core-bundle": "^4.4.8",
+        "menatwork/contao-multicolumnwizard-bundle": "^3.4",
+        "metamodels/core": "~2.1@dev"
+    },
+    "require-dev": {
+        "contao/manager-plugin": "^2.1",
+        "phpcq/all-tasks": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "MetaModels\\ContaoFrontendEditingBundle\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MetaModels\\ContaoFrontendEditingBundle\\Test\\": "tests"
+        }
+    },
+    "extra": {
+        "contao-manager-plugin": "MetaModels\\ContaoFrontendEditingBundle\\ContaoManager\\Plugin",
+        "branch-alias": {
+            "dev-master": "2.1.x-dev",
+            "dev-support/2.0": "2.0.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
     }
-  ],
-  "support": {
-    "email": "mail@metamodel.me",
-    "issues": "https://github.com/MetaModels/contao-frontend-editing/issues",
-    "wiki": "http://de.contaowiki.org/MetaModels",
-    "irc": "irc://irc.freenode.org/contao.mm",
-    "source": "https://github.com/MetaModels/contao-frontend-editing"
-  },
-  "require": {
-    "php": "^7.1",
-    "contao-community-alliance/dc-general": "^2.1.3",
-    "contao-community-alliance/dc-general-contao-frontend": "~2.1@dev",
-    "contao-community-alliance/url-builder": "~1.1",
-    "contao/core-bundle": "^4.4.8",
-    "menatwork/contao-multicolumnwizard-bundle": "^3.4",
-    "metamodels/core": "~2.1@dev"
-  },
-  "require-dev": {
-    "contao/manager-plugin": "^2.1",
-    "phpcq/all-tasks": "^1.2"
-  },
-  "autoload": {
-    "psr-4": {
-      "MetaModels\\ContaoFrontendEditingBundle\\": "src"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "MetaModels\\ContaoFrontendEditingBundle\\Test\\": "tests"
-    }
-  },
-  "extra": {
-    "contao-manager-plugin": "MetaModels\\ContaoFrontendEditingBundle\\ContaoManager\\Plugin",
-    "branch-alias": {
-      "dev-master": "2.1.x-dev",
-      "dev-support/2.0": "2.0.x-dev"
-    }
-  },
-  "config": {
-    "sort-packages": true
-  }
 }
