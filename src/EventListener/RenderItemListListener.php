@@ -29,7 +29,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
-use MetaModels\FrontendIntegration\HybridList;
 use MetaModels\IFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -171,15 +170,15 @@ class RenderItemListListener
      */
     public function handleFrontendEditingInListRendering(RenderItemListEvent $event): void
     {
-        $caller = $event->getCaller();
-        if (!($caller instanceof HybridList)) {
+        $model = $event->getList()->getModel();
+        if (null === $model) {
             return;
         }
 
         $page    = null;
-        $enabled = (bool) $caller->metamodel_fe_editing;
+        $enabled = (bool) $model->metamodel_fe_editing;
         if ($enabled) {
-            $page    = $this->getPageDetails($caller->metamodel_fe_editing_page);
+            $page    = $this->getPageDetails($model->metamodel_fe_editing_page);
             $enabled = (null !== $page);
 
             $view = $event->getList()->getView();
@@ -188,21 +187,26 @@ class RenderItemListListener
             $view->set(self::FRONTEND_EDITING_ENABLED_FLAG, $enabled);
         }
 
+        $listTemplate = $event->getList()->getListTemplate();
         if ($enabled) {
-            $tableName  = $this->factory->translateIdToMetaModelName($caller->metamodel);
+            $tableName  = $this->factory->translateIdToMetaModelName($model->metamodel);
             $definition = $this->frontendEditor->createDcGeneral($tableName)->getDataDefinition();
             $enabled    = $definition->getBasicDefinition()->isCreatable();
 
             if ($enabled) {
                 $url = $this->generateAddUrl($page);
-
-                $caller->Template->addUrl      = $url;
-                $caller->Template->addNewLabel = $this->translateLabel('metamodel_add_item', $tableName);
-                $event->getTemplate()->addUrl  = $url;
+                if (null !== $listTemplate) {
+                    $listTemplate->addUrl      = $url;
+                    $listTemplate->addNewLabel = $this->translateLabel('metamodel_add_item', $tableName);
+                }
+                $event->getTemplate()->addUrl = $url;
             }
         }
 
-        $event->getTemplate()->editEnable = $caller->Template->editEnable = $enabled;
+        $event->getTemplate()->editEnable = $enabled;
+        if (null !== $listTemplate) {
+            $listTemplate->editEnable = $enabled;
+        }
     }
 
     /**
