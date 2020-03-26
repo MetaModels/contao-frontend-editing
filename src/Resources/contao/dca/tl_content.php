@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2019 The MetaModels team.
+ * (c) 2012-2020 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Mini Model <minimodel@metamodel.me>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2012-2019 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2020 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -26,7 +27,7 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodel_content'] = str_replace(
 );
 
 $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodels_frontendediting'] =
-    '{type_legend},name,headline,type;' .
+    '{type_legend},type,headline;' .
     '{mm_config_legend},metamodel;' .
     '{protected_legend:hide},protected;' .
     '{expert_legend:hide},guests,invisible,cssID,space';
