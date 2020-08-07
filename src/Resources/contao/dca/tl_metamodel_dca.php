@@ -32,7 +32,7 @@ if (\array_key_exists('notification_center', \Contao\System::getContainer()->get
                 'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_create_notification'],
                 'exclude'   => true,
                 'inputType' => 'select',
-                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'clr'],
+                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'clr w50'],
                 'sql'       => ['type' => 'integer', 'notnull' => false]
             ]
         ],
@@ -41,7 +41,7 @@ if (\array_key_exists('notification_center', \Contao\System::getContainer()->get
                 'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_edit_notification'],
                 'exclude'   => true,
                 'inputType' => 'select',
-                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'clr'],
+                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'w50'],
                 'sql'       => ['type' => 'integer', 'notnull' => false]
             ]
         ],
@@ -50,7 +50,7 @@ if (\array_key_exists('notification_center', \Contao\System::getContainer()->get
                 'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_copy_notification'],
                 'exclude'   => true,
                 'inputType' => 'select',
-                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'clr'],
+                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'clr w50'],
                 'sql'       => ['type' => 'integer', 'notnull' => false]
             ]
         ],
@@ -59,7 +59,7 @@ if (\array_key_exists('notification_center', \Contao\System::getContainer()->get
                 'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_delete_notification'],
                 'exclude'   => true,
                 'inputType' => 'select',
-                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'clr'],
+                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'w50'],
                 'sql'       => ['type' => 'integer', 'notnull' => false]
             ]
         ]
