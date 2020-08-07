@@ -1,0 +1,42 @@
+services:
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification\AbstractNotification:
+        public: false
+        abstract: true
+        calls:
+            -   method: setScopeDeterminator
+                arguments:
+                    - "@cca.dc-general.scope-matcher"
+        arguments:
+            - '@metamodels.view_combination'
+            - '@=service("contao.framework").getAdapter("NotificationCenter\\Model\\Notification")'
+            - '@security.token_storage'
+            - '@request_stack'
+            - '@=service("contao.framework").getAdapter("Contao\\Config")'
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification\CopyModelNotificationListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification\AbstractNotification'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-duplicate
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification\CreateModelNotificationListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification\AbstractNotification'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-persist
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification\EditModelNotificationListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification\AbstractNotification'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-persist
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification\DeleteModelNotificationListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification\AbstractNotification'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-delete
