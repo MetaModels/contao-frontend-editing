@@ -17,3 +17,45 @@ services:
           - '@metamodels.factory'
         tags:
           - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\EditButtons\OverrideEditModelButtons:
+        public: false
+        calls:
+            -   method: setScopeDeterminator
+                arguments:
+                    - '@cca.dc-general.scope-matcher'
+        arguments:
+            - '@MetaModels\ViewCombination\ViewCombination'
+            - '@translator'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-edit-mode-buttons
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\EditButtons\Action\NotSaveEditModelButton:
+        public: false
+        calls:
+            -   method: setScopeDeterminator
+                arguments:
+                    - '@cca.dc-general.scope-matcher'
+        arguments:
+            - '@MetaModels\ViewCombination\ViewCombination'
+            - '@=service("contao.framework").getAdapter("Contao\\PageModel")'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.action
+                priority: 1024
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\EditButtons\Action\ForwardSaveEditModelButton:
+        public: false
+        calls:
+            -   method: setScopeDeterminator
+                arguments:
+                    - '@cca.dc-general.scope-matcher'
+        arguments:
+            - '@MetaModels\ViewCombination\ViewCombination'
+            - '@=service("contao.framework").getAdapter("Contao\\PageModel")'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.contao-frontend.handle-submit
+                priority: 128
+

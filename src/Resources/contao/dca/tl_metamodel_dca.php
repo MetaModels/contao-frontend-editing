@@ -17,6 +17,103 @@
  * @filesource
  */
 
+$GLOBALS['TL_DCA']['tl_metamodel_dca']['metapalettes']['default']['fe_editButtons'] = [
+    'fe_overrideEditButtons'
+];
+
+$GLOBALS['TL_DCA']['tl_metamodel_dca']['metasubpalettes']['fe_overrideEditButtons'] = [
+    'fe_editButtons'
+];
+
+$GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = array_merge(
+    (array) $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'],
+    [
+        'fe_overrideEditButtons' => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_overrideEditButtons'],
+            'exclude'   => true,
+            'inputType' => 'checkbox',
+            'sql'       => ['type' => 'boolean', 'notnull' => false],
+            'eval'      => [
+                'submitOnChange' => true,
+                'tl_class' => 'w50 cbx'
+            ]
+        ],
+        'fe_editButtons' => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons'],
+            'exclude'   => true,
+            'inputType' => 'multiColumnWizard',
+            'default' => [
+                [
+                    'name'       => 'save',
+                    'label'      => 'MSC.save',
+                    'attributes' => 'accesskey="s"'
+                ],
+                [
+                    'name'       => 'saveNcreate',
+                    'label'      => 'MSC.saveNcreate',
+                    'attributes' => 'accesskey="n"'
+                ]
+            ],
+            'sql'       => ['type' => 'array', 'notnull' => false],
+            'eval'      => [
+                'tl_class'     => 'clr',
+                'columnFields' => [
+                    'name'   => [
+                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_name'],
+                        'exclude'   => true,
+                        'inputType' => 'text',
+                        'eval'      => [
+                            'rgxp'      => 'fieldname',
+                            'style'     => 'width: 100%;'
+                        ]
+                    ],
+                    'label'   => [
+                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_label'],
+                        'exclude'   => true,
+                        'inputType' => 'text',
+                        'eval'      => [
+                            'rgxp'   => 'alias',
+                            'style'  => 'width: 100%;'
+                        ]
+                    ],
+                    'attributes' => [
+                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_attributes'],
+                        'exclude'   => true,
+                        'inputType' => 'text',
+                        'eval'      => [
+                            'style' => 'width:100%;'
+                        ]
+                    ],
+                    'jumpTo' => [
+                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_jumpTo'],
+                        'exclude'    => true,
+                        // FIXME: Use page tree if this work with mcw.
+                        'inputType' => 'text',
+                        'eval'      => [
+                            'fieldType' => 'radio',
+                            'dcaPicker' => ['providers' => ['pagePicker']],
+                            'tl_class'  => 'w50 wizard'
+                        ]
+                    ],
+                    'jumpToParameter' => [
+                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_jumpToParameter'],
+                        'exclude'   => true,
+                        'inputType' => 'text',
+                        'eval'      => [
+                            'style' => 'width: 100%;'
+                        ]
+                    ],
+                    'notSave' => [
+                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_notSave'],
+                        'exclude'   => true,
+                        'inputType' => 'checkbox'
+                    ]
+                ]
+            ]
+        ]
+    ]
+);
+
 if (\array_key_exists('notification_center', \Contao\System::getContainer()->getParameter('kernel.bundles'))) {
     $GLOBALS['TL_DCA']['tl_metamodel_dca']['metapalettes']['default']['fe_notification'] = [
         'fe_create_notification',
