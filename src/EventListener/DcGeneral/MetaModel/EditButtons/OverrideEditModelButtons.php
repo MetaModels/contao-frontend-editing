@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2020 The MetaModels team.
+ * (c) 2012-2021 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2020 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2021 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -84,7 +85,7 @@ class OverrideEditModelButtons
     {
         $addButtons = [];
 
-        $buttonTemplate = '<button type="submit" name="%s" id="%s" class="sumbit %s"%s>%s</button>';
+        $buttonTemplate = '<button type="submit" name="%s" id="%s" class="submit %s"%s>%s</button>';
         foreach ($buttons as $button) {
             if (empty($button['name'])) {
                 continue;
