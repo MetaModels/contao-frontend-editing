@@ -85,7 +85,7 @@ class OverrideEditModelButtons
     {
         $addButtons = [];
 
-        $buttonTemplate = '<button type="submit" name="%s" id="%s" class="submit %s"%s>%s</button>';
+        $buttonTemplate = '<button type="submit" name="%s" id="%s" class="submit %s%s"%s>%s</button>';
         foreach ($buttons as $button) {
             if (empty($button['name'])) {
                 continue;
@@ -100,6 +100,7 @@ class OverrideEditModelButtons
                 $button['name'],
                 $button['name'],
                 $button['name'],
+                $button['notSave'] ? ' notsave' : '',
                 ($button['attributes'] ? ' ' . \html_entity_decode($button['attributes']) : ''),
                 $translatedLabel
             );
