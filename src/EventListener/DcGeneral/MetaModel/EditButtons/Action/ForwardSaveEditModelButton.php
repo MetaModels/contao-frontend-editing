@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2020 The MetaModels team.
+ * (c) 2012-2022 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2020 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2022 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,6 +25,7 @@ namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaMod
 use Contao\CoreBundle\Exception\RedirectResponseException;
 use Contao\CoreBundle\Framework\Adapter;
 use Contao\PageModel;
+use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\Event\HandleSubmitEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\TraitFrontendScope;
@@ -51,15 +53,24 @@ class ForwardSaveEditModelButton
     private $pageService;
 
     /**
+     * The string util service.
+     *
+     * @var Adapter|StringUtil
+     */
+    private $stringUtilService;
+
+    /**
      * The constructor.
      *
-     * @param ViewCombination $viewCombination The view combination.
-     * @param Adapter         $pageService     The page model service.
+     * @param ViewCombination $viewCombination   The view combination.
+     * @param Adapter         $pageService       The page model service.
+     * @param Adapter         $stringUtilService The string util service.
      */
-    public function __construct(ViewCombination $viewCombination, Adapter $pageService)
+    public function __construct(ViewCombination $viewCombination, Adapter $pageService, Adapter $stringUtilService)
     {
-        $this->viewCombination = $viewCombination;
-        $this->pageService     = $pageService;
+        $this->viewCombination   = $viewCombination;
+        $this->pageService       = $pageService;
+        $this->stringUtilService = $stringUtilService;
     }
 
     /**
@@ -75,13 +86,22 @@ class ForwardSaveEditModelButton
             return;
         }
 
+        $tokenData = [];
+        // Get model properties.
+        foreach ($event->getModel()->getPropertiesAsArray() as $keyData => $valueData){
+            $tokenData['model_' . $keyData] = $valueData;
+        }
+
+        // Replace simple tokens.
+        $button = $this->replaceSimpleTokensAtJumpToParameter($button, $tokenData);
+
         $this->forwardTo($button);
     }
 
     /**
      * Forward to the declared page.
      *
-     * @param array $button The button.
+     * @param array $button    The button.
      *
      * @return void
      */
@@ -92,6 +112,7 @@ class ForwardSaveEditModelButton
         /** @var PageModel $pageModel */
         $pageModel       = $this->pageService->findByIdOrAlias($pageId);
         $jumpToParameter = \html_entity_decode($button['jumpToParameter'] ?? '');
+
         if (0 === \strpos($jumpToParameter, '?')) {
             $url = $pageModel->getAbsoluteUrl() . $jumpToParameter;
         } else {
@@ -135,5 +156,24 @@ class ForwardSaveEditModelButton
         }
 
         return $findButton;
+    }
+
+    /**
+     * Replace simple tokens at button parameter 'jumpToParameter'.
+     *
+     * @param array $button    The button.
+     * @param array $tokenData The token data.
+     *
+     * @return array
+     */
+    private function replaceSimpleTokensAtJumpToParameter(array $button, array $tokenData): array
+    {
+        if (false !== strpos($button['jumpToParameter'], '&#35;&#35;')
+            || false !== strpos($button['jumpToParameter'], '##')) {
+            $button['jumpToParameter'] =
+                $this->stringUtilService->parseSimpleTokens(str_replace('&#35;', '#', $button['jumpToParameter']), $tokenData);
+        }
+
+        return $button;
     }
 }
