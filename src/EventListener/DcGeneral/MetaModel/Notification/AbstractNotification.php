@@ -185,6 +185,15 @@ abstract class AbstractNotification
             $tokens[$prefix . $property->getName()] = $value;
         }
 
+        $additionals = \array_diff_key($model->getPropertiesAsArray(), $properties);
+        foreach ($additionals as $propertyName => $propertyValue) {
+            if (\is_array($propertyValue)) {
+                $propertyValue = \implode($flattenDelimiter, $propertyValue);
+            }
+
+            $tokens[$prefix . $propertyName] = $propertyValue;
+        }
+
         return $tokens;
     }
 
