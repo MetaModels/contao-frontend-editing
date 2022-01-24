@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2016-2019 The MetaModels team.
+ * (c) 2016-2022 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2016-2019 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2016-2022 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,7 +28,7 @@ $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons'] = [
 ];
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_name'] = [
     'Name',
-    'Here can you define the edit button name (e.g. "saveNCreate" for save and create).'
+    'Here can you define the edit button name (e.g. \'saveNCreate\' for save and create).'
 ];
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_label'] = [
     'Label',
@@ -36,7 +37,7 @@ $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_label'] = [
 ];
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_attributes'] = [
     'Attributes',
-    'Here can you define additional attributes for edit button html tag (e.g. `accesskey="s"`).'
+    'Here can you define additional attributes for edit button html tag (e.g. accesskey=\'s\').'
 ];
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_jumpTo'] = [
     'Forwarding',
@@ -44,7 +45,7 @@ $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_jumpTo'] = [
 ];
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_jumpToParameter'] = [
     'Parameter',
-    'Here can you define additional url parameter for the forward page.'
+    'Here can you define additional url parameter for the forward page. You can use simple tokens e.g. ##model_alias##'
 ];
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_notSave'] = [
     'Not save',
