@@ -93,7 +93,9 @@ class OverrideEditModelButtons
 
             $label = $button['label']
                 ?: $event->getEnvironment()->getDataDefinition()->getName() . '.MSC.' . $button['name'];
-            $translatedLabel = $this->translator->trans($label, [], 'contao_' . \substr($label, 0, \strpos($label, '.')));
+            if (false !== ($positionDot = \strpos($label, '.'))) {
+                $label = $this->translator->trans($label, [], 'contao_' . \substr($label, 0, $positionDot));
+            }
 
             $addButton = \sprintf(
                 $buttonTemplate,
@@ -102,7 +104,7 @@ class OverrideEditModelButtons
                 $button['name'],
                 $button['notSave'] ? ' notsave' : '',
                 ($button['attributes'] ? ' ' . \html_entity_decode($button['attributes']) : ''),
-                $translatedLabel
+                $label
             );
 
             $addButtons[$button['name']] = $addButton;
