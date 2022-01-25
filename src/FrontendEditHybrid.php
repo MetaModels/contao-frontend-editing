@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2019 The MetaModels team.
+ * (c) 2012-2022 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Mini Model <minimodel@metamodel.me>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2012-2019 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2022 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +29,7 @@ use Contao\ModuleModel;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
 use ContaoCommunityAlliance\DcGeneral\Exception\NotCreatableException;
+use ContaoCommunityAlliance\DcGeneral\Exception\NotDeletableException;
 use ContaoCommunityAlliance\DcGeneral\Exception\NotEditableException;
 use MetaModels\FrontendIntegration\MetaModelHybrid;
 use MetaModels\IFactory;
@@ -95,6 +97,8 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
         } catch (NotEditableException $exception) {
             throw new AccessDeniedException($exception->getMessage());
         } catch (NotCreatableException $exception) {
+            throw new AccessDeniedException($exception->getMessage());
+        } catch (NotDeletableException $exception) {
             throw new AccessDeniedException($exception->getMessage());
         }
     }
