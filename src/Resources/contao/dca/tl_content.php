@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2020 The MetaModels team.
+ * (c) 2012-2022 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Mini Model <minimodel@metamodel.me>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2020 The MetaModels team.
+ * @copyright  2012-2022 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -29,6 +29,7 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodel_content'] = str_replace(
 $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodels_frontendediting'] =
     '{type_legend},type,headline;' .
     '{mm_config_legend},metamodel;' .
+    '{template_legend:hide},customTpl;' .
     '{protected_legend:hide},protected;' .
     '{expert_legend:hide},guests,invisible,cssID,space';
 
@@ -53,4 +54,17 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['metamodel_fe_editing_page'] = [
     'eval'      => [
         'fieldType' => 'radio'
     ]
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['customTpl'] = [
+    'exclude'          => true,
+    'inputType'        => 'select',
+    'options_callback' => static function () {
+        return Contao\Controller::getTemplateGroup('ce_metamodel_frontend_edit_', [], 'ce_metamodel_frontend_edit');
+    },
+    'eval'             => [
+        'tl_class' => 'w50',
+        'chosen'   => true
+    ],
+    'sql'              => "varchar(64) NOT NULL default ''"
 ];
