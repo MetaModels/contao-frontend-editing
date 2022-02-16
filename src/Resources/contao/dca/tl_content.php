@@ -29,7 +29,7 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodel_content'] = str_replace(
 $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodels_frontendediting'] =
     '{type_legend},type,headline;' .
     '{mm_config_legend},metamodel;' .
-    '{template_legend:hide},customTpl;' .
+    '{template_legend:hide},customTpl,metamodel_fe_editing_jshelper;' .
     '{protected_legend:hide},protected;' .
     '{expert_legend:hide},guests,invisible,cssID,space';
 
@@ -63,8 +63,18 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['customTpl'] = [
         return Contao\Controller::getTemplateGroup('ce_metamodel_frontend_edit_', [], 'ce_metamodel_frontend_edit');
     },
     'eval'             => [
-        'tl_class' => 'w50',
+        'tl_class' => 'clr w50',
         'chosen'   => true
     ],
     'sql'              => "varchar(64) NOT NULL default ''"
+];
+
+$GLOBALS['TL_DCA']['tl_content']['fields']['metamodel_fe_editing_jshelper'] = [
+    'label'     => &$GLOBALS['TL_LANG']['tl_content']['metamodel_fe_editing_jshelper'],
+    'exclude'   => true,
+    'inputType' => 'checkbox',
+    'sql'       => 'char(1) NOT NULL default \'\'',
+    'eval'      => [
+        'tl_class' => 'w50 cbx m12',
+    ]
 ];

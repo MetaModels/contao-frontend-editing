@@ -82,7 +82,20 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
     }
 
     /**
-     * Compile the content element.
+     * Generate the content element/module.
+     *
+     * @return string
+     */
+    public function generate(): string
+    {
+        if ($this->customTpl) {
+            $this->strTemplate = $this->customTpl;
+        }
+        return parent::generate();
+    }
+
+    /**
+     * Compile the content element/module.
      *
      * @return void
      *

@@ -1,7 +1,0 @@
-<?php $this->extend('block_unsearchable'); ?>
-<?php
-$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/metamodelscontaofrontendediting/metamodels_fee_helper.min.js';
-?>
-<?php $this->block('content'); ?>
-<?= $this->editor ?>
-<?php $this->endblock(); ?>
