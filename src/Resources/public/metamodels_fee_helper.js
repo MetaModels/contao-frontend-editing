@@ -16,7 +16,7 @@
  */
 
 (function() {
-    const widgets = document.querySelectorAll('.widget.submitOnChange');
+    let widgets = document.querySelectorAll('.mm_fee_js_helper .widget.submitOnChange');
     if (!widgets.length) {
         return false;
     }
