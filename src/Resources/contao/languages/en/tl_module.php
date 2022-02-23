@@ -34,3 +34,8 @@ $GLOBALS['TL_LANG']['tl_module']['metamodel_fe_editing_jshelper'] = [
     'Activate JavaScript helper',
     'If this is enabled, is a JavaScript activated to add functions e.g. submitOnChange.'
 ];
+
+$GLOBALS['TL_LANG']['tl_module']['metamodel_fe_editing_csshelper'] = [
+    'Activate CSS helper',
+    'If this is enabled, is a CSS activated to add functions e.g. spinner for submitOnChange.'
+];

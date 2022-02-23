@@ -21,7 +21,9 @@
         return false;
     }
 
-    const uuid = location.pathname.split('/').slice(-1).join('');
+    const uuid  = location.pathname.split('/').slice(-1).join('');
+    let overlay = document.querySelector('.fee-helper-overlay');
+
     widgets.forEach(function(widget) {
         let inputs = widget.querySelectorAll('input, select');
         if (!inputs.length) {
@@ -30,6 +32,9 @@
 
         inputs.forEach(function(input) {
             input.addEventListener('change', function() {
+                if(overlay) {
+                    overlay.style.display = 'block';
+                }
                 let hidden = document.createElement('input');
                 hidden.type = 'hidden';
                 hidden.name = 'SUBMIT_TYPE';

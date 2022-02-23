@@ -9,4 +9,12 @@ if ($this->metamodel_fe_editing_jshelper) {
 ?>
 <?php $this->block('content'); ?>
 <?= $this->editor ?>
+<?php
+if ($this->metamodel_fe_editing_jshelper && $this->metamodel_fe_editing_csshelper):
+    $GLOBALS['TL_CSS']['mm_fee_css_helper'] = 'bundles/metamodelscontaofrontendediting/metamodels_fee_helper.css'
+    ?>
+    <div class="fee-helper-overlay" style="display:none;">
+        <div class="spinner"></div>
+    </div>
+<?php endif; ?>
 <?php $this->endblock(); ?>
