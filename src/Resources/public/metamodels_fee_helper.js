@@ -35,12 +35,15 @@
                 if(overlay) {
                     overlay.style.display = 'block';
                 }
-                let hidden = document.createElement('input');
-                hidden.type = 'hidden';
-                hidden.name = 'SUBMIT_TYPE';
+                let hidden   = document.createElement('input');
+                hidden.type  = 'hidden';
+                hidden.name  = 'SUBMIT_TYPE';
                 hidden.value = 'auto';
 
-                sessionStorage.setItem('focus', uuid + ',' + location.hash + ',' + input.id + ',' + window.scrollY);
+                sessionStorage.setItem(
+                    'fee-helper-focus',
+                    uuid + ',' + location.hash + ',' + input.id + ',' + window.scrollY
+                );
 
                 input.form.append(hidden);
                 input.form.submit();
@@ -48,13 +51,14 @@
         });
     });
 
-    setTimeout(function() {
-        const focus = sessionStorage.getItem('focus');
-        if (!focus) {
-            return false;
-        }
+    const focus = sessionStorage.getItem('fee-helper-focus');
+    if (!focus) {
+        return;
+    }
 
-        sessionStorage.removeItem('focus');
+    setTimeout(function() {
+        sessionStorage.removeItem('fee-helper-focus');
+
         const focusItems = focus.split(',');
         if ((uuid !== focusItems[0]) || (location.hash !== focusItems[1])) {
             return false;
@@ -64,8 +68,9 @@
         if (!focusElement) {
             return false;
         }
+
         focusElement.focus();
-        document.body.scrollTop = parseInt(focusItems[3]); // For Safari
+        document.body.scrollTop            = parseInt(focusItems[3]); // For Safari
         document.documentElement.scrollTop = parseInt(focusItems[3]); // For Chrome, Firefox, IE and Opera
     }, 50);
 })();
