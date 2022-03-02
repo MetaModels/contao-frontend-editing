@@ -1,5 +1,15 @@
 <?php $this->extend('block_unsearchable'); ?>
-
+<?php
+$this->class                            = 'mm_fee_js_helper ' . $this->class;
+$min                                    = System::getContainer()->get('kernel')->isDebug() ? '' : '.min';
+$GLOBALS['TL_BODY']['mm_fee_js_helper'] =
+    sprintf('<script src="bundles/metamodelscontaofrontendediting/metamodels_fee_helper%s.js"></script>', $min);
+$GLOBALS['TL_CSS']['mm_fee_css_helper'] = 'bundles/metamodelscontaofrontendediting/metamodels_fee_helper.css'
+?>
 <?php $this->block('content'); ?>
 <?= $this->editor ?>
+
+<div class="fee-helper-overlay" style="display:none;">
+    <div class="spinner"></div>
+</div>
 <?php $this->endblock(); ?>

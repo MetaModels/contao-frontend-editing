@@ -63,7 +63,7 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['customTpl'] = [
         return Contao\Controller::getTemplateGroup('mod_metamodel_frontend_edit_', [], 'mod_metamodel_frontend_edit');
     },
     'eval'             => [
-        'tl_class' => 'w50',
+        'tl_class' => 'clr w50',
         'chosen'   => true
     ],
     'sql'              => "varchar(64) NOT NULL default ''"
