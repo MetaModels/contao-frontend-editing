@@ -1,20 +1,15 @@
 <?php $this->extend('block_unsearchable'); ?>
 <?php
-if ($this->metamodel_fe_editing_jshelper) {
-    $this->class                            = 'mm_fee_js_helper ' . $this->class;
-    $min                                    = System::getContainer()->get('kernel')->isDebug() ? '' : '.min';
-    $GLOBALS['TL_BODY']['mm_fee_js_helper'] =
-        sprintf('<script src="bundles/metamodelscontaofrontendediting/metamodels_fee_helper%s.js"></script>', $min);
-}
+$this->class                            = 'mm_fee_js_helper ' . $this->class;
+$min                                    = System::getContainer()->get('kernel')->isDebug() ? '' : '.min';
+$GLOBALS['TL_BODY']['mm_fee_js_helper'] =
+    sprintf('<script src="bundles/metamodelscontaofrontendediting/metamodels_fee_helper%s.js"></script>', $min);
+$GLOBALS['TL_CSS']['mm_fee_css_helper'] = 'bundles/metamodelscontaofrontendediting/metamodels_fee_helper.css'
 ?>
 <?php $this->block('content'); ?>
 <?= $this->editor ?>
-<?php
-if ($this->metamodel_fe_editing_jshelper && $this->metamodel_fe_editing_csshelper):
-    $GLOBALS['TL_CSS']['mm_fee_css_helper'] = 'bundles/metamodelscontaofrontendediting/metamodels_fee_helper.css'
-    ?>
-    <div class="fee-helper-overlay" style="display:none;">
-        <div class="spinner"></div>
-    </div>
-<?php endif; ?>
+
+<div class="fee-helper-overlay" style="display:none;">
+    <div class="spinner"></div>
+</div>
 <?php $this->endblock(); ?>

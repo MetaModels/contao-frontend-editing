@@ -29,15 +29,12 @@ $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodel_content'] = str_replace(
 $GLOBALS['TL_DCA']['tl_content']['palettes']['metamodels_frontendediting'] =
     '{type_legend},type,headline;' .
     '{mm_config_legend},metamodel;' .
-    '{template_legend:hide},customTpl,metamodel_fe_editing_jshelper;' .
+    '{template_legend:hide},customTpl;' .
     '{protected_legend:hide},protected;' .
     '{expert_legend:hide},guests,invisible,cssID,space';
 
 $GLOBALS['TL_DCA']['tl_content']['palettes']['__selector__'][]          = 'metamodel_fe_editing';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['metamodel_fe_editing'] = 'metamodel_fe_editing_page';
-
-$GLOBALS['TL_DCA']['tl_content']['palettes']['__selector__'][]                   = 'metamodel_fe_editing_jshelper';
-$GLOBALS['TL_DCA']['tl_content']['subpalettes']['metamodel_fe_editing_jshelper'] = 'metamodel_fe_editing_csshelper';
 
 $GLOBALS['TL_DCA']['tl_content']['fields']['metamodel_fe_editing'] = [
     'label'     => &$GLOBALS['TL_LANG']['tl_content']['metamodel_fe_editing'],
@@ -70,26 +67,4 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['customTpl'] = [
         'chosen'   => true
     ],
     'sql'              => "varchar(64) NOT NULL default ''"
-];
-
-$GLOBALS['TL_DCA']['tl_content']['fields']['metamodel_fe_editing_jshelper'] = [
-    'label'     => &$GLOBALS['TL_LANG']['tl_content']['metamodel_fe_editing_jshelper'],
-    'exclude'   => true,
-    'inputType' => 'checkbox',
-    'sql'       => 'char(1) NOT NULL default \'\'',
-    'eval'      => [
-        'tl_class'       => 'clr w50 cbx m12',
-        'submitOnChange' => true,
-    ]
-];
-
-$GLOBALS['TL_DCA']['tl_content']['fields']['metamodel_fe_editing_csshelper'] = [
-    'label'     => &$GLOBALS['TL_LANG']['tl_content']['metamodel_fe_editing_csshelper'],
-    'exclude'   => true,
-    'inputType' => 'checkbox',
-    'default'   => true,
-    'sql'       => 'char(1) NOT NULL default \'1\'',
-    'eval'      => [
-        'tl_class' => 'w50 cbx m12',
-    ]
 ];
