@@ -85,19 +85,19 @@ abstract class AbstractNotificationOption
             ->setParameter('type', $this->notificationType())
             ->orderBy('t.title');
 
-        $statement = $builder->execute();
+        $statement = $builder->executeQuery();
         if (!$statement->rowCount()) {
             return [];
         }
 
-        $result = $statement->fetchAll(\PDO::FETCH_OBJ);
+        $result = $statement->fetchAllAssociative();
 
         $options = [];
         foreach ($result as $item) {
-            $options[$item->id] = \sprintf(
+            $options[$item['id']] = \sprintf(
                 '%s [%s]',
-                $item->title,
-                $item->id
+                $item['title'],
+                $item['id']
             );
         }
 
