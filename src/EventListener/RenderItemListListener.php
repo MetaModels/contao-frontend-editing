@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2019 The MetaModels team.
+ * (c) 2012-2022 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Mini Model <minimodel@metamodel.me>
- * @copyright  2012-2019 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2022 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,8 +31,8 @@ use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
 use MetaModels\IFactory;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * This class handles the processing of list rendering.
@@ -220,7 +221,7 @@ class RenderItemListListener
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
-        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+        $this->dispatcher->dispatch($event, ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL);
 
         $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'create');
@@ -241,7 +242,7 @@ class RenderItemListListener
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
-        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+        $this->dispatcher->dispatch($event, ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL);
 
         $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'edit')
@@ -263,7 +264,7 @@ class RenderItemListListener
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
-        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+        $this->dispatcher->dispatch($event, ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL);
 
         $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'copy')
@@ -285,7 +286,7 @@ class RenderItemListListener
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
-        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+        $this->dispatcher->dispatch($event, ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL);
 
         $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'createvariant')
@@ -307,7 +308,7 @@ class RenderItemListListener
     {
         $event = new GenerateFrontendUrlEvent($page, null, $page['language']);
 
-        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL, $event);
+        $this->dispatcher->dispatch($event, ContaoEvents::CONTROLLER_GENERATE_FRONTEND_URL);
 
         $url = UrlBuilder::fromUrl($event->getUrl() . '?')
             ->setQueryParameter('act', 'delete')
@@ -329,7 +330,7 @@ class RenderItemListListener
             return null;
         }
         $event = new GetPageDetailsEvent($pageId);
-        $this->dispatcher->dispatch(ContaoEvents::CONTROLLER_GET_PAGE_DETAILS, $event);
+        $this->dispatcher->dispatch($event, ContaoEvents::CONTROLLER_GET_PAGE_DETAILS);
 
         return $event->getPageDetails();
     }

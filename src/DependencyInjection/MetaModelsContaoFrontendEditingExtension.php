@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2020 The MetaModels team.
+ * (c) 2012-2022 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,17 +13,18 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2020 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2022 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace MetaModels\ContaoFrontendEditingBundle\DependencyInjection;
 
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Contracts\Config\FileLocator;
+use Symfony\Contracts\DependencyInjection\ContainerBuilder;
+use Symfony\Contracts\DependencyInjection\Extension\Extension;
+use Symfony\Contracts\DependencyInjection\Loader\YamlFileLoader;
 
 /**
  * This is the Bundle extension.
