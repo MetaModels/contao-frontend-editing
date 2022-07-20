@@ -21,10 +21,10 @@
 
 namespace MetaModels\ContaoFrontendEditingBundle\DependencyInjection;
 
-use Symfony\Contracts\Config\FileLocator;
-use Symfony\Contracts\DependencyInjection\ContainerBuilder;
-use Symfony\Contracts\DependencyInjection\Extension\Extension;
-use Symfony\Contracts\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
  * This is the Bundle extension.
