@@ -22,19 +22,20 @@ declare(strict_types=1);
 
 namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification;
 
-use Contao\Config;
-use Contao\CoreBundle\Framework\Adapter;
-use Contao\FrontendUser;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
+use Contao\Config;
+use Contao\CoreBundle\Framework\Adapter;
+use Contao\FrontendUser;
 use MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\TraitFrontendScope;
 use MetaModels\DcGeneral\Data\Model;
 use MetaModels\ViewCombination\ViewCombination;
 use NotificationCenter\Model\Notification;
-use Symfony\Contracts\HttpFoundation\RequestStack;
-use Symfony\Contracts\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+
 
 /**
  * This is for send notification.
