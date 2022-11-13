@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2019 The MetaModels team.
+ * (c) 2012-2022 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Mini Model <minimodel@metamodel.me>
- * @copyright  2012-2019 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2022 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -51,6 +52,8 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * This tests the RenderItemListListener.
+ *
+ * @covers \MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener
  */
 class RenderItemListListenerTest extends TestCase
 {
@@ -59,7 +62,7 @@ class RenderItemListListenerTest extends TestCase
      *
      * @return void
      */
-    public static function contaoAutoload($class)
+    public static function contaoAutoload($class): void
     {
         if (0 === strpos($class, 'Contao\\')) {
             return;
@@ -74,7 +77,7 @@ class RenderItemListListenerTest extends TestCase
     /**
      * {@inheritDoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         // This is the hack to mimic the Contao auto loader.
@@ -84,7 +87,7 @@ class RenderItemListListenerTest extends TestCase
     /**
      * {@inheritDoc}
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         spl_autoload_unregister(self::class . '::contaoAutoload');
         parent::tearDown();
@@ -121,7 +124,7 @@ class RenderItemListListenerTest extends TestCase
      *
      * @return void
      */
-    public function testHandleForItemRenderingAddsWithEditFlag()
+    public function testHandleForItemRenderingAddsWithEditFlag(): void
     {
         $container   = $this->getMockForAbstractClass(ContainerInterface::class);
         $definitions = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
@@ -270,7 +273,7 @@ class RenderItemListListenerTest extends TestCase
      *
      * @return void
      */
-    public function testFrontendEditingInListRenderingRevertsWithoutPage()
+    public function testFrontendEditingInListRenderingRevertsWithoutPage(): void
     {
         $dispatcher       = new EventDispatcher();
         $metaModel        = $this->getMockForAbstractClass(IMetaModel::class);
@@ -356,7 +359,7 @@ class RenderItemListListenerTest extends TestCase
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function testFrontendEditingInListRenderingAddsWithEditFlag()
+    public function testFrontendEditingInListRenderingAddsWithEditFlag(): void
     {
         $reflection = new \ReflectionProperty(FrontendEditor::class, 'environments');
         $reflection->setAccessible(true);
