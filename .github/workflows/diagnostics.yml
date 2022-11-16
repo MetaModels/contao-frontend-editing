@@ -1,4 +1,4 @@
-name: MetaModels attribute_alias
+name: MetaModels contao-frontend-editing
 
 on:
   push:
