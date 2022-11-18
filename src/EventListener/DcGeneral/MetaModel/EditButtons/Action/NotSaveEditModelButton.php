@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2020 The MetaModels team.
+ * (c) 2012-2022 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2020 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2022 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -86,6 +87,8 @@ class NotSaveEditModelButton
      * @param array $button The button.
      *
      * @return void
+     *
+     * @throws RedirectResponseException When jump to is empty.
      */
     private function forwardTo(array $button): void
     {
@@ -93,11 +96,13 @@ class NotSaveEditModelButton
             throw new DcGeneralRuntimeException('The forward setting is missing, for button name ' . $button['name']);
         }
 
+        // @codingStandardsIgnoreStart
         // FIXME: Use page tree if this work with mcw.
+        // @codingStandardsIgnoreEnd
         $pageId = \explode('::', \trim($button['jumpTo'], '{{}}'))[1];
         /** @var PageModel $pageModel */
         $pageModel       = $this->pageService->findByIdOrAlias($pageId);
-        $jumpToParameter = \html_entity_decode($button['jumpToParameter'] ?? '');
+        $jumpToParameter = \html_entity_decode(($button['jumpToParameter'] ?? ''));
         if (0 === \strpos($jumpToParameter, '?')) {
             $url = $pageModel->getAbsoluteUrl() . $jumpToParameter;
         } else {

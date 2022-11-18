@@ -77,6 +77,8 @@ class ForwardSaveEditModelButton
      * Invoke the event.
      *
      * @param HandleSubmitEvent $event The event.
+     *
+     * @return void
      */
     public function __invoke(HandleSubmitEvent $event): void
     {
@@ -88,7 +90,7 @@ class ForwardSaveEditModelButton
 
         $tokenData = [];
         // Get model properties.
-        foreach ($event->getModel()->getPropertiesAsArray() as $keyData => $valueData){
+        foreach ($event->getModel()->getPropertiesAsArray() as $keyData => $valueData) {
             $tokenData['model_' . $keyData] = $valueData;
         }
 
@@ -101,17 +103,21 @@ class ForwardSaveEditModelButton
     /**
      * Forward to the declared page.
      *
-     * @param array $button    The button.
+     * @param array $button The button.
      *
      * @return void
+     *
+     * @throws RedirectResponseException When jump to is empty.
      */
     private function forwardTo(array $button): void
     {
+        // @codingStandardsIgnoreStart
         // FIXME: Use page tree if this work with mcw.
+        // @codingStandardsIgnoreEnd
         $pageId = \explode('::', \trim($button['jumpTo'], '{{}}'))[1];
         /** @var PageModel $pageModel */
         $pageModel       = $this->pageService->findByIdOrAlias($pageId);
-        $jumpToParameter = \html_entity_decode($button['jumpToParameter'] ?? '');
+        $jumpToParameter = \html_entity_decode(($button['jumpToParameter'] ?? ''));
 
         if (0 === \strpos($jumpToParameter, '?')) {
             $url = $pageModel->getAbsoluteUrl() . $jumpToParameter;
@@ -168,10 +174,13 @@ class ForwardSaveEditModelButton
      */
     private function replaceSimpleTokensAtJumpToParameter(array $button, array $tokenData): array
     {
-        if (false !== strpos($button['jumpToParameter'], '&#35;&#35;')
-            || false !== strpos($button['jumpToParameter'], '##')) {
+        if (false !== \strpos($button['jumpToParameter'], '&#35;&#35;')
+            || false !== \strpos($button['jumpToParameter'], '##')) {
             $button['jumpToParameter'] =
-                $this->stringUtilService->parseSimpleTokens(str_replace('&#35;', '#', $button['jumpToParameter']), $tokenData);
+                $this->stringUtilService->parseSimpleTokens(
+                    \str_replace('&#35;', '#', $button['jumpToParameter']),
+                    $tokenData
+                );
         }
 
         return $button;
