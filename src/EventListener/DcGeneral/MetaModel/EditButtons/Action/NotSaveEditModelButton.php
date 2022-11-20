@@ -88,6 +88,7 @@ class NotSaveEditModelButton
      *
      * @return void
      *
+     * @throws DcGeneralRuntimeException The forward setting is missing, for button name.
      * @throws RedirectResponseException When jump to is empty.
      */
     private function forwardTo(array $button): void
