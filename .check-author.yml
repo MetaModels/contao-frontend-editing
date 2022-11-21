@@ -3,3 +3,10 @@ exclude:
 
 ignore:
   - 'Mini Model <minimodel@metamodel.me>'
+
+mapping:
+  'Ingolf Steinhardt <info@e-spin.de>':
+    - 'Ingolf Steinhardt <git@e-spin.de>'
+    - 'xantippe <info@e-spin.de>'
+    - 'zonky2 <info@e-spin.de>'
+    - 'zonky <gitlab@e-spin.de>'

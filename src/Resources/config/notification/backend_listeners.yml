@@ -1,0 +1,38 @@
+services:
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\AbstractNotificationOption:
+        public: false
+        abstract: true
+        calls:
+            -   method: setScopeDeterminator
+                arguments:
+                    - "@cca.dc-general.scope-matcher"
+        arguments:
+            - '@database_connection'
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\CopyModelNotificationOptionListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\AbstractNotificationOption'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-property-options
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\CreateModelNotificationOptionListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\AbstractNotificationOption'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-property-options
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\EditModelNotificationOptionListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\AbstractNotificationOption'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-property-options
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\DeleteModelNotificationOptionListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\AbstractNotificationOption'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-property-options

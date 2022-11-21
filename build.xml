@@ -8,4 +8,5 @@ For documentation visit:
 -->
 <project name="metamodels-contao-frontend-editing" default="build">
     <import file="vendor/phpcq/phpcq/phpcq.main.xml" />
+    <target name="phpspec" />
 </project>
