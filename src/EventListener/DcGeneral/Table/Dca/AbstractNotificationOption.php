@@ -75,8 +75,6 @@ abstract class AbstractNotificationOption
      */
     private function collectPropertyOptions(): array
     {
-        $platform = $this->connection->getDatabasePlatform();
-
         $builder = $this->connection->createQueryBuilder();
         $builder
             ->select('t.id, t.title')

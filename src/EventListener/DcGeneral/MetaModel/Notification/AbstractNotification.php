@@ -257,7 +257,7 @@ abstract class AbstractNotification
         $tokens     = [];
         $properties = $event->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperties();
         foreach ($properties as $property) {
-            $tokens['property_label_' . $property->getName()] = $property->getLabel() ?? $property->getName();
+            $tokens['property_label_' . $property->getName()] = ($property->getLabel() ?? $property->getName());
         }
 
         return $tokens;

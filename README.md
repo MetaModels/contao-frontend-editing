@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/MetaModels/contao-frontend-editing.png)](https://travis-ci.org/MetaModels/contao-frontend-editing)
+[![Build Status](https://github.com/MetaModels/contao-frontend-editing/actions/workflows/diagnostics.yml/badge.svg)](https://github.com/MetaModels/contao-frontend-editing/actions)
 [![Latest Version tagged](http://img.shields.io/github/tag/MetaModels/contao-frontend-editing.svg)](https://github.com/MetaModels/contao-frontend-editing/tags)
 [![Latest Version on Packagist](http://img.shields.io/packagist/v/MetaModels/contao-frontend-editing.svg)](https://packagist.org/packages/MetaModels/contao-frontend-editing)
 [![Installations via composer per month](http://img.shields.io/packagist/dm/MetaModels/contao-frontend-editing.svg)](https://packagist.org/packages/MetaModels/contao-frontend-editing)
