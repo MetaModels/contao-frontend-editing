@@ -60,3 +60,24 @@ services:
                 event: dc-general.contao-frontend.handle-submit
                 priority: 128
 
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\GetAttributeMemberListener:
+        arguments:
+            - '@cca.dc-general.scope-matcher'
+            - '@metamodels.factory'
+        tags:
+            -
+                name: kernel.event_listener
+                event: 'dc-general.view.contao2backend.get-property-options'
+                method: getPropertyOptions
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\EditMaskMemberPermissionListener:
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+            - "@contao.framework"
+            - "@metamodels.view_combination.input_screen_information_builder"
+        tags:
+            - { name: kernel.event_listener, event: dc-general.model.pre-persist, method: saveMemberId }
+            - { name: kernel.event_listener, event: dc-general.model.pre-edit-model, method: checkPreEditFee }
+            - { name: kernel.event_listener, event: dc-general.model.pre-persist, method: checkSaveFee }
+            - { name: kernel.event_listener, event: dc-general.model.pre-delete, method: checkDeleteFee }

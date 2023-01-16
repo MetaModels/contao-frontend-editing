@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-202 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,7 @@
  *
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2023 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,6 +23,14 @@ $GLOBALS['TL_DCA']['tl_metamodel_dca']['metapalettes']['default']['fe_editButton
 
 $GLOBALS['TL_DCA']['tl_metamodel_dca']['metasubpalettes']['fe_overrideEditButtons'] = [
     'fe_editButtons'
+];
+
+$GLOBALS['TL_DCA']['tl_metamodel_dca']['metapalettes']['default']['fe_memberAttribut'] = [
+    'fe_useMemberPermissions'
+];
+
+$GLOBALS['TL_DCA']['tl_metamodel_dca']['metasubpalettes']['fe_useMemberPermissions'] = [
+    'fe_memberAttribut'
 ];
 
 $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = array_merge(
@@ -112,6 +119,28 @@ $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = array_merge(
                         'inputType' => 'checkbox'
                     ]
                 ]
+            ]
+        ],
+        'fe_useMemberPermissions' => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_useMemberPermissions'],
+            'exclude'   => true,
+            'inputType' => 'checkbox',
+            'sql'       => ['type' => 'boolean', 'notnull' => false],
+            'eval'      => [
+                'submitOnChange' => true,
+                'tl_class' => 'w50 cbx'
+            ]
+        ],
+        'fe_memberAttribut' => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_memberAttribut'],
+            'exclude'   => true,
+            'inputType' => 'select',
+            'sql'       => 'varchar(255) NOT NULL default \'\'',
+            'eval'      => [
+                'includeBlankOption' => true,
+                'mandatory'          => true,
+                'tl_class'           => 'clr w50',
+                'chosen'             => 'true'
             ]
         ]
     ]
