@@ -33,18 +33,23 @@ use Contao\System;
 use MetaModels\DcGeneral\DataDefinition\Definition\IMetaModelDefinition;
 use MetaModels\IMetaModel;
 use MetaModels\ViewCombination\InputScreenInformationBuilder;
+use Symfony\Component\Security\Core\Security;
 
 class EditMaskMemberPermissionListener
 {
     /**
+     * The scope determinator.
+     *
      * @var RequestScopeDeterminator
      */
     private RequestScopeDeterminator $scopeDeterminator;
 
     /**
-     * @var ContaoFramework
+     * The security.
+     *
+     * @var Security
      */
-    private ContaoFramework $framework;
+    private Security $security;
 
     /**
      * The input screen information builder.
@@ -54,7 +59,7 @@ class EditMaskMemberPermissionListener
     private InputScreenInformationBuilder $inputScreens;
 
     /**
-     * The name of member attribute.
+     * The name of member attribute eq. column name.
      *
      * @var string
      */
@@ -63,16 +68,17 @@ class EditMaskMemberPermissionListener
     /**
      * EditMaskMemberPermissionListener constructor.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator
-     * @param ContaoFramework          $framework
+     * @param RequestScopeDeterminator      $scopeDeterminator The scope determinator.
+     * @param Security                      $security          The security.
+     * @param InputScreenInformationBuilder $inputScreens      The input screen information builder.
      */
     public function __construct(
         RequestScopeDeterminator $scopeDeterminator,
-        ContaoFramework $framework,
+        Security $security,
         InputScreenInformationBuilder $inputScreens
     ) {
         $this->scopeDeterminator = $scopeDeterminator;
-        $this->framework         = $framework;
+        $this->security          = $security;
         $this->inputScreens      = $inputScreens;
         $this->memberAttribut    = '';
     }
@@ -90,13 +96,13 @@ class EditMaskMemberPermissionListener
         }
 
         // Get member.
-        if (null === ($member = $this->framework->createInstance(FrontendUser::class))) {
+        $user = $this->security->getUser();
+        if (!$user instanceof FrontendUser) {
             return;
         }
 
         // Set data.
-        $aliasColumn = $model->getItem()->getMetaModel()->getAttribute('id_memberx')->get('select_alias');
-        $model->setProperty($this->memberAttribut, (string) $member->{$aliasColumn});
+        $model->setProperty($this->memberAttribut, $user->getUserIdentifier());
     }
 
     /**
@@ -185,22 +191,24 @@ class EditMaskMemberPermissionListener
             $model = $event->getModel();
         }
 
-        $member = $this->framework->createInstance(FrontendUser::class);
-
         // If model id null the type is 'create' - else is 'edit' or 'delete'.
         if (null === $model->getId()) {
-            if ($member) {
-                return;
-            }
-        } else {
-            // If type 'edit' or 'delete' check the permission.
-            $item      = $model->getItem()->parseValue('text');
-            $accountId = $item['raw'][$this->memberAttribut]['id'];
+            return;
+        }
 
-            // Check if same account id to open and edit the item.
-            if ($member && $accountId && $accountId === $member->id) {
-                return;
-            }
+        // Get member.
+        $user = $this->security->getUser();
+        if (!$user instanceof FrontendUser) {
+            return;
+        }
+
+        // If type 'edit' or 'delete' check the permission.
+        $itemValue = $model->getItem()->parseAttribute($this->memberAttribut, 'text');
+        $username  = $itemValue['raw']['username'] ?? '';
+
+        // Check if same account id to open and edit the item.
+        if ($username === $user->getUserIdentifier()) {
+            return;
         }
 
         // Error 403.

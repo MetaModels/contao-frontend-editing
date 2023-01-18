@@ -75,7 +75,7 @@ $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_useMemberPermissions'] = [
 ];
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_memberAttribut']       = [
     'Attribut for member',
-    'Select the attribute with which you have created the connection to the members table (tl_member).'
+    'Select the attribute with which you have created the connection to the members table "tl_member" and alias to "username".'
 ];
 
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_legend']    = 'Frontend edit buttons';

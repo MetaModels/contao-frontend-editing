@@ -111,20 +111,19 @@ class GetAttributeMemberListener
 
         // Fetch all attributes except for the current attribute.
         foreach ($metaModel->getAttributes() as $attribute) {
-            // Show only select attributes.
-            if ('select' !== $attribute->get('type')) {
-                continue;
+            // Show only select attributes with table 'tl_member' and alias 'username'.
+            if ('select' === $attribute->get('type')
+                && 'tl_member' === $attribute->get('select_table')
+                && 'username' === $attribute->get('select_alias')) {
+                $result[$attribute->getColName()] = \sprintf(
+                    '%s [%s, "%s"]',
+                    $attribute->getName(),
+                    $attribute->get('type'),
+                    $attribute->getColName()
+                );
             }
-
-            $result[$attribute->getColName()] = \sprintf(
-                '%s [%s, "%s"]',
-                $attribute->getName(),
-                $attribute->get('type'),
-                $attribute->getColName()
-            );
         }
 
         $event->setOptions($result);
     }
-
 }
