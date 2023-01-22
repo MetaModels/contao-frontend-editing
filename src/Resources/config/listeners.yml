@@ -66,11 +66,13 @@ services:
         arguments:
             - '@cca.dc-general.scope-matcher'
             - '@metamodels.factory'
+            - '@MetaModels\CoreBundle\Formatter\SelectAttributeOptionLabelFormatter'
         tags:
             -
                 name: kernel.event_listener
                 event: 'dc-general.view.contao2backend.get-property-options'
                 method: getPropertyOptions
+                priority: 128
 
     MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\EditMaskMemberPermissionListener:
         public: true

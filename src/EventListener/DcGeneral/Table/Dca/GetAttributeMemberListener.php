@@ -25,6 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use MetaModels\AttributeSelectBundle\Attribute\AbstractSelect;
 use MetaModels\Attribute\ISimple;
+use MetaModels\CoreBundle\Formatter\SelectAttributeOptionLabelFormatter;
 use MetaModels\DcGeneral\Data\Model;
 use MetaModels\IFactory;
 use MetaModels\ITranslatedMetaModel;
@@ -46,15 +47,27 @@ class GetAttributeMemberListener
     private $factory;
 
     /**
+     * The attribute select option label formatter.
+     *
+     * @var SelectAttributeOptionLabelFormatter
+     */
+    private SelectAttributeOptionLabelFormatter $attributeLabelFormatter;
+
+    /**
      * GetOptionsListener constructor.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator Request scope determinator.
-     * @param IFactory                 $factory           Metamodels factory.
+     * @param RequestScopeDeterminator            $scopeDeterminator       Request scope determinator.
+     * @param IFactory                            $factory                 Metamodels factory.
+     * @param SelectAttributeOptionLabelFormatter $attributeLabelFormatter The attribute select option label formatter.
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator, IFactory $factory)
-    {
-        $this->scopeDeterminator = $scopeDeterminator;
-        $this->factory           = $factory;
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        IFactory $factory,
+        SelectAttributeOptionLabelFormatter $attributeLabelFormatter
+    ) {
+        $this->scopeDeterminator       = $scopeDeterminator;
+        $this->factory                 = $factory;
+        $this->attributeLabelFormatter = $attributeLabelFormatter;
     }
 
     /**
@@ -71,8 +84,11 @@ class GetAttributeMemberListener
         }
 
         return
-            ($event->getEnvironment()->getDataDefinition()->getName() === 'tl_metamodel_dca')
-            && ($event->getPropertyName() === 'fe_memberAttribut');
+            ((($event->getEnvironment()->getDataDefinition()->getName() === 'tl_metamodel_dca')
+              && ($event->getPropertyName() === 'fe_memberAttribut'))
+             || (($event->getEnvironment()->getDataDefinition()->getName() === 'tl_metamodel_filtersetting')
+                 && ($event->getModel()->getProperty('type') === 'member_filter')
+                 && ($event->getPropertyName() === 'attr_id')));
     }
 
     /**
@@ -108,19 +124,15 @@ class GetAttributeMemberListener
         }
 
         $result = [];
-
+        $prefix = ($event->getPropertyName() === 'attr_id') ? $metaModel->getTableName() . '_' : '';
         // Fetch all attributes except for the current attribute.
         foreach ($metaModel->getAttributes() as $attribute) {
             // Show only select attributes with table 'tl_member' and alias 'username'.
             if ('select' === $attribute->get('type')
                 && 'tl_member' === $attribute->get('select_table')
                 && 'username' === $attribute->get('select_alias')) {
-                $result[$attribute->getColName()] = \sprintf(
-                    '%s [%s, "%s"]',
-                    $attribute->getName(),
-                    $attribute->get('type'),
-                    $attribute->getColName()
-                );
+                $strSelectVal          = $prefix . $attribute->getColName();
+                $result[$strSelectVal] = $this->attributeLabelFormatter->formatLabel($attribute);
             }
         }
 
