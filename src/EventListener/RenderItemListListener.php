@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2023 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Mini Model <minimodel@metamodel.me>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2023 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,9 +28,13 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\GetPageDetailsEven
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\FrontendEditor;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
+use Contao\FrontendUser;
+use MetaModels\DcGeneral\DataDefinition\Definition\IMetaModelDefinition;
 use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
 use MetaModels\IFactory;
+use MetaModels\ViewCombination\InputScreenInformationBuilder;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -78,23 +82,43 @@ class RenderItemListListener
     private $frontendEditor;
 
     /**
+     * The security.
+     *
+     * @var Security
+     */
+    private Security $security;
+
+    /**
+     * The input screen information builder.
+     *
+     * @var InputScreenInformationBuilder
+     */
+    private InputScreenInformationBuilder $inputScreens;
+
+    /**
      * RenderItemListListener constructor.
      *
-     * @param TranslatorInterface      $translator     The translator.
-     * @param EventDispatcherInterface $dispatcher     The event dispatcher.
-     * @param IFactory                 $factory        The MetaModels factory.
-     * @param FrontendEditor           $frontendEditor The DCGeneral frontend editor.
+     * @param TranslatorInterface           $translator     The translator.
+     * @param EventDispatcherInterface      $dispatcher     The event dispatcher.
+     * @param IFactory                      $factory        The MetaModels factory.
+     * @param FrontendEditor                $frontendEditor The DCGeneral frontend editor.
+     * @param Security                      $security       The security.
+     * @param InputScreenInformationBuilder $inputScreens   The input screen information builder.
      */
     public function __construct(
         TranslatorInterface $translator,
         EventDispatcherInterface $dispatcher,
         IFactory $factory,
-        FrontendEditor $frontendEditor
+        FrontendEditor $frontendEditor,
+        Security $security,
+        InputScreenInformationBuilder $inputScreens
     ) {
         $this->translator     = $translator;
         $this->dispatcher     = $dispatcher;
         $this->factory        = $factory;
         $this->frontendEditor = $frontendEditor;
+        $this->security       = $security;
+        $this->inputScreens   = $inputScreens;
     }
 
     /**
@@ -119,8 +143,34 @@ class RenderItemListListener
         $editingPage     = $settings->get(self::FRONTEND_EDITING_PAGE);
         $modelId         = ModelId::fromValues($tableName, $item->get('id'))->getSerialized();
 
+        // Check FEE permissions of member for item.
+        $isEditableForMember = true;
+        /** @var IMetaModelDefinition $metaModels */
+        $metaModel  = $definition->getDefinition(IMetaModelDefinition::NAME);
+        $screen     = $this->inputScreens->fetchInputScreens([$tableName => $metaModel->getActiveInputScreen()]);
+        $screenMeta = $screen[$tableName]['meta'];
+
+        if (!empty($screenMeta['fe_useMemberPermissions'])
+            && !empty($memberAttribut = $screenMeta['fe_memberAttribut'])) {
+            // Reset permissions.
+            $isEditableForMember = false;
+
+            // Get username of member.
+            $user      = $this->security->getUser();
+            $itemValue = $item->parseAttribute($memberAttribut,'text');
+            $username  = $itemValue['raw']['username'] ?? '';
+
+            // Add edit links, for member with enough permissions or
+            // member attribute is not in render settings.
+            if ((null === $itemValue['raw'])
+                || (($user instanceof FrontendUser)
+                    && $username === $user->getUserIdentifier())) {
+                $isEditableForMember = true;
+            }
+        }
+
         // Add edit action
-        if ($basicDefinition->isEditable()) {
+        if ($basicDefinition->isEditable() && $isEditableForMember) {
             $parsed['actions']['edit'] = [
                 'label' => $this->translateLabel('metamodel_edit_item', $definition->getName()),
                 'href'  => $this->generateEditUrl($editingPage, $modelId),
@@ -129,7 +179,7 @@ class RenderItemListListener
         }
 
         // Add copy action
-        if ($basicDefinition->isCreatable()) {
+        if ($basicDefinition->isCreatable() && $isEditableForMember) {
             $parsed['actions']['copy'] = [
                 'label' => $this->translateLabel('metamodel_copy_item', $definition->getName()),
                 'href'  => $this->generateCopyUrl($editingPage, $modelId),
@@ -138,7 +188,10 @@ class RenderItemListListener
         }
 
         // Add create variant action
-        if (false === $item->isVariant() && $basicDefinition->isCreatable() && $item->getMetaModel()->hasVariants()) {
+        if (false === $item->isVariant()
+            && $basicDefinition->isCreatable()
+            && $item->getMetaModel()->hasVariants()
+            && $isEditableForMember) {
             $parsed['actions']['createvariant'] = [
                 'label' => $this->translateLabel('metamodel_create_variant', $definition->getName()),
                 'href'  => $this->generateCreateVariantUrl($editingPage, $modelId),
@@ -147,7 +200,7 @@ class RenderItemListListener
         }
 
         // Add delete action
-        if ($basicDefinition->isDeletable()) {
+        if ($basicDefinition->isDeletable() && $isEditableForMember) {
             $parsed['actions']['delete'] = [
                 'label'     => $this->translateLabel('metamodel_delete_item', $definition->getName()),
                 'href'      => $this->generateDeleteUrl($editingPage, $modelId),

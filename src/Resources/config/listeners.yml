@@ -6,6 +6,8 @@ services:
           - '@event_dispatcher'
           - '@metamodels.factory'
           - '@cca.dc-general.contao_frontend.editor'
+          - '@Symfony\Component\Security\Core\Security'
+          - '@metamodels.view_combination.input_screen_information_builder'
         tags:
           - { name: kernel.event_listener, event: 'metamodels.render-item-list', method: handleFrontendEditingInListRendering }
           - { name: kernel.event_listener, event: 'metamodels.parse-item', method: handleForItemRendering }
@@ -60,3 +62,25 @@ services:
                 event: dc-general.contao-frontend.handle-submit
                 priority: 128
 
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\GetAttributeMemberListener:
+        arguments:
+            - '@cca.dc-general.scope-matcher'
+            - '@metamodels.factory'
+        tags:
+            -
+                name: kernel.event_listener
+                event: 'dc-general.view.contao2backend.get-property-options'
+                method: getPropertyOptions
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\EditMaskMemberPermissionListener:
+        public: true
+        arguments:
+            - '@cca.dc-general.scope-matcher'
+            - '@Symfony\Component\Security\Core\Security'
+            - '@metamodels.view_combination.input_screen_information_builder'
+        tags:
+            - { name: kernel.event_listener, event: dc-general.model.pre-persist, method: saveMemberId }
+            - { name: kernel.event_listener, event: dc-general.model.pre-edit-model, method: checkPreEditFee }
+            - { name: kernel.event_listener, event: dc-general.model.pre-persist, method: checkSaveFee }
+            - { name: kernel.event_listener, event: dc-general.model.pre-duplicate, method: checkDuplicateFee }
+            - { name: kernel.event_listener, event: dc-general.model.pre-delete, method: checkDeleteFee }
