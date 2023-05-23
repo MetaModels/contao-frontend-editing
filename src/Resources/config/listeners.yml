@@ -86,3 +86,19 @@ services:
             - { name: kernel.event_listener, event: dc-general.model.pre-persist, method: checkSaveFee }
             - { name: kernel.event_listener, event: dc-general.model.pre-duplicate, method: checkDuplicateFee }
             - { name: kernel.event_listener, event: dc-general.model.pre-delete, method: checkDeleteFee }
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\ManipulateWidgetListener:
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_listener, event: dc-general.view.contao2backend.manipulate-widget }
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dcasetting\TemplateOptionListener:
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+            - "@metamodels.template_list"
+        tags:
+            - name: kernel.event_listener
+              event: dc-general.view.contao2backend.get-property-options
+              method: handle
