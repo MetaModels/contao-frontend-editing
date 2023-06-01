@@ -38,7 +38,7 @@
     "contao/core-bundle": "^4.9.0, <4.13.0",
     "menatwork/contao-multicolumnwizard-bundle": "^3.4",
     "metamodels/core": "^2.2",
-    "symfony/http-foundation": "^4.4.6"
+    "symfony/http-foundation": "^5.4.24"
   },
   "require-dev": {
     "contao/manager-plugin": "^2.8",
