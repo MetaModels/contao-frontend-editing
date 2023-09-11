@@ -17,7 +17,7 @@
  * @filesource
  */
 
-namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca;
+namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\FilterSetting;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
@@ -27,6 +27,7 @@ use MetaModels\AttributeSelectBundle\Attribute\AbstractSelect;
 use MetaModels\Attribute\ISimple;
 use MetaModels\CoreBundle\Formatter\SelectAttributeOptionLabelFormatter;
 use MetaModels\DcGeneral\Data\Model;
+use MetaModels\Filter\Setting\IFilterSettingFactory;
 use MetaModels\IFactory;
 use MetaModels\ITranslatedMetaModel;
 
@@ -37,14 +38,14 @@ class GetAttributeMemberListener
      *
      * @var RequestScopeDeterminator
      */
-    private $scopeDeterminator;
+    private RequestScopeDeterminator $scopeDeterminator;
 
     /**
-     * Metamodels factory.
+     * The filter setting factory.
      *
-     * @var IFactory
+     * @var IFilterSettingFactory
      */
-    private $factory;
+    private IFilterSettingFactory $filterFactory;
 
     /**
      * The attribute select option label formatter.
@@ -57,16 +58,16 @@ class GetAttributeMemberListener
      * GetOptionsListener constructor.
      *
      * @param RequestScopeDeterminator            $scopeDeterminator       Request scope determinator.
-     * @param IFactory                            $factory                 Metamodels factory.
+     * @param IFilterSettingFactory               $filterFactory           The filter setting factory.
      * @param SelectAttributeOptionLabelFormatter $attributeLabelFormatter The attribute select option label formatter.
      */
     public function __construct(
         RequestScopeDeterminator $scopeDeterminator,
-        IFactory $factory,
+        IFilterSettingFactory $filterFactory,
         SelectAttributeOptionLabelFormatter $attributeLabelFormatter
     ) {
         $this->scopeDeterminator       = $scopeDeterminator;
-        $this->factory                 = $factory;
+        $this->filterFactory           = $filterFactory;
         $this->attributeLabelFormatter = $attributeLabelFormatter;
     }
 
@@ -77,18 +78,21 @@ class GetAttributeMemberListener
      *
      * @return bool
      */
-    private function wantToHandle(GetPropertyOptionsEvent $event)
+    private function wantToHandle(GetPropertyOptionsEvent $event): bool
     {
         if (false === $this->scopeDeterminator->currentScopeIsBackend()) {
             return false;
         }
 
         return
-            ((($event->getEnvironment()->getDataDefinition()->getName() === 'tl_metamodel_dca')
-              && ($event->getPropertyName() === 'fe_memberAttribut'))
-             || (($event->getEnvironment()->getDataDefinition()->getName() === 'tl_metamodel_filtersetting')
-                 && ($event->getModel()->getProperty('type') === 'member_filter')
-                 && ($event->getPropertyName() === 'attr_id')));
+            (
+                ($event->getEnvironment()->getDataDefinition()->getName() === 'tl_metamodel_dca')
+                && ($event->getPropertyName() === 'fe_memberAttribut')
+            ) || (
+                ($event->getEnvironment()->getDataDefinition()->getName() === 'tl_metamodel_filtersetting')
+                && ($event->getModel()->getProperty('type') === 'member_filter')
+                && ($event->getPropertyName() === 'attr_id')
+            );
     }
 
     /**
@@ -102,22 +106,14 @@ class GetAttributeMemberListener
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function getPropertyOptions(GetPropertyOptionsEvent $event)
+    public function getPropertyOptions(GetPropertyOptionsEvent $event): void
     {
         if (null !== $event->getOptions() || !$this->wantToHandle($event)) {
             return;
         }
 
-        $model       = $event->getModel();
-        $metaModelId = $model->getProperty('pid');
-        if (!$metaModelId) {
-            $metaModelId = ModelId::fromSerialized(
-                $event->getEnvironment()->getInputProvider()->getParameter('pid')
-            )->getId();
-        }
-
-        $metaModelName = $this->factory->translateIdToMetaModelName($metaModelId);
-        $metaModel     = $this->factory->getMetaModel($metaModelName);
+        $model     = $event->getModel();
+        $metaModel = $this->filterFactory->createCollection($model->getProperty('fid'))->getMetaModel();
 
         if (!$metaModel) {
             return;
