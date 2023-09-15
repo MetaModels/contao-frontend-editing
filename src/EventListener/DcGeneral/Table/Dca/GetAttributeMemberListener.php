@@ -17,7 +17,7 @@
  * @filesource
  */
 
-namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\FilterSetting;
+namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
@@ -27,7 +27,6 @@ use MetaModels\AttributeSelectBundle\Attribute\AbstractSelect;
 use MetaModels\Attribute\ISimple;
 use MetaModels\CoreBundle\Formatter\SelectAttributeOptionLabelFormatter;
 use MetaModels\DcGeneral\Data\Model;
-use MetaModels\Filter\Setting\IFilterSettingFactory;
 use MetaModels\IFactory;
 use MetaModels\ITranslatedMetaModel;
 
@@ -41,11 +40,11 @@ class GetAttributeMemberListener
     private RequestScopeDeterminator $scopeDeterminator;
 
     /**
-     * The filter setting factory.
+     * Metamodels factory.
      *
-     * @var IFilterSettingFactory
+     * @var IFactory
      */
-    private IFilterSettingFactory $filterFactory;
+    private IFactory $factory;
 
     /**
      * The attribute select option label formatter.
@@ -58,16 +57,16 @@ class GetAttributeMemberListener
      * GetOptionsListener constructor.
      *
      * @param RequestScopeDeterminator            $scopeDeterminator       Request scope determinator.
-     * @param IFilterSettingFactory               $filterFactory           The filter setting factory.
+     * @param IFactory                            $factory                 Metamodels factory.
      * @param SelectAttributeOptionLabelFormatter $attributeLabelFormatter The attribute select option label formatter.
      */
     public function __construct(
         RequestScopeDeterminator $scopeDeterminator,
-        IFilterSettingFactory $filterFactory,
+        IFactory $factory,
         SelectAttributeOptionLabelFormatter $attributeLabelFormatter
     ) {
         $this->scopeDeterminator       = $scopeDeterminator;
-        $this->filterFactory           = $filterFactory;
+        $this->factory                 = $factory;
         $this->attributeLabelFormatter = $attributeLabelFormatter;
     }
 
@@ -86,9 +85,8 @@ class GetAttributeMemberListener
 
         return
             (
-                $event->getEnvironment()->getDataDefinition()->getName() === 'tl_metamodel_filtersetting'
-                && ($event->getModel()->getProperty('type') === 'member_filter')
-                && ($event->getPropertyName() === 'attr_id')
+                ($event->getEnvironment()->getDataDefinition()->getName() === 'tl_metamodel_dca')
+                && ($event->getPropertyName() === 'fe_memberAttribut')
             );
     }
 
@@ -109,8 +107,16 @@ class GetAttributeMemberListener
             return;
         }
 
-        $model     = $event->getModel();
-        $metaModel = $this->filterFactory->createCollection($model->getProperty('fid'))->getMetaModel();
+        $model       = $event->getModel();
+        $metaModelId = $model->getProperty('pid');
+        if (!$metaModelId) {
+            $metaModelId = ModelId::fromSerialized(
+                $event->getEnvironment()->getInputProvider()->getParameter('pid')
+            )->getId();
+        }
+
+        $metaModelName = $this->factory->translateIdToMetaModelName($metaModelId);
+        $metaModel     = $this->factory->getMetaModel($metaModelName);
 
         if (!$metaModel) {
             return;

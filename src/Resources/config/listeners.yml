@@ -62,6 +62,18 @@ services:
                 event: dc-general.contao-frontend.handle-submit
                 priority: 128
 
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\GetAttributeMemberListener:
+        arguments:
+            - '@cca.dc-general.scope-matcher'
+            - '@metamodels.factory'
+            - '@MetaModels\CoreBundle\Formatter\SelectAttributeOptionLabelFormatter'
+        tags:
+            -
+                name: kernel.event_listener
+                event: 'dc-general.view.contao2backend.get-property-options'
+                method: getPropertyOptions
+                priority: 128
+
     MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\FilterSetting\GetAttributeMemberListener:
         arguments:
             - '@cca.dc-general.scope-matcher'
