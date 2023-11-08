@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2023 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2023 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,9 +24,15 @@ namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaMod
 
 use Contao\CoreBundle\Exception\RedirectResponseException;
 use Contao\CoreBundle\Framework\Adapter;
+use Contao\CoreBundle\String\SimpleTokenParser;
 use Contao\PageModel;
+use Contao\StringUtil;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\TraitFrontendScope;
 use MetaModels\ViewCombination\ViewCombination;
 
@@ -42,29 +48,51 @@ class NotSaveEditModelButton
      *
      * @var ViewCombination
      */
-    private $viewCombination;
+    private ViewCombination $viewCombination;
 
     /**
      * The page model service.
      *
      * @var Adapter|PageModel
      */
-    private $pageService;
+    private Adapter|PageModel $pageService;
+
+    /**
+     * The string util service.
+     *
+     * @var Adapter|StringUtil
+     */
+    private Adapter|StringUtil $stringUtilService;
+
+    /**
+     * The token parser.
+     *
+     * @var SimpleTokenParser
+     */
+    private SimpleTokenParser $tokenParser;
 
     /**
      * The constructor.
      *
-     * @param ViewCombination $viewCombination The view combination.
-     * @param Adapter         $pageService     The page model service.
+     * @param ViewCombination   $viewCombination   The view combination.
+     * @param Adapter           $pageService       The page model service.
+     * @param Adapter           $stringUtilService The string util service.
+     * @param SimpleTokenParser $tokenParser       The token parser.
      */
-    public function __construct(ViewCombination $viewCombination, Adapter $pageService)
-    {
-        $this->viewCombination = $viewCombination;
-        $this->pageService     = $pageService;
+    public function __construct(
+        ViewCombination $viewCombination,
+        Adapter $pageService,
+        Adapter $stringUtilService,
+        SimpleTokenParser $tokenParser
+    ) {
+        $this->viewCombination   = $viewCombination;
+        $this->pageService       = $pageService;
+        $this->stringUtilService = $stringUtilService;
+        $this->tokenParser       = $tokenParser;
     }
 
     /**
-     * Ivoke the event.
+     * Invoke the event.
      *
      * @param ActionEvent $event The event.
      *
@@ -76,6 +104,29 @@ class NotSaveEditModelButton
             || !$this->wantToHandle($event)
             || (null === ($button = $this->findButton($event)))) {
             return;
+        }
+
+        $inputProvider = $event->getEnvironment()->getInputProvider();
+        $dataProvider  = $event->getEnvironment()->getDataProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $idValue = $inputProvider->getParameter('id');
+        if ($idValue) {
+            $model = $dataProvider->fetch(
+                $dataProvider->getEmptyConfig()->setId(ModelId::fromSerialized($idValue)->getId())
+            );
+
+            if (null !== $model) {
+                $tokenData = [];
+                // Get model properties.
+                foreach ($model->getPropertiesAsArray() as $keyData => $valueData) {
+                    $tokenData['model_' . $keyData] = $valueData;
+                }
+
+                // Replace simple tokens.
+                $button = $this->replaceSimpleTokensAtJumpToParameter($button, $tokenData);
+            }
         }
 
         $this->forwardTo($button);
@@ -104,7 +155,7 @@ class NotSaveEditModelButton
         /** @var PageModel $pageModel */
         $pageModel       = $this->pageService->findByIdOrAlias($pageId);
         $jumpToParameter = \html_entity_decode(($button['jumpToParameter'] ?? ''));
-        if (0 === \strpos($jumpToParameter, '?')) {
+        if (\str_starts_with($jumpToParameter, '?')) {
             $url = $pageModel->getAbsoluteUrl() . $jumpToParameter;
         } else {
             $url = $pageModel->getAbsoluteUrl($jumpToParameter ? '/' . \ltrim($jumpToParameter, '/') : '');
@@ -122,7 +173,10 @@ class NotSaveEditModelButton
      */
     private function findButton(ActionEvent $event): ?array
     {
-        $inputScreen = $this->viewCombination->getScreen($event->getEnvironment()->getDataDefinition()->getName());
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $inputScreen = $this->viewCombination->getScreen($dataDefinition->getName());
         if (!$inputScreen
             || !isset($inputScreen['meta']['fe_overrideEditButtons'], $inputScreen['meta']['fe_editButtons'])
             || !$inputScreen['meta']['fe_overrideEditButtons']
@@ -135,8 +189,10 @@ class NotSaveEditModelButton
             $buttons = \unserialize($buttons, ['allowed_classes' => false]);
         }
 
-        $findButton    = null;
         $inputProvider = $event->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $findButton = null;
         foreach ($buttons as $button) {
             if (!$button['notSave'] || !$inputProvider->hasValue($button['name'])) {
                 continue;
@@ -147,5 +203,27 @@ class NotSaveEditModelButton
         }
 
         return $findButton;
+    }
+
+    /**
+     * Replace simple tokens at button parameter 'jumpToParameter'.
+     *
+     * @param array $button    The button.
+     * @param array $tokenData The token data.
+     *
+     * @return array
+     */
+    private function replaceSimpleTokensAtJumpToParameter(array $button, array $tokenData): array
+    {
+        if (\str_contains($button['jumpToParameter'], '&#35;&#35;')
+            || \str_contains($button['jumpToParameter'], '##')) {
+            $button['jumpToParameter'] =
+                $this->tokenParser->parse(
+                    \str_replace('&#35;', '#', $button['jumpToParameter']),
+                    $tokenData
+                );
+        }
+
+        return $button;
     }
 }

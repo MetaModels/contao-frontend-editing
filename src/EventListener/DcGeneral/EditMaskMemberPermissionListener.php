@@ -231,7 +231,7 @@ class EditMaskMemberPermissionListener
 
         // Retrieve the settings of the input mask for member attribute.
         $dataDefinition = $event->getEnvironment()->getDataDefinition();
-        /** @var IMetaModelDefinition $metaModels */
+        /** @var IMetaModelDefinition $metaModel */
         $metaModel     = $dataDefinition->getDefinition(IMetaModelDefinition::NAME);
         $metaModelName = $dataDefinition->getName();
         $screen        = $this->inputScreens->fetchInputScreens([$metaModelName => $metaModel->getActiveInputScreen()]);
