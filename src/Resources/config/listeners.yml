@@ -42,6 +42,8 @@ services:
         arguments:
             - '@MetaModels\ViewCombination\ViewCombination'
             - '@=service("contao.framework").getAdapter("Contao\\PageModel")'
+            - '@=service("contao.framework").getAdapter("Contao\\StringUtil")'
+            - '@contao.string.simple_token_parser'
         tags:
             -   name: kernel.event_listener
                 event: dc-general.action
