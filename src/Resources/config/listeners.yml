@@ -44,6 +44,7 @@ services:
             - '@=service("contao.framework").getAdapter("Contao\\PageModel")'
             - '@=service("contao.framework").getAdapter("Contao\\StringUtil")'
             - '@contao.string.simple_token_parser'
+            - '@contao.insert_tag.parser'
         tags:
             -   name: kernel.event_listener
                 event: dc-general.action
@@ -59,6 +60,7 @@ services:
             - '@MetaModels\ViewCombination\ViewCombination'
             - '@=service("contao.framework").getAdapter("Contao\\PageModel")'
             - '@=service("contao.framework").getAdapter("Contao\\StringUtil")'
+            - '@contao.insert_tag.parser'
         tags:
             -   name: kernel.event_listener
                 event: dc-general.contao-frontend.handle-submit

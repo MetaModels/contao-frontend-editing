@@ -45,7 +45,8 @@ $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_jumpTo']          = [
 ];
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_jumpToParameter'] = [
     'Parameter',
-    'Here can you define additional url parameter for the forward page. You can use simple tokens e.g. ##model_alias##'
+    'Here can you define additional url parameter for the forward page. ' .
+    'You can use simple tokens e.g. ##model_alias## and Contao insert tags.'
 ];
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_notSave']         = [
     'Not save',
