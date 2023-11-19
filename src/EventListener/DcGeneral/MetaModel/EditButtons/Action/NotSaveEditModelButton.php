@@ -24,6 +24,7 @@ namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaMod
 
 use Contao\CoreBundle\Exception\RedirectResponseException;
 use Contao\CoreBundle\Framework\Adapter;
+use Contao\CoreBundle\InsertTag\InsertTagParser;
 use Contao\CoreBundle\String\SimpleTokenParser;
 use Contao\PageModel;
 use Contao\StringUtil;
@@ -72,23 +73,33 @@ class NotSaveEditModelButton
     private SimpleTokenParser $tokenParser;
 
     /**
+     * The insert-tags parser.
+     *
+     * @var InsertTagParser
+     */
+    private InsertTagParser $insertTagParser;
+
+    /**
      * The constructor.
      *
      * @param ViewCombination   $viewCombination   The view combination.
      * @param Adapter           $pageService       The page model service.
      * @param Adapter           $stringUtilService The string util service.
      * @param SimpleTokenParser $tokenParser       The token parser.
+     * @param InsertTagParser   $insertTagParser   The insert-tags parser.
      */
     public function __construct(
         ViewCombination $viewCombination,
         Adapter $pageService,
         Adapter $stringUtilService,
-        SimpleTokenParser $tokenParser
+        SimpleTokenParser $tokenParser,
+        InsertTagParser $insertTagParser
     ) {
         $this->viewCombination   = $viewCombination;
         $this->pageService       = $pageService;
         $this->stringUtilService = $stringUtilService;
         $this->tokenParser       = $tokenParser;
+        $this->insertTagParser   = $insertTagParser;
     }
 
     /**
@@ -128,6 +139,8 @@ class NotSaveEditModelButton
                 $button = $this->replaceSimpleTokensAtJumpToParameter($button, $tokenData);
             }
         }
+
+        $button['jumpToParameter'] = $this->insertTagParser->replace($button['jumpToParameter']);
 
         $this->forwardTo($button);
     }
