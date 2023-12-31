@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Mini Model <minimodel@metamodel.me>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -63,23 +63,25 @@ use Symfony\Component\Translation\TranslatorInterface;
  * This tests the RenderItemListListener.
  *
  * @covers \MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class RenderItemListListenerTest extends TestCase
 {
     /**
-     * This is the hack to mimic the Contao auto loader.
+     * This is the hack to mimic the Contao auto-loader.
      *
      * @return void
      */
     public static function contaoAutoload($class): void
     {
-        if (0 === strpos($class, 'Contao\\')) {
+        if (\str_starts_with($class, 'Contao\\')) {
             return;
         }
-        $result = class_exists('Contao\\' . $class);
+        $result = \class_exists('Contao\\' . $class);
 
         if ($result) {
-            class_alias('Contao\\' . $class, $class);
+            \class_alias('Contao\\' . $class, $class);
         }
     }
 
@@ -90,7 +92,7 @@ class RenderItemListListenerTest extends TestCase
     {
         parent::setUp();
         // This is the hack to mimic the Contao auto loader.
-        spl_autoload_register(self::class . '::contaoAutoload');
+        \spl_autoload_register(self::class . '::contaoAutoload');
     }
 
     /**
@@ -98,7 +100,7 @@ class RenderItemListListenerTest extends TestCase
      */
     protected function tearDown(): void
     {
-        spl_autoload_unregister(self::class . '::contaoAutoload');
+        \spl_autoload_unregister(self::class . '::contaoAutoload');
         parent::tearDown();
     }
 
@@ -132,6 +134,8 @@ class RenderItemListListenerTest extends TestCase
      * Test that the method works correctly.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     public function testHandleForItemRenderingAddsWithEditFlag(): void
     {
@@ -139,6 +143,7 @@ class RenderItemListListenerTest extends TestCase
         $definitions = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
         System::setContainer($container);
 
+        /** @SuppressWarnings(PHPMD.LongVariable) */
         $dcGeneralFactoryCache = $this->getMockBuilder(CacheProvider::class)
                                         ->disableOriginalConstructor()
                                         ->getMock();
@@ -496,6 +501,8 @@ class RenderItemListListenerTest extends TestCase
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     public function testFrontendEditingInListRenderingAddsWithEditFlag(): void
     {
@@ -516,6 +523,7 @@ class RenderItemListListenerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        /** @SuppressWarnings(PHPMD.LongVariable) */
         $dcGeneralFactoryCache = $this->getMockBuilder(CacheProvider::class)
             ->disableOriginalConstructor()
             ->getMock();

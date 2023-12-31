@@ -25,6 +25,8 @@ use MetaModels\ContaoFrontendEditingBundle\FrontendEditHybrid;
 
 /**
  * This class is the integration as module.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 class ModelEdit extends FrontendEditHybrid
 {

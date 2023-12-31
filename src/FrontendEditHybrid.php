@@ -36,6 +36,8 @@ use MetaModels\IFactory;
 
 /**
  * This class is the base for the frontend integrations.
+ *
+ * @psalm-suppress DeprecatedClass
  */
 abstract class FrontendEditHybrid extends MetaModelHybrid
 {
@@ -58,14 +60,14 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      *
      * @var IFactory
      */
-    private $factory;
+    private IFactory $factory;
 
     /**
      * The frontend editor.
      *
      * @var FrontendEditor
      */
-    private $editor;
+    private FrontendEditor $editor;
 
     /**
      * FrontendEditHybrid constructor.
@@ -75,9 +77,12 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      */
     public function __construct($element, $column = 'main')
     {
+        /** @psalm-suppress DeprecatedClass */
         parent::__construct($element, $column);
 
+        /** @psalm-suppress PropertyTypeCoercion */
         $this->factory = System::getContainer()->get('metamodels.factory');
+        /** @psalm-suppress PropertyTypeCoercion */
         $this->editor  = System::getContainer()->get('cca.dc-general.contao_frontend.editor');
     }
 
@@ -88,9 +93,13 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      */
     public function generate(): string
     {
+        /** @psalm-suppress UndefinedThisPropertyFetch */
         if ($this->customTpl) {
+            /** @psalm-suppress UndefinedThisPropertyFetch */
             $this->strTemplate = $this->customTpl;
         }
+
+        /** @psalm-suppress DeprecatedClass */
         return parent::generate();
     }
 
@@ -103,9 +112,11 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      */
     protected function compile(): void
     {
+        /** @psalm-suppress UndefinedThisPropertyFetch */
         $metaModel = $this->factory->translateIdToMetaModelName($this->metamodel);
 
         try {
+            /** @psalm-suppress UndefinedMagicPropertyAssignment */
             $this->Template->editor = $this->editor->editFor($metaModel, 'create');
         } catch (NotEditableException $exception) {
             throw new AccessDeniedException($exception->getMessage());

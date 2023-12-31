@@ -111,9 +111,11 @@ class NotSaveEditModelButton
      */
     public function __invoke(ActionEvent $event): void
     {
-        if (!\in_array($event->getAction()->getName(), ['create', 'edit'])
+        if (
+            !\in_array($event->getAction()->getName(), ['create', 'edit'])
             || !$this->wantToHandle($event)
-            || (null === ($button = $this->findButton($event)))) {
+            || (null === ($button = $this->findButton($event)))
+        ) {
             return;
         }
 
@@ -190,7 +192,8 @@ class NotSaveEditModelButton
         assert($dataDefinition instanceof ContainerInterface);
 
         $inputScreen = $this->viewCombination->getScreen($dataDefinition->getName());
-        if (!$inputScreen
+        if (
+            !$inputScreen
             || !isset($inputScreen['meta']['fe_overrideEditButtons'], $inputScreen['meta']['fe_editButtons'])
             || !$inputScreen['meta']['fe_overrideEditButtons']
             || !($buttons = $inputScreen['meta']['fe_editButtons'])
@@ -228,8 +231,10 @@ class NotSaveEditModelButton
      */
     private function replaceSimpleTokensAtJumpToParameter(array $button, array $tokenData): array
     {
-        if (\str_contains($button['jumpToParameter'], '&#35;&#35;')
-            || \str_contains($button['jumpToParameter'], '##')) {
+        if (
+            \str_contains($button['jumpToParameter'], '&#35;&#35;')
+            || \str_contains($button['jumpToParameter'], '##')
+        ) {
             $button['jumpToParameter'] =
                 $this->tokenParser->parse(
                     \str_replace('&#35;', '#', $button['jumpToParameter']),

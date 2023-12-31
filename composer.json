@@ -1,14 +1,13 @@
 {
   "name": "metamodels/contao-frontend-editing",
   "description": "MetaModels frontend editing integrations",
+  "license": "LGPL-3.0-or-later",
+  "type": "contao-bundle",
   "keywords": [
     "contao",
     "metamodels",
     "frontend-editing"
   ],
-  "type": "contao-bundle",
-  "homepage": "https://now.metamodel.me/",
-  "license": "LGPL-3.0-or-later",
   "authors": [
     {
       "name": "Christian Schiffler",
@@ -22,6 +21,7 @@
       "role": "Developer"
     }
   ],
+  "homepage": "https://now.metamodel.me/",
   "support": {
     "email": "mail@metamodel.me",
     "issues": "https://github.com/MetaModels/contao-frontend-editing/issues",
@@ -35,16 +35,22 @@
     "contao-community-alliance/dc-general": "^2.3",
     "contao-community-alliance/dc-general-contao-frontend": "^2.3@dev",
     "contao-community-alliance/url-builder": "^1.3",
-    "contao/core-bundle": "^4.13.0, <5.0",
+    "contao/core-bundle": "^4.13.0 <5.0",
     "menatwork/contao-multicolumnwizard-bundle": "^3.4",
-    "metamodels/core": "^2.3@dev",
+    "metamodels/core": "dev-feature/phpcq-2 as 2.3.0",
     "symfony/http-foundation": "^5.4"
   },
   "require-dev": {
     "contao/manager-plugin": "^2.8",
-    "phpcq/all-tasks": "^1.2",
+    "phpcq/runner-bootstrap": "^1.0@dev",
     "terminal42/notification_center": "^1.5.8"
   },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packages.cyberspectrum.de/r"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "MetaModels\\ContaoFrontendEditingBundle\\": "src"
@@ -55,18 +61,19 @@
       "MetaModels\\ContaoFrontendEditingBundle\\Test\\": "tests"
     }
   },
-  "extra": {
-    "contao-manager-plugin": "MetaModels\\ContaoFrontendEditingBundle\\ContaoManager\\Plugin",
-    "branch-alias": {
-      "dev-feature/2.3.0": "2.3.x-dev"
-    }
-  },
   "config": {
     "allow-plugins": {
       "contao-community-alliance/composer-plugin": false,
       "contao-components/installer": false,
-      "contao/manager-plugin": false
+      "contao/manager-plugin": false,
+      "php-http/discovery": true
     },
     "sort-packages": true
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-feature/2.3.0": "2.3.x-dev"
+    },
+    "contao-manager-plugin": "MetaModels\\ContaoFrontendEditingBundle\\ContaoManager\\Plugin"
   }
 }
