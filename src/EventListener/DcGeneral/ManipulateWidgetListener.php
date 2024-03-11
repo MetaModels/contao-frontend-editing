@@ -63,9 +63,9 @@ final class ManipulateWidgetListener
         }
 
         $property = $event->getProperty();
-        $item     = $model->getItem();
-        assert($item instanceof IItem);
-        $attribute = $item->getMetaModel()->getAttribute($property->getName());
+        if (null === $attribute = $model->getItem()?->getMetaModel()->getAttribute($property->getName())) {
+            return;
+        }
 
         // Check virtual types.
         if ($attribute instanceof IInternal) {
