@@ -11,6 +11,12 @@
       <trans-unit id="fe_memberAttribut_legend" resname="fe_memberAttribut_legend">
         <source>Frontend member permission</source>
       </trans-unit>
+      <trans-unit id="fe_overrideEditButtons.label" resname="fe_overrideEditButtons.label">
+        <source>Override frontend edit buttons</source>
+      </trans-unit>
+      <trans-unit id="fe_overrideEditButtons.description" resname="fe_overrideEditButtons.description">
+        <source>If is checked, so you can define the edit buttons.</source>
+      </trans-unit>
       <trans-unit id="fe_editButtons.label" resname="fe_editButtons.label">
         <source>Frontend edit buttons</source>
       </trans-unit>
