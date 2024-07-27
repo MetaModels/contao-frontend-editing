@@ -1,0 +1,38 @@
+[main]
+host = https://app.transifex.com
+
+[o:metamodels:p:contao-frontend-editing:r:metamodels_default]
+file_filter            = src/Resources/translations/metamodels_default.<lang>.xlf
+source_file            = src/Resources/translations/metamodels_default.en.xlf
+type                   = XLIFF
+minimum_perc           = 0
+resource_name          = metamodels_default
+replace_edited_strings = false
+keep_translations      = false
+
+[o:metamodels:p:contao-frontend-editing:r:tl_metamodel_dca]
+file_filter            = src/Resources/translations/tl_metamodel_dca.<lang>.xlf
+source_file            = src/Resources/translations/tl_metamodel_dca.en.xlf
+type                   = XLIFF
+minimum_perc           = 0
+resource_name          = tl_metamodel_dca
+replace_edited_strings = false
+keep_translations      = false
+
+[o:metamodels:p:contao-frontend-editing:r:tl_metamodel_dcasetting]
+file_filter            = src/Resources/translations/tl_metamodel_dcasetting.<lang>.xlf
+source_file            = src/Resources/translations/tl_metamodel_dcasetting.en.xlf
+type                   = XLIFF
+minimum_perc           = 0
+resource_name          = tl_metamodel_dcasetting
+replace_edited_strings = false
+keep_translations      = false
+
+[o:metamodels:p:contao-frontend-editing:r:tl_metamodel_filtersetting]
+file_filter            = src/Resources/translations/tl_metamodel_filtersetting.<lang>.xlf
+source_file            = src/Resources/translations/tl_metamodel_filtersetting.en.xlf
+type                   = XLIFF
+minimum_perc           = 0
+resource_name          = tl_metamodel_filtersetting
+replace_edited_strings = false
+keep_translations      = false
