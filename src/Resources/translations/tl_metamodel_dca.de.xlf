@@ -1,0 +1,122 @@
+<?xml version="1.0" ?><xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="src/CoreBundle/Resources/translations/tl_metamodel_dca.en.xlf" target-language="de">
+    <body>
+      <trans-unit id="fe_editButtons_legend" resname="fe_editButtons_legend">
+        <source>Frontend edit buttons</source>
+        <target>Buttons im Frontend-Edit</target>
+      </trans-unit>
+      <trans-unit id="fe_notification_legend" resname="fe_notification_legend">
+        <source>Frontend notification</source>
+        <target>Notification beim Frontend-Edit</target>
+      </trans-unit>
+      <trans-unit id="fe_memberAttribut_legend" resname="fe_memberAttribut_legend">
+        <source>Frontend member permission</source>
+        <target>Berechtigung für Frontend-Mitglieder</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons.label" resname="fe_editButtons.label">
+        <source>Frontend edit buttons</source>
+        <target>Buttons im Frontend-Edit</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons.description" resname="fe_editButtons.description">
+        <source>Here can you define the edit buttons.</source>
+        <target>Hier können Sie die Buttons im Frontend-Edit anpassen.</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_name.label" resname="fe_editButtons_name.label">
+        <source>Name</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_name.description" resname="fe_editButtons_name.description">
+        <source>Here can you define the edit button name - e.g. 'saveNCreate' for save and create or 'button.canel' for own keys.</source>
+        <target>Hier können Sie den Namen des Buttons festlegen - z. B. 'saveNCreate' für Speichern und Erstellen oder 'button.canel' für eigene Übersetzungsschlüssel.</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_label.label" resname="fe_editButtons_label.label">
+        <source>Label</source>
+        <target>Label</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_label.description" resname="fe_editButtons_label.description">
+        <source>Here can you define the label of the edit button. If is not defined, so will look automatically for a translation BUTTON_NAME in model domain; is defined, we try to translate with default contao domain and fallback is raw text input.</source>
+        <target>Hier können Sie optional die Beschriftung des Buttons festlegen. Wenn nichts definiert ist, so wird automatisch eine Übersetzung für BUTTON_NAME in der Modell-Domäne gesucht; wenn es definiert ist, wird versucht, in der Standard-Contao-Domäne zu übersetzen und Fallback ist Rohtext-Eingabe.</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_attributes.label" resname="fe_editButtons_attributes.label">
+        <source>Attributes</source>
+        <target>Attribute</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_attributes.description" resname="fe_editButtons_attributes.description">
+        <source>Here can you define additional attributes for edit button html tag (e.g. accesskey='s').</source>
+        <target>Hier können Sie zusätzliche Attribute für den HTML-Tag des Buttons definieren (z. B. accesskey='s').</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_jumpTo.label" resname="fe_editButtons_jumpTo.label">
+        <source>Forwarding</source>
+        <target>Weiterleitung</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_jumpTo.description" resname="fe_editButtons_jumpTo.description">
+        <source>Here can you define the forward page.</source>
+        <target>Hier können Sie die Weiterleitungsseite festlegen.</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_jumpToParameter.label" resname="fe_editButtons_jumpToParameter.label">
+        <source>Parameter</source>
+        <target>Parameter</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_jumpToParameter.description" resname="fe_editButtons_jumpToParameter.description">
+        <source>Here can you define additional url parameter for the forward page. You can use simple tokens e.g. ##model_alias## and Contao insert tags.</source>
+        <target>Hier können Sie zusätzliche URL-Parameter für die Weiterleitungsseite definieren. Sie können 'Simple-Token' verwenden, z. B. ##model_alias##.</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_notSave.label" resname="fe_editButtons_notSave.label">
+        <source>Not save</source>
+        <target>Nicht speichern</target>
+      </trans-unit>
+      <trans-unit id="fe_editButtons_notSave.description" resname="fe_editButtons_notSave.description">
+        <source>Here can you define the model not saved. If the button clicked.</source>
+        <target>Hier können Sie festlegen, dass das Modell nicht gespeichert wird, wenn der Button geklickt wird.</target>
+      </trans-unit>
+      <trans-unit id="fe_create_notification.label" resname="fe_create_notification.label">
+        <source>'Create model</source>
+        <target>Datensatz erstellt</target>
+      </trans-unit>
+      <trans-unit id="fe_create_notification.description" resname="fe_create_notification.description">
+        <source>This notification type sent when a new model is created.</source>
+        <target>Dieser Benachrichtigungstyp wird gesendet, wenn ein neuer Datensatz erstellt wurde.</target>
+      </trans-unit>
+      <trans-unit id="fe_edit_notification.label" resname="fe_edit_notification.label">
+        <source>Edit model</source>
+        <target>Datensatz bearbeitet</target>
+      </trans-unit>
+      <trans-unit id="fe_edit_notification.description" resname="fe_edit_notification.description">
+        <source>This notification type sent when a model is edited.</source>
+        <target>Dieser Benachrichtigungstyp wird gesendet, wenn ein Datensatz bearbeitet wurde.</target>
+      </trans-unit>
+      <trans-unit id="fe_copy_notification.label" resname="fe_copy_notification.label">
+        <source>Copy model</source>
+        <target>Datensatz kopiert</target>
+      </trans-unit>
+      <trans-unit id="fe_copy_notification.description" resname="fe_copy_notification.description">
+        <source>This notification type sent when a model is copied.</source>
+        <target>Dieser Benachrichtigungstyp wird gesendet, wenn ein Datensatz kopiert wurde.</target>
+      </trans-unit>
+      <trans-unit id="fe_delete_notification.label" resname="fe_delete_notification.label">
+        <source>Delete model</source>
+        <target>Datensatz löschen</target>
+      </trans-unit>
+      <trans-unit id="fe_delete_notification.description" resname="fe_delete_notification.description">
+        <source>This notification type sent when a model is deleted.</source>
+        <target>Dieser Benachrichtigungstyp wird gesendet, wenn ein Datensatz gelöscht wurde.</target>
+      </trans-unit>
+      <trans-unit id="fe_useMemberPermissions.label" resname="fe_useMemberPermissions.label">
+        <source>Activate member permissions</source>
+        <target>Zugriffsberechtigung für Frontend-Mitglieder aktivieren</target>
+      </trans-unit>
+      <trans-unit id="fe_useMemberPermissions.description" resname="fe_useMemberPermissions.description">
+        <source>With this option, a logged-in member is saved in the record and only the member can edit the record again. You can create your own event listener for more complex assignment of rights.</source>
+        <target>Mit dieser Option wird ein eingeloggtes Mitglied im Datensatz gespeichert und nur dieses Mitglied kann den Datensatz wieder bearbeiten. Für eine komplexere Rechtevergabe können Sie einen eigenen Event-Listener erstellen.</target>
+      </trans-unit>
+      <trans-unit id="fe_memberAttribut.label" resname="fe_memberAttribut.label">
+        <source>Attribut for member</source>
+        <target>Mitglieder-Attribut</target>
+      </trans-unit>
+      <trans-unit id="fe_memberAttribut.description" resname="fe_memberAttribut.description">
+        <source>Select the attribute with which you have created the connection to the members table &quot;tl_member&quot; and alias to &quot;username&quot;.</source>
+        <target>Wählen Sie das Attribut aus, mit dem Sie die Verbindung zur Mitgliedertabelle &quot;tl_member&quot; erstellt haben und den Alias &quot;username&quot; hat.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
