@@ -414,7 +414,7 @@ class RenderItemListListener
      *
      * The fallback is as follows:
      * 1. Try to translate via the data definition name as translation section.
-     * 2. Try to translate with the prefix 'MSC.'.
+     * 2. Try to translate as default translation'.
      * 3. Return the input value as nothing worked out.
      *
      * @param string $transString    The non translated label for the button.
@@ -427,12 +427,12 @@ class RenderItemListListener
     {
         $translator = $this->translator;
 
-        $label = $translator->trans($definitionName . '.' . $transString, $parameters, 'contao_' . $definitionName);
-        if ($label !== $definitionName . '.' . $transString) {
+        $label = $translator->trans($transString, $parameters, $definitionName);
+        if ($label !== $transString) {
             return $label;
         }
 
-        $label = $translator->trans('MSC.' . $transString, $parameters, 'contao_default');
+        $label = $translator->trans($transString, $parameters, 'metamodels_default');
         if ($label !== $transString) {
             return $label;
         }
