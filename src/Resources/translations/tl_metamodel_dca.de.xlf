@@ -13,6 +13,14 @@
         <source>Frontend member permission</source>
         <target>Berechtigung für Frontend-Mitglieder</target>
       </trans-unit>
+      <trans-unit id="fe_overrideEditButtons.label" resname="fe_overrideEditButtons.label">
+        <source>Override frontend edit buttons</source>
+        <target>Buttons für Frontend-Editing anpassen</target>
+      </trans-unit>
+      <trans-unit id="fe_overrideEditButtons.description" resname="fe_overrideEditButtons.description">
+        <source>If is checked, so you can define the edit buttons.</source>
+        <target>Ist die Option gewählt, können die Buttons für das Frontend-Editing angepasst werden.</target>
+      </trans-unit>
       <trans-unit id="fe_editButtons.label" resname="fe_editButtons.label">
         <source>Frontend edit buttons</source>
         <target>Buttons im Frontend-Edit</target>
