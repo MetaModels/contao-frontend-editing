@@ -99,11 +99,14 @@ class OverrideEditModelButtons
                 continue;
             }
 
-            $label = $button['label']
-                ?: $dataDefinition->getName() . '.MSC.' . $button['name'];
-            if (false !== ($positionDot = \strpos($label, '.'))) {
-                $label = $this->translator->trans($label, [], 'contao_' . \substr($label, 0, $positionDot));
+            // If label not empty, try to translate at contao default -
+            // if label empty, translate at model name as domain
+            if ('' === $label = $button['label']) {
+                $label = $this->translator->trans($button['name'], [], $dataDefinition->getName());
+            } else {
+                $label = $this->translator->trans($label, [], 'contao_default');
             }
+
 
             $addButton = \sprintf(
                 $buttonTemplate,

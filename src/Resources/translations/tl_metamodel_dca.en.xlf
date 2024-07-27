@@ -21,13 +21,13 @@
         <source>Name</source>
       </trans-unit>
       <trans-unit id="fe_editButtons_name.description" resname="fe_editButtons_name.description">
-        <source>Here can you define the edit button name (e.g. \'saveNCreate\' for save and create).</source>
+        <source>Here can you define the edit button name - e.g. 'saveNCreate' for save and create or 'button.canel' for own keys.</source>
       </trans-unit>
       <trans-unit id="fe_editButtons_label.label" resname="fe_editButtons_label.label">
         <source>Label</source>
       </trans-unit>
       <trans-unit id="fe_editButtons_label.description" resname="fe_editButtons_label.description">
-        <source>Here can you optional define the label of the edit button. If is not defined, so will look automatically for a translation in TABLE_NAME.MSC.BUTTON_NAME</source>
+        <source>Here can you define the label of the edit button. If is not defined, so will look automatically for a translation BUTTON_NAME in model domain; is defined, we try to translate with default contao domain and fallback is raw text input.</source>
       </trans-unit>
       <trans-unit id="fe_editButtons_attributes.label" resname="fe_editButtons_attributes.label">
         <source>Attributes</source>
