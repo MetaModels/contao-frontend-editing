@@ -117,7 +117,7 @@ final class MemberFilter extends Simple
             return;
         }
 
-        // No attribute found, do not return anyting.
+        // No attribute found, do not return anything.
         $objFilter->addFilterRule(new StaticIdList([]));
     }
 }

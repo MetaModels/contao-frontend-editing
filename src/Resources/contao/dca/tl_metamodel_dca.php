@@ -38,7 +38,9 @@ $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = array_merge(
     (array) $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'],
     [
         'fe_overrideEditButtons' => [
-            'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_overrideEditButtons'],
+            //'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_overrideEditButtons'],
+            'label'     => 'fe_overrideEditButtons.label',
+            'description' => 'fe_overrideEditButtons.description',
             'exclude'   => true,
             'inputType' => 'checkbox',
             'sql'       => ['type' => 'boolean', 'notnull' => false],
@@ -81,7 +83,6 @@ $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = array_merge(
                         'exclude'   => true,
                         'inputType' => 'text',
                         'eval'      => [
-                            'rgxp'   => 'alias',
                             'style'  => 'width: 100%;'
                         ]
                     ],

@@ -18,10 +18,6 @@
  * @filesource
  */
 
-$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_overrideEditButtons']         = [
-    'Override frontend edit buttons',
-    'If is checked, so you can define the edit buttons.'
-];
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons']                 = [
     'Frontend edit buttons',
     'Here can you define the edit buttons.'
@@ -79,6 +75,6 @@ $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_memberAttribut']       = [
     'Select the attribute with which you have created the connection to the members table "tl_member" and alias to "username".'
 ];
 
-$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_legend']    = 'Frontend edit buttons';
+//$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_legend']    = 'Frontend edit buttons';
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_notification_legend']   = 'Frontend notification';
 $GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_memberAttribut_legend'] = 'Frontend member permission';
