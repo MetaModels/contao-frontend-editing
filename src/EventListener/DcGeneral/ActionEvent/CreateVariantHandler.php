@@ -25,6 +25,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\View\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -144,7 +145,7 @@ class CreateVariantHandler
             throw new DcGeneralRuntimeException(
                 \sprintf(
                     'Could not find model with id %s for creating a variant.',
-                    $modelId
+                    $modelId->getId()
                 )
             );
         }
@@ -154,23 +155,24 @@ class CreateVariantHandler
             return false;
         }
 
-        $preFunction = static function ($environment, $model) {
-            /** @var EnvironmentInterface $environment */
+        $preFunction = static function (EnvironmentInterface $environment, ModelInterface $model): void {
             $createModelEvent = new PreCreateModelEvent($environment, $model);
             $dispatcher       = $environment->getEventDispatcher();
+
             assert($dispatcher instanceof EventDispatcherInterface);
-            $dispatcher->dispatch($createModelEvent::NAME, $createModelEvent);
+            $dispatcher->dispatch($createModelEvent, $createModelEvent::NAME);
         };
 
-        $postFunction = static function ($environment, $model) {
-            /** @var EnvironmentInterface $environment */
+        $postFunction = static function (EnvironmentInterface $environment, ModelInterface $model): void {
             $createModelEvent = new PostCreateModelEvent($environment, $model);
             $dispatcher       = $environment->getEventDispatcher();
+
             assert($dispatcher instanceof EventDispatcherInterface);
-            $dispatcher->dispatch($createModelEvent::NAME, $createModelEvent);
+            $dispatcher->dispatch($createModelEvent, $createModelEvent::NAME);
         };
 
-        $editMask = new EditMask($environment, $model, null, $preFunction, $postFunction);
+        $newModel = clone $model;
+        $editMask = new EditMask($environment, $newModel, $model, $preFunction, $postFunction);
 
         return $editMask->execute();
     }

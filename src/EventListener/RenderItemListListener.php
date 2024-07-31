@@ -139,7 +139,7 @@ class RenderItemListListener
     public function handleForItemRendering(ParseItemEvent $event): void
     {
         $settings = $event->getRenderSettings();
-        if (!$settings->get(self::FRONTEND_EDITING_ENABLED_FLAG)) {
+        if (null === $settings->get(self::FRONTEND_EDITING_ENABLED_FLAG)) {
             return;
         }
 
@@ -154,10 +154,13 @@ class RenderItemListListener
 
         // Check FEE permissions of member for item.
         $isEditableForMember = true;
-        /** @var IMetaModelDefinition $metaModels */
-        $metaModel  = $definition->getDefinition(IMetaModelDefinition::NAME);
+        $metaModel = $definition->getDefinition(IMetaModelDefinition::NAME);
+        assert($metaModel instanceof IMetaModelDefinition);
         $screen     = $this->inputScreens->fetchInputScreens([$tableName => $metaModel->getActiveInputScreen()]);
-        $screenMeta = $screen[$tableName]['meta'];
+        $screenMeta = $screen[$tableName]['meta'] ?? null;
+        if (null === $screenMeta) {
+            return;
+        }
 
         if (
             !empty($screenMeta['fe_useMemberPermissions'])
@@ -244,47 +247,47 @@ class RenderItemListListener
         if (null === $model) {
             return;
         }
-
-        $page    = null;
         /** @psalm-suppress UndefinedMagicPropertyFetch */
-        $enabled = (bool) $model->metamodel_fe_editing;
-        if ($enabled) {
-            /** @psalm-suppress UndefinedMagicPropertyFetch */
-            $page    = $this->getPageDetails($model->metamodel_fe_editing_page);
-            $enabled = (null !== $page);
+        $tableName  = $this->factory->translateIdToMetaModelName($model->metamodel);
+        $definition = $this->frontendEditor->createDcGeneral($tableName)->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
 
-            $view = $event->getList()->getView();
-
-            $view->set(self::FRONTEND_EDITING_PAGE, $page);
-            $view->set(self::FRONTEND_EDITING_ENABLED_FLAG, $enabled);
+        $page = null;
+        /** @psalm-suppress UndefinedMagicPropertyFetch */
+        if (!(bool) $model->metamodel_fe_editing) {
+            return;
         }
 
+        /** @psalm-suppress UndefinedMagicPropertyFetch */
+        $page = $this->getPageDetails($model->metamodel_fe_editing_page);
+        if (null === $page) {
+            return;
+        }
         $listTemplate = $event->getList()->getListTemplate();
-        if ($enabled) {
-            /** @psalm-suppress UndefinedMagicPropertyFetch */
-            $tableName  = $this->factory->translateIdToMetaModelName($model->metamodel);
-            $definition = $this->frontendEditor->createDcGeneral($tableName)->getDataDefinition();
-            assert($definition instanceof ContainerInterface);
-            $enabled    = $definition->getBasicDefinition()->isCreatable();
 
-            if ($enabled) {
-                $url = $this->generateAddUrl($page);
-                if (null !== $listTemplate) {
-                    /** @psalm-suppress UndefinedMagicPropertyAssignment */
-                    $listTemplate->addUrl      = $url;
-                    /** @psalm-suppress UndefinedMagicPropertyAssignment */
-                    $listTemplate->addNewLabel = $this->translateLabel('metamodel_add_item', $tableName);
-                }
-                /** @psalm-suppress UndefinedMagicPropertyAssignment */
-                $event->getTemplate()->addUrl = $url;
-            }
-        }
+        $view = $event->getList()->getView();
+        $view->set(self::FRONTEND_EDITING_PAGE, $page);
+        $view->set(self::FRONTEND_EDITING_ENABLED_FLAG, $definition->getBasicDefinition()->isEditable());
 
+        $creatable = $definition->getBasicDefinition()->isCreatable();
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
-        $event->getTemplate()->editEnable = $enabled;
+        $event->getTemplate()->editEnable = $creatable;
         if (null !== $listTemplate) {
             /** @psalm-suppress UndefinedMagicPropertyAssignment */
-            $listTemplate->editEnable = $enabled;
+            $listTemplate->editEnable = $creatable;
+        }
+        if (!$creatable) {
+            return;
+        }
+
+        $url = $this->generateAddUrl($page);
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $event->getTemplate()->addUrl = $url;
+        if (null !== $listTemplate) {
+            /** @psalm-suppress UndefinedMagicPropertyAssignment */
+            $listTemplate->addUrl = $url;
+            /** @psalm-suppress UndefinedMagicPropertyAssignment */
+            $listTemplate->addNewLabel = $this->translateLabel('metamodel_add_item', $tableName);
         }
     }
 
@@ -394,11 +397,11 @@ class RenderItemListListener
     /**
      * Retrieve the details for the page with the given id.
      *
-     * @param string $pageId The id of the page to retrieve the details for.
+     * @param int $pageId The id of the page to retrieve the details for.
      *
      * @return array
      */
-    private function getPageDetails(string $pageId): ?array
+    private function getPageDetails(int $pageId): ?array
     {
         if (empty($pageId)) {
             return null;

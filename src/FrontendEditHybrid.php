@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Mini Model <minimodel@metamodel.me>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -37,7 +37,10 @@ use MetaModels\IFactory;
 /**
  * This class is the base for the frontend integrations.
  *
+ * @psalm-import-type TDatabaseResult from \MetaModels\FrontendIntegration\MetaModelHybrid
+ *
  * @psalm-suppress DeprecatedClass
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 abstract class FrontendEditHybrid extends MetaModelHybrid
 {
@@ -72,8 +75,8 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
     /**
      * FrontendEditHybrid constructor.
      *
-     * @param ContentModel|ModuleModel|FormModel $element The element model, i.e., the module or content element.
-     * @param string                             $column  The column.
+     * @param TDatabaseResult $element The element model, i.e., the module or content element.
+     * @param string          $column  The column.
      */
     public function __construct($element, $column = 'main')
     {

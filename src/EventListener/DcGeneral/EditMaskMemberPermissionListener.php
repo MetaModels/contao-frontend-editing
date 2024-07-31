@@ -21,6 +21,7 @@ namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
@@ -31,6 +32,7 @@ use Contao\CoreBundle\Exception\AccessDeniedException;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\FrontendUser;
 use Contao\System;
+use MetaModels\DcGeneral\Data\Model;
 use MetaModels\DcGeneral\DataDefinition\Definition\IMetaModelDefinition;
 use MetaModels\IItem;
 use MetaModels\IMetaModel;
@@ -199,7 +201,7 @@ class EditMaskMemberPermissionListener
         }
 
         // If model id null the type is 'create' - else is 'edit' or 'delete'.
-        if (null === $model->getId()) {
+        if (null === $model->getId() || !($model instanceof Model)) {
             return;
         }
 
