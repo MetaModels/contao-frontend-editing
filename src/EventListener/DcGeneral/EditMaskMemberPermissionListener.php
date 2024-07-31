@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2023 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
  *
  * @package    MetaModels/contao-frontend-editing
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2023 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -21,6 +21,8 @@ namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
@@ -30,11 +32,18 @@ use Contao\CoreBundle\Exception\AccessDeniedException;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\FrontendUser;
 use Contao\System;
+use MetaModels\DcGeneral\Data\Model;
 use MetaModels\DcGeneral\DataDefinition\Definition\IMetaModelDefinition;
+use MetaModels\IItem;
 use MetaModels\IMetaModel;
 use MetaModels\ViewCombination\InputScreenInformationBuilder;
 use Symfony\Component\Security\Core\Security;
 
+/**
+ * Check permission of item.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class EditMaskMemberPermissionListener
 {
     /**
@@ -83,7 +92,7 @@ class EditMaskMemberPermissionListener
         $this->memberAttribut    = '';
     }
 
-    public function saveMemberId(PrePersistModelEvent $event)
+    public function saveMemberId(PrePersistModelEvent $event): void
     {
         if (!$this->wantToHandle($event)) {
             return;
@@ -112,7 +121,7 @@ class EditMaskMemberPermissionListener
      *
      * @throws AccessDeniedException
      */
-    public function checkPreEditFee(PreEditModelEvent $event)
+    public function checkPreEditFee(PreEditModelEvent $event): void
     {
         if (!$this->wantToHandle($event)) {
             return;
@@ -129,7 +138,7 @@ class EditMaskMemberPermissionListener
      *
      * @throws AccessDeniedException
      */
-    public function checkSaveFee(PrePersistModelEvent $event)
+    public function checkSaveFee(PrePersistModelEvent $event): void
     {
         if (!$this->wantToHandle($event)) {
             return;
@@ -140,13 +149,13 @@ class EditMaskMemberPermissionListener
     }
 
     /**
-     * Check if duplicatable for member (frontend user) as item of relation of account.
+     * Check if duplicate for member (frontend user) as item of relation of account.
      *
      * @param PreDuplicateModelEvent $event
      *
      * @throws AccessDeniedException
      */
-    public function checkDuplicateFee(PreDuplicateModelEvent $event)
+    public function checkDuplicateFee(PreDuplicateModelEvent $event): void
     {
         if (!$this->wantToHandle($event)) {
             return;
@@ -163,7 +172,7 @@ class EditMaskMemberPermissionListener
      *
      * @throws AccessDeniedException
      */
-    public function checkDeleteFee(PreDeleteModelEvent $event)
+    public function checkDeleteFee(PreDeleteModelEvent $event): void
     {
         if (!$this->wantToHandle($event)) {
             return;
@@ -192,7 +201,7 @@ class EditMaskMemberPermissionListener
         }
 
         // If model id null the type is 'create' - else is 'edit' or 'delete'.
-        if (null === $model->getId()) {
+        if (null === $model->getId() || !($model instanceof Model)) {
             return;
         }
 
@@ -203,7 +212,9 @@ class EditMaskMemberPermissionListener
         }
 
         // If type 'edit' or 'delete' check the permission.
-        $itemValue = $model->getItem()->parseAttribute($this->memberAttribut, 'text');
+        $item = $model->getItem();
+        assert($item instanceof IItem);
+        $itemValue = $item->parseAttribute($this->memberAttribut, 'text');
         $username  = $itemValue['raw']['username'] ?? '';
 
         // Check if same account id to open and edit the item.
@@ -231,6 +242,7 @@ class EditMaskMemberPermissionListener
 
         // Retrieve the settings of the input mask for member attribute.
         $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
         /** @var IMetaModelDefinition $metaModel */
         $metaModel     = $dataDefinition->getDefinition(IMetaModelDefinition::NAME);
         $metaModelName = $dataDefinition->getName();

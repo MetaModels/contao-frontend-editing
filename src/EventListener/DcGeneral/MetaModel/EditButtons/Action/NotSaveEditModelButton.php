@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2023 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2023 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -111,9 +111,11 @@ class NotSaveEditModelButton
      */
     public function __invoke(ActionEvent $event): void
     {
-        if (!\in_array($event->getAction()->getName(), ['create', 'edit'])
+        if (
+            !\in_array($event->getAction()->getName(), ['create', 'edit'])
             || !$this->wantToHandle($event)
-            || (null === ($button = $this->findButton($event)))) {
+            || (null === ($button = $this->findButton($event)))
+        ) {
             return;
         }
 
@@ -165,7 +167,10 @@ class NotSaveEditModelButton
         // FIXME: Use page tree if this work with mcw.
         // @codingStandardsIgnoreEnd
         $pageId = \explode('::', \trim($button['jumpTo'], '{{}}'))[1];
-        /** @var PageModel $pageModel */
+        /**
+         * @var PageModel $pageModel
+         * @psalm-suppress InternalMethod - Class ContaoFramework is internal, not the getAdapter() method.
+         */
         $pageModel       = $this->pageService->findByIdOrAlias($pageId);
         $jumpToParameter = \html_entity_decode(($button['jumpToParameter'] ?? ''));
         if (\str_starts_with($jumpToParameter, '?')) {
@@ -190,7 +195,8 @@ class NotSaveEditModelButton
         assert($dataDefinition instanceof ContainerInterface);
 
         $inputScreen = $this->viewCombination->getScreen($dataDefinition->getName());
-        if (!$inputScreen
+        if (
+            null === $inputScreen
             || !isset($inputScreen['meta']['fe_overrideEditButtons'], $inputScreen['meta']['fe_editButtons'])
             || !$inputScreen['meta']['fe_overrideEditButtons']
             || !($buttons = $inputScreen['meta']['fe_editButtons'])
@@ -228,8 +234,10 @@ class NotSaveEditModelButton
      */
     private function replaceSimpleTokensAtJumpToParameter(array $button, array $tokenData): array
     {
-        if (\str_contains($button['jumpToParameter'], '&#35;&#35;')
-            || \str_contains($button['jumpToParameter'], '##')) {
+        if (
+            \str_contains($button['jumpToParameter'], '&#35;&#35;')
+            || \str_contains($button['jumpToParameter'], '##')
+        ) {
             $button['jumpToParameter'] =
                 $this->tokenParser->parse(
                     \str_replace('&#35;', '#', $button['jumpToParameter']),

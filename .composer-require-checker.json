@@ -1,0 +1,27 @@
+{
+  "symbol-whitelist": [
+    "array", "bool", "false", "int", "null", "self", "static", "parent", "string", "true", "void", "mixed",
+    "ContaoCommunityAlliance\\Contao\\Bindings\\ContaoEvents",
+    "ContaoCommunityAlliance\\Contao\\Bindings\\Events\\Controller\\GenerateFrontendUrlEvent",
+    "ContaoCommunityAlliance\\Contao\\Bindings\\Events\\Controller\\GetPageDetailsEvent",
+    "Contao\\ManagerBundle\\ContaoManagerBundle",
+    "Contao\\ManagerPlugin\\Bundle\\BundlePluginInterface",
+    "Contao\\ManagerPlugin\\Bundle\\Config\\BundleConfig",
+    "Contao\\ManagerPlugin\\Bundle\\Parser\\ParserInterface",
+    "Contao\\ManagerPlugin\\Routing\\RoutingPluginInterface",
+    "Doctrine\\Bundle\\DoctrineBundle\\DoctrineBundle",
+    "Doctrine\\DBAL\\Connection", "Symfony\\Component\\Config\\FileLocator",
+    "MetaModels\\ContaoFrontendEditingBundle\\EventListener\\DcGeneral\\MetaModel\\Notification\\InputProviderInterface",
+    "MetaModels\\ContaoFrontendEditingBundle\\MetaModelsContaoFrontendEditingBundle",
+    "Symfony\\Component\\DependencyInjection\\ContainerBuilder",
+    "Symfony\\Component\\DependencyInjection\\Extension\\Extension",
+    "Symfony\\Component\\DependencyInjection\\Loader\\YamlFileLoader",
+    "Symfony\\Component\\EventDispatcher\\EventDispatcherInterface",
+    "Symfony\\Component\\HttpKernel\\Bundle\\Bundle",
+    "Symfony\\Component\\Security\\Core\\Authentication\\Token\\Storage\\TokenStorageInterface",
+    "Symfony\\Component\\Security\\Core\\Security",
+    "Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface",
+    "Symfony\\Contracts\\Translation\\TranslatorInterface",
+    "tl_user_group"
+  ]
+}

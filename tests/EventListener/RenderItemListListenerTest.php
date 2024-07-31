@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Mini Model <minimodel@metamodel.me>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -40,6 +40,7 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslatorInter
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Cache\CacheProvider;
 use MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener;
+use MetaModels\DcGeneral\DataDefinition\Definition\IMetaModelDefinition;
 use MetaModels\Events\ParseItemEvent;
 use MetaModels\Events\RenderItemListEvent;
 use MetaModels\Filter\FilterUrlBuilder;
@@ -50,36 +51,43 @@ use MetaModels\MetaModelsEvents;
 use MetaModels\Render\Setting\Collection;
 use MetaModels\Render\Setting\ICollection;
 use MetaModels\Render\Template;
+use MetaModels\ViewCombination\InputScreenInformationBuilder;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use MetaModels\IMetaModel;
 use MetaModels\ItemList;
 use MetaModels\FrontendIntegration\HybridList;
 use MetaModels\ContaoFrontendEditingBundle\FrontendEditHybrid;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * This tests the RenderItemListListener.
  *
  * @covers \MetaModels\ContaoFrontendEditingBundle\EventListener\RenderItemListListener
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(ExcessiveMethodLength)
  */
 class RenderItemListListenerTest extends TestCase
 {
     /**
-     * This is the hack to mimic the Contao auto loader.
+     * This is the hack to mimic the Contao auto-loader.
      *
      * @return void
      */
     public static function contaoAutoload($class): void
     {
-        if (0 === strpos($class, 'Contao\\')) {
+        if (\str_starts_with($class, 'Contao\\')) {
             return;
         }
-        $result = class_exists('Contao\\' . $class);
+        $result = \class_exists('Contao\\' . $class);
 
         if ($result) {
-            class_alias('Contao\\' . $class, $class);
+            \class_alias('Contao\\' . $class, $class);
         }
     }
 
@@ -90,7 +98,7 @@ class RenderItemListListenerTest extends TestCase
     {
         parent::setUp();
         // This is the hack to mimic the Contao auto loader.
-        spl_autoload_register(self::class . '::contaoAutoload');
+        \spl_autoload_register(self::class . '::contaoAutoload');
     }
 
     /**
@@ -98,7 +106,7 @@ class RenderItemListListenerTest extends TestCase
      */
     protected function tearDown(): void
     {
-        spl_autoload_unregister(self::class . '::contaoAutoload');
+        \spl_autoload_unregister(self::class . '::contaoAutoload');
         parent::tearDown();
     }
 
@@ -116,12 +124,21 @@ class RenderItemListListenerTest extends TestCase
         $factory         = $this->getMockForAbstractClass(IFactory::class);
         $eventDispatcher = new EventDispatcher();
         $frontendEditor  = new FrontendEditor($eventDispatcher, $ccaTranslator);
+        $security        = $this->getMockBuilder(Security::class)->disableOriginalConstructor()->getMock();
+        $inputScreens    =
+            $this->getMockBuilder(InputScreenInformationBuilder::class)->disableOriginalConstructor()->getMock();
 
         /** @var ICollection $renderSettings */
         /** @var IItem $item */
-
         $event    = new ParseItemEvent($renderSettings, $item, 'html5', []);
-        $listener = new RenderItemListListener($translator, $eventDispatcher, $factory, $frontendEditor);
+        $listener = new RenderItemListListener(
+            $translator,
+            $eventDispatcher,
+            $factory,
+            $frontendEditor,
+            $security,
+            $inputScreens
+        );
 
         $listener->handleForItemRendering($event);
 
@@ -132,6 +149,8 @@ class RenderItemListListenerTest extends TestCase
      * Test that the method works correctly.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     public function testHandleForItemRenderingAddsWithEditFlag(): void
     {
@@ -139,24 +158,21 @@ class RenderItemListListenerTest extends TestCase
         $definitions = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
         System::setContainer($container);
 
-        $dcGeneralFactoryCache = $this->getMockBuilder(CacheProvider::class)
-                                        ->disableOriginalConstructor()
-                                        ->getMock();
+        $dcGeneralFactoryCache = new ArrayAdapter();
 
         $container
             ->method('get')
-            ->withConsecutive(
-                [
-                    DcGeneralFactoryCache::class
-                ],
-                [
-                    'cca.dc-general.data-definition-container'
-                ],
-                [
-                    DcGeneralFactoryCache::class
-                ]
-            )
-            ->willReturn($dcGeneralFactoryCache, $definitions, $dcGeneralFactoryCache);
+            ->willReturnCallback(
+                static function (string $key) use ($dcGeneralFactoryCache, $definitions): mixed {
+                    switch ($key) {
+                        case DcGeneralFactoryCache::class:
+                            return $dcGeneralFactoryCache;
+                        case 'cca.dc-general.data-definition-container':
+                            return $definitions;
+                    }
+                    self::fail('Unknown key passed: ' . $key);
+                }
+            );
 
         $basicDefinition = $this->getMockForAbstractClass(BasicDefinitionInterface::class);
         $basicDefinition->method('isEditable')->willReturn(true);
@@ -165,6 +181,10 @@ class RenderItemListListenerTest extends TestCase
             \ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface::class
         );
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
+        $metaModelDefinition = $this->getMockForAbstractClass(IMetaModelDefinition::class);
+        $metaModelDefinition->method('getActiveInputScreen')->willReturn(42);
+        $definition->method('getDefinition')->with(IMetaModelDefinition::NAME)->willReturn($metaModelDefinition);
+        $definition->method('getName')->willReturn('mm_test');
 
         $definitions->method('hasDefinition')->with('mm_test')->willReturn(true);
         $definitions->method('getDefinition')->with('mm_test')->willReturn($definition);
@@ -177,6 +197,20 @@ class RenderItemListListenerTest extends TestCase
         $factory        = $this->getMockForAbstractClass(IFactory::class);
         $dispatcher     = new EventDispatcher();
         $frontendEditor = new FrontendEditor($dispatcher, $ccaTranslator);
+        $security       = $this->getMockBuilder(Security::class)->disableOriginalConstructor()->getMock();
+        $inputScreens   =
+            $this->getMockBuilder(InputScreenInformationBuilder::class)->disableOriginalConstructor()->getMock();
+        $inputScreens
+            ->method('fetchInputScreens')
+            ->with(['mm_test' => 42])
+            ->willReturn([
+                'mm_test' => [
+                    'meta' => [
+                        'fe_useMemberPermissions' => false,
+                        'fe_memberAttribut' => null,
+                    ],
+                ],
+            ]);
 
         $translator->expects($this->once())->method('trans')->willReturn('');
 
@@ -218,16 +252,22 @@ class RenderItemListListenerTest extends TestCase
 
         /** @var ICollection $renderSettings */
         /** @var IItem $item */
-
         $event    = new ParseItemEvent($renderSettings, $item, 'html5', []);
-        $listener = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
+        $listener = new RenderItemListListener(
+            $translator,
+            $dispatcher,
+            $factory,
+            $frontendEditor,
+            $security,
+            $inputScreens
+        );
 
         $listener->handleForItemRendering($event, MetaModelsEvents::PARSE_ITEM, $dispatcher);
 
         $result = $event->getResult();
         $this->assertArrayHasKey('edit', $result['actions']);
         $this->assertEquals(
-            'act=edit&id=' . ModelId::fromValues('mm_test', 'item-id')->getSerialized(),
+            '?act=edit&id=' . ModelId::fromValues('mm_test', 'item-id')->getSerialized(),
             $result['actions']['edit']['href']
         );
     }
@@ -273,9 +313,20 @@ class RenderItemListListenerTest extends TestCase
         $factory        = $this->getMockForAbstractClass(IFactory::class);
         $dispatcher     = new EventDispatcher();
         $frontendEditor = new FrontendEditor($dispatcher, $ccaTranslator);
+        $security       = $this->getMockBuilder(Security::class)->disableOriginalConstructor()->getMock();
+        $inputScreens   =
+            $this->getMockBuilder(InputScreenInformationBuilder::class)->disableOriginalConstructor()->getMock();
         $template       = new Template();
-        $event          = new RenderItemListEvent($itemList, $template, new \DateTime());
-        $listener       = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
+
+        $event    = new RenderItemListEvent($itemList, $template, new \DateTime());
+        $listener = new RenderItemListListener(
+            $translator,
+            $dispatcher,
+            $factory,
+            $frontendEditor,
+            $security,
+            $inputScreens
+        );
 
         $listener->handleFrontendEditingInListRendering($event);
 
@@ -286,12 +337,14 @@ class RenderItemListListenerTest extends TestCase
      * Test that the method works correctly.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     public function testFrontendEditingInListRenderingSetFlagsWithEditFlagBeingFalse(): void
     {
         $framework = $this->getMockBuilder(ContaoFramework::class)
-                            ->disableOriginalConstructor()
-                            ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
         $framework
             ->expects(self::once())
             ->method('getAdapter')
@@ -299,34 +352,46 @@ class RenderItemListListenerTest extends TestCase
             ->willReturn(new Adapter(TemplateLoader::class));
 
         $scopeDeterminator = $this->getMockBuilder(RequestScopeDeterminator::class)
-                                    ->disableOriginalConstructor()
-                                    ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dcGeneralFactoryCache = new ArrayAdapter();
 
         $container = $this->getMockForAbstractClass(ContainerInterface::class);
         $container
-            ->expects(self::exactly(2))
             ->method('get')
-            ->withConsecutive(
-                [
-                    'contao.framework'
-                ],
-                [
-                    'cca.dc-general.scope-matcher'
-                ]
-            )
-            ->willReturn($framework, $scopeDeterminator);
+            ->willReturnCallback(
+                static function (string $key) use ($framework, $scopeDeterminator, $dcGeneralFactoryCache): mixed {
+                    switch ($key) {
+                        case 'contao.framework':
+                            return $framework;
+                        case 'cca.dc-general.scope-matcher':
+                            return $scopeDeterminator;
+                        case DcGeneralFactoryCache::class:
+                            return $dcGeneralFactoryCache;
+                    }
+                    self::fail('Unknown key: ' . $key);
+                }
+            );
         System::setContainer($container);
 
         $renderSettings = $this->getMockForAbstractClass(ICollection::class);
         $dispatcher     = new EventDispatcher();
         $itemList       = $this->createMock(ItemList::class);
-        $itemListModel  = $this->createMock(Model::class);
+        $itemListModel  = $this->getMockBuilder(Model::class)->disableOriginalConstructor()->onlyMethods([])->getMock();
         $template       = new Template();
         $translator     = $this->getMockForAbstractClass(TranslatorInterface::class);
         $ccaTranslator  = $this->getMockForAbstractClass(CcaTranslatorInterface::class);
         $factory        = $this->getMockForAbstractClass(IFactory::class);
         $frontendEditor = new FrontendEditor($dispatcher, $ccaTranslator);
-        $caller         = $this
+        $security       = $this->getMockBuilder(Security::class)->disableOriginalConstructor()->getMock();
+        $inputScreens   =
+            $this->getMockBuilder(InputScreenInformationBuilder::class)->disableOriginalConstructor()->getMock();
+
+        $itemListModel->metamodel = '42';
+        $factory->method('translateIdToMetaModelName')->with('42')->willReturn('mm_test');
+
+        $caller = $this
             ->getMockBuilder(HybridList::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
@@ -343,7 +408,14 @@ class RenderItemListListenerTest extends TestCase
             ->willReturn($itemListModel);
 
         $event    = new RenderItemListEvent($itemList, $template, $caller);
-        $listener = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
+        $listener = new RenderItemListListener(
+            $translator,
+            $dispatcher,
+            $factory,
+            $frontendEditor,
+            $security,
+            $inputScreens
+        );
 
         $listener->handleFrontendEditingInListRendering($event);
 
@@ -394,9 +466,13 @@ class RenderItemListListenerTest extends TestCase
         $renderSettings   = new Collection($metaModel, [], $dispatcher, $filterFactory, $filterUrlBuilder);
         $factory          = $this->getMockForAbstractClass(IFactory::class);
         $frontendEditor   = new FrontendEditor($dispatcher, $ccaTranslator);
+        $security         = $this->getMockBuilder(Security::class)->disableOriginalConstructor()->getMock();
+        $inputScreens     =
+            $this->getMockBuilder(InputScreenInformationBuilder::class)->disableOriginalConstructor()->getMock();
         $itemList         = $this->createMock(ItemList::class);
         $template         = new Template();
-        $caller           = $this
+
+        $caller = $this
             ->getMockBuilder(FrontendEditHybrid::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
@@ -412,7 +488,14 @@ class RenderItemListListenerTest extends TestCase
         $metaModel->expects($this->any())->method('getTableName')->willReturn('mm_test');
 
         $event    = new RenderItemListEvent($itemList, $template, $caller);
-        $listener = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
+        $listener = new RenderItemListListener(
+            $translator,
+            $dispatcher,
+            $factory,
+            $frontendEditor,
+            $security,
+            $inputScreens
+        );
 
         $listener->handleFrontendEditingInListRendering($event);
 
@@ -464,8 +547,12 @@ class RenderItemListListenerTest extends TestCase
         $ccaTranslator    = $this->getMockForAbstractClass(CcaTranslatorInterface::class);
         $factory          = $this->getMockForAbstractClass(IFactory::class);
         $frontendEditor   = new FrontendEditor($dispatcher, $ccaTranslator);
+        $security         = $this->getMockBuilder(Security::class)->disableOriginalConstructor()->getMock();
+        $inputScreens     =
+            $this->getMockBuilder(InputScreenInformationBuilder::class)->disableOriginalConstructor()->getMock();
         $template         = new Template();
-        $caller           = $this
+
+        $caller = $this
             ->getMockBuilder(HybridList::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
@@ -482,7 +569,14 @@ class RenderItemListListenerTest extends TestCase
         $metaModel->expects($this->any())->method('getTableName')->willReturn('mm_test');
 
         $event    = new RenderItemListEvent($itemList, $template, $caller);
-        $listener = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
+        $listener = new RenderItemListListener(
+            $translator,
+            $dispatcher,
+            $factory,
+            $frontendEditor,
+            $security,
+            $inputScreens
+        );
 
         $listener->handleFrontendEditingInListRendering($event);
 
@@ -496,6 +590,8 @@ class RenderItemListListenerTest extends TestCase
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     public function testFrontendEditingInListRenderingAddsWithEditFlag(): void
     {
@@ -516,35 +612,33 @@ class RenderItemListListenerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dcGeneralFactoryCache = $this->getMockBuilder(CacheProvider::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        /** @SuppressWarnings(PHPMD.LongVariable) */
+        $dcGeneralFactoryCache = new ArrayAdapter();
 
         $container   = $this->getMockForAbstractClass(ContainerInterface::class);
         $definitions = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
         System::setContainer($container);
         $container
-            ->expects(self::exactly(4))
             ->method('get')
-            ->withConsecutive(
-                [
-                    'contao.framework'
-                ],
-                [
-                    'cca.dc-general.scope-matcher'
-                ],
-                [
-                    DcGeneralFactoryCache::class
-                ],
-                [
-                    'cca.dc-general.data-definition-container'
-                ]
-            )
-            ->willReturn(
-                $framework,
-                $scopeDeterminator,
-                $dcGeneralFactoryCache,
-                $definitions
+            ->willReturnCallback(
+                static function (string $key) use (
+                    $framework,
+                    $scopeDeterminator,
+                    $dcGeneralFactoryCache,
+                    $definitions
+                ): mixed {
+                    switch ($key) {
+                        case 'contao.framework':
+                            return $framework;
+                        case 'cca.dc-general.scope-matcher':
+                            return $scopeDeterminator;
+                        case DcGeneralFactoryCache::class:
+                            return $dcGeneralFactoryCache;
+                        case 'cca.dc-general.data-definition-container':
+                            return $definitions;
+                    }
+                    self::fail('Unknown key: ' . $key);
+                }
             );
 
         $basicDefinition = $this->getMockForAbstractClass(BasicDefinitionInterface::class);
@@ -569,8 +663,12 @@ class RenderItemListListenerTest extends TestCase
         $ccaTranslator    = $this->getMockForAbstractClass(CcaTranslatorInterface::class);
         $factory          = $this->getMockForAbstractClass(IFactory::class);
         $frontendEditor   = new FrontendEditor($dispatcher, $ccaTranslator);
+        $security         = $this->getMockBuilder(Security::class)->disableOriginalConstructor()->getMock();
+        $inputScreens     =
+            $this->getMockBuilder(InputScreenInformationBuilder::class)->disableOriginalConstructor()->getMock();
         $template         = new Template();
-        $caller           = $this
+
+        $caller = $this
             ->getMockBuilder(HybridList::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
@@ -589,20 +687,20 @@ class RenderItemListListenerTest extends TestCase
             ->method('getModel')
             ->willReturn($itemListModel);
         $itemListModel
-            ->expects($this->any())
             ->method('__get')
-            ->withConsecutive(
-                [
-                    'metamodel_fe_editing'
-                ],
-                [
-                    'metamodel_fe_editing_page'
-                ],
-                [
-                    'metamodel'
-                ]
-            )
-            ->willReturn(1, 15, 10);
+            ->willReturnCallback(
+                static function (string $key): int {
+                    switch ($key) {
+                        case 'metamodel_fe_editing':
+                            return 1;
+                        case 'metamodel_fe_editing_page':
+                            return 15;
+                        case 'metamodel':
+                            return 10;
+                    }
+                    self::fail('Unknown key: ' . $key);
+                }
+            );
 
         $factory->expects($this->once())->method('translateIdToMetaModelName')->with(10)->willReturn('mm_test');
 
@@ -618,7 +716,14 @@ class RenderItemListListenerTest extends TestCase
         );
 
         $event    = new RenderItemListEvent($itemList, $template, $caller);
-        $listener = new RenderItemListListener($translator, $dispatcher, $factory, $frontendEditor);
+        $listener = new RenderItemListListener(
+            $translator,
+            $dispatcher,
+            $factory,
+            $frontendEditor,
+            $security,
+            $inputScreens
+        );
 
         $listener->handleFrontendEditingInListRendering($event);
 

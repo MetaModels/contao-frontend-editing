@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2023 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
  *
  * @package    MetaModels/contao-frontend-editing
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2023 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -23,6 +23,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use MetaModels\AttributeSelectBundle\Attribute\AbstractSelect;
 use MetaModels\Attribute\ISimple;
 use MetaModels\CoreBundle\Formatter\SelectAttributeOptionLabelFormatter;
@@ -30,6 +32,9 @@ use MetaModels\DcGeneral\Data\Model;
 use MetaModels\IFactory;
 use MetaModels\ITranslatedMetaModel;
 
+/**
+ * @SuppressWarnings(PHPMD.LongVariable)
+ */
 class GetAttributeMemberListener
 {
     /**
@@ -50,6 +55,8 @@ class GetAttributeMemberListener
      * The attribute select option label formatter.
      *
      * @var SelectAttributeOptionLabelFormatter
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     private SelectAttributeOptionLabelFormatter $attributeLabelFormatter;
 
@@ -59,6 +66,8 @@ class GetAttributeMemberListener
      * @param RequestScopeDeterminator            $scopeDeterminator       Request scope determinator.
      * @param IFactory                            $factory                 Metamodels factory.
      * @param SelectAttributeOptionLabelFormatter $attributeLabelFormatter The attribute select option label formatter.
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     public function __construct(
         RequestScopeDeterminator $scopeDeterminator,
@@ -73,7 +82,7 @@ class GetAttributeMemberListener
     /**
      * Check if the event is intended for us.
      *
-     * @param GetOptionsEvent $event The event to test.
+     * @param GetPropertyOptionsEvent $event The event to test.
      *
      * @return bool
      */
@@ -83,9 +92,12 @@ class GetAttributeMemberListener
             return false;
         }
 
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         return
             (
-                ($event->getEnvironment()->getDataDefinition()->getName() === 'tl_metamodel_dca')
+                ($dataDefinition->getName() === 'tl_metamodel_dca')
                 && ($event->getPropertyName() === 'fe_memberAttribut')
             );
     }
@@ -107,11 +119,13 @@ class GetAttributeMemberListener
             return;
         }
 
-        $model       = $event->getModel();
-        $metaModelId = $model->getProperty('pid');
+        $model         = $event->getModel();
+        $metaModelId   = $model->getProperty('pid');
+        $inputProvider = $event->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
         if (!$metaModelId) {
             $metaModelId = ModelId::fromSerialized(
-                $event->getEnvironment()->getInputProvider()->getParameter('pid')
+                $inputProvider->getParameter('pid')
             )->getId();
         }
 
@@ -127,9 +141,11 @@ class GetAttributeMemberListener
         // Fetch all attributes except for the current attribute.
         foreach ($metaModel->getAttributes() as $attribute) {
             // Show only select attributes with table 'tl_member' and alias 'username'.
-            if ('select' === $attribute->get('type')
+            if (
+                'select' === $attribute->get('type')
                 && 'tl_member' === $attribute->get('select_table')
-                && 'username' === $attribute->get('select_alias')) {
+                && 'username' === $attribute->get('select_alias')
+            ) {
                 $strSelectVal          = $prefix . $attribute->getColName();
                 $result[$strSelectVal] = $this->attributeLabelFormatter->formatLabel($attribute);
             }

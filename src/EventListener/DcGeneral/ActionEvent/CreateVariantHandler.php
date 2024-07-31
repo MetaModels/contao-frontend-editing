@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2019 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    MetaModels/contao-frontend-editing
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2012-2019 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,7 +23,10 @@ namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\ActionE
 use Contao\CoreBundle\Exception\RedirectResponseException;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\View\EditMask;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -30,34 +34,36 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreCreateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Exception\NotCreatableException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use MetaModels\DcGeneral\Data\Driver;
 use MetaModels\IFactory;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class handles the "create variant" actions in the frontend.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class CreateVariantHandler
 {
-
     /**
      * The request mode determinator.
      *
      * @var RequestScopeDeterminator
      */
-    private $scopeDeterminator;
+    private RequestScopeDeterminator $scopeDeterminator;
 
     /**
      * The MetaModels factory.
      *
      * @var IFactory
      */
-    private $factory;
+    private IFactory $factory;
 
     /**
      * CreateVariantHandler constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
-     *
      * @param IFactory                 $factory           The MetaModels factory.
      */
     public function __construct(RequestScopeDeterminator $scopeDeterminator, IFactory $factory)
@@ -114,9 +120,11 @@ class CreateVariantHandler
      */
     public function process(EnvironmentInterface $environment)
     {
-        $definition      = $environment->getDataDefinition();
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
         $basicDefinition = $definition->getBasicDefinition();
         $dataProvider    = $environment->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
 
         if (!$basicDefinition->isCreatable()) {
             throw new NotCreatableException('DataContainer ' . $definition->getName() . ' is not creatable');
@@ -125,15 +133,19 @@ class CreateVariantHandler
         if (BasicDefinitionInterface::MODE_FLAT !== $basicDefinition->getMode()) {
             return false;
         }
-        $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $modelId = ModelId::fromSerialized($inputProvider->getParameter('source'));
 
         /** @var Driver $dataProvider */
         $model = $dataProvider->createVariant($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         if (null === $model) {
             throw new DcGeneralRuntimeException(
-                sprintf(
+                \sprintf(
                     'Could not find model with id %s for creating a variant.',
-                    $modelId
+                    $modelId->getId()
                 )
             );
         }
@@ -143,19 +155,24 @@ class CreateVariantHandler
             return false;
         }
 
-        $preFunction = static function ($environment, $model) {
-            /** @var EnvironmentInterface $environment */
+        $preFunction = static function (EnvironmentInterface $environment, ModelInterface $model): void {
             $createModelEvent = new PreCreateModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch($createModelEvent::NAME, $createModelEvent);
+            $dispatcher       = $environment->getEventDispatcher();
+
+            assert($dispatcher instanceof EventDispatcherInterface);
+            $dispatcher->dispatch($createModelEvent, $createModelEvent::NAME);
         };
 
-        $postFunction = static function ($environment, $model) {
-            /** @var EnvironmentInterface $environment */
+        $postFunction = static function (EnvironmentInterface $environment, ModelInterface $model): void {
             $createModelEvent = new PostCreateModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch($createModelEvent::NAME, $createModelEvent);
+            $dispatcher       = $environment->getEventDispatcher();
+
+            assert($dispatcher instanceof EventDispatcherInterface);
+            $dispatcher->dispatch($createModelEvent, $createModelEvent::NAME);
         };
 
-        $editMask = new EditMask($environment, $model, null, $preFunction, $postFunction);
+        $newModel = clone $model;
+        $editMask = new EditMask($environment, $newModel, $model, $preFunction, $postFunction);
 
         return $editMask->execute();
     }

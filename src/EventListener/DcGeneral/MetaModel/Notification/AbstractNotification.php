@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,23 +22,29 @@ declare(strict_types=1);
 
 namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification;
 
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use Contao\Config;
 use Contao\CoreBundle\Framework\Adapter;
 use Contao\FrontendUser;
 use MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\TraitFrontendScope;
 use MetaModels\DcGeneral\Data\Model;
+use MetaModels\IItem;
 use MetaModels\ViewCombination\ViewCombination;
 use NotificationCenter\Model\Notification;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-
 /**
  * This is for send notification.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  */
 abstract class AbstractNotification
 {
@@ -70,14 +76,14 @@ abstract class AbstractNotification
      *
      * @var RequestStack
      */
-    private $requestStack;
+    private RequestStack $requestStack;
 
     /**
      * The config service.
      *
      * @var Adapter|Config
      */
-    private $config;
+    private Adapter|Config $config;
 
     /**
      * The constructor.
@@ -111,16 +117,21 @@ abstract class AbstractNotification
      */
     public function __invoke(AbstractModelAwareEvent $event): void
     {
-        if (!$this->wantToHandle($event)
-            || ($this->actionName() !== $event->getEnvironment()->getInputProvider()->getParameter('act'))
+        $inputProvider = $event->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+        if (
+            !$this->wantToHandle($event)
+            || ($this->actionName() !== $inputProvider->getParameter('act'))
             || !($notification = $this->findNotification($event))
         ) {
             return;
         }
 
-        $request = $this->requestStack->getMasterRequest();
+        $request   = $this->requestStack->getMainRequest();
+        assert($request instanceof Request);
+        /** @psalm-suppress UndefinedMagicPropertyFetch */
         $notification->send(
-            $this->generateTokens($event, $notification->flatten_delimiter),
+            $this->generateTokens($event, (string) $notification->flatten_delimiter),
             $request->attributes->get('_locale')
         );
     }
@@ -135,10 +146,12 @@ abstract class AbstractNotification
      */
     private function generateTokens(AbstractEnvironmentAwareEvent $event, string $flattenDelimiter): array
     {
-        $request   = $this->requestStack->getMasterRequest();
+        $request   = $this->requestStack->getMainRequest();
+        assert($request instanceof Request);
         $pageModel = $request->attributes->get('pageModel');
 
-        $tokens   = [];
+        $tokens = [];
+        /** @psalm-suppress InternalMethod - Class ContaoFramework is internal, not the getAdapter() method. */
         $tokens[] = ['admin_mail' => ($pageModel->adminEmail ?: $this->config->get('adminEmail'))];
         $tokens[] = $this->generateTokensFromModel($event, $flattenDelimiter);
         $tokens[] = $this->generatePropertyLabelTokens($event);
@@ -165,13 +178,22 @@ abstract class AbstractNotification
         ModelInterface $model = null
     ): array {
         if (null === $model) {
+            if (!$event instanceof AbstractModelAwareEvent) {
+                return [];
+            }
             $model = $event->getModel();
         }
+        if (!$model instanceof Model) {
+            return [];
+        }
 
-        $item       = $model->getItem();
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+        $item = $model->getItem();
+        assert($item instanceof IItem);
         $values     = $item->parseValue();
         $tokens     = [];
-        $properties = $event->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperties();
+        $properties = $dataDefinition->getPropertiesDefinition()->getProperties();
         foreach ($properties as $property) {
             $attribute = $item->getAttribute($property->getName());
             if ($attribute && isset($values['text'][$property->getName()])) {
@@ -208,7 +230,8 @@ abstract class AbstractNotification
      */
     private function generateMemberTokens(string $flattenDelimiter): array
     {
-        if (!($token = $this->tokenStorage->getToken())
+        if (
+            !($token = $this->tokenStorage->getToken())
             || !(($user = $token->getUser()) instanceof FrontendUser)
         ) {
             return [];
@@ -254,8 +277,10 @@ abstract class AbstractNotification
      */
     private function generatePropertyLabelTokens(AbstractEnvironmentAwareEvent $event): array
     {
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
         $tokens     = [];
-        $properties = $event->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperties();
+        $properties = $dataDefinition->getPropertiesDefinition()->getProperties();
         foreach ($properties as $property) {
             $tokens['property_label_' . $property->getName()] = ($property->getLabel() ?? $property->getName());
         }
@@ -272,11 +297,14 @@ abstract class AbstractNotification
      */
     private function findNotification(AbstractModelAwareEvent $event): ?Notification
     {
-        $inputScreen = $this->viewCombination->getScreen($event->getEnvironment()->getDataDefinition()->getName());
-        if (!$inputScreen
-            || !isset($inputScreen['meta'][$this->metaName()])
-            || !($notificationID = $inputScreen['meta'][$this->metaName()])
-            || !($notification = $this->notificationCenter->findByPk($notificationID))
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+        $inputScreen = $this->viewCombination->getScreen($dataDefinition->getName());
+        /** @psalm-suppress InternalMethod - Class ContaoFramework is internal, not the getAdapter() method. */
+        if (
+            null === $inputScreen
+            || '' === ($notificationID = ($inputScreen['meta'][$this->metaName()] ?? ''))
+            || null === ($notification = $this->notificationCenter->findByPk($notificationID))
         ) {
             return null;
         }

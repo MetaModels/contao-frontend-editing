@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2023 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2023 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -37,21 +37,23 @@ $GLOBALS['TL_DCA']['tl_metamodel_dca']['metasubpalettes']['fe_useMemberPermissio
 $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = array_merge(
     (array) $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'],
     [
-        'fe_overrideEditButtons' => [
-            'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_overrideEditButtons'],
-            'exclude'   => true,
-            'inputType' => 'checkbox',
-            'sql'       => ['type' => 'boolean', 'notnull' => false],
-            'eval'      => [
+        'fe_overrideEditButtons'  => [
+            'label'       => 'fe_overrideEditButtons.label',
+            'description' => 'fe_overrideEditButtons.description',
+            'exclude'     => true,
+            'inputType'   => 'checkbox',
+            'sql'         => ['type' => 'boolean', 'notnull' => false],
+            'eval'        => [
                 'submitOnChange' => true,
-                'tl_class' => 'w50 cbx'
+                'tl_class'       => 'w50 cbx'
             ]
         ],
-        'fe_editButtons' => [
-            'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons'],
-            'exclude'   => true,
-            'inputType' => 'multiColumnWizard',
-            'default' => [
+        'fe_editButtons'          => [
+            'label'       => 'fe_editButtons.label',
+            'description' => 'fe_editButtons.description',
+            'exclude'     => true,
+            'inputType'   => 'multiColumnWizard',
+            'default'     => [
                 [
                     'name'       => 'save',
                     'label'      => 'MSC.save',
@@ -63,81 +65,90 @@ $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = array_merge(
                     'attributes' => 'accesskey="n"'
                 ]
             ],
-            'sql'       => ['type' => 'array', 'notnull' => false],
-            'eval'      => [
-                'tl_class'     => 'clr',
-                'columnFields' => [
-                    'name'   => [
-                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_name'],
-                        'exclude'   => true,
-                        'inputType' => 'text',
-                        'eval'      => [
-                            'rgxp'      => 'fieldname',
+            'sql'         => ['type' => 'array', 'notnull' => false],
+            'eval'        => [
+                'useTranslator' => true,
+                'tl_class'      => 'clr',
+                'columnFields'  => [
+                    'name'            => [
+                        'label'       => 'fe_editButtons_name.label',
+                        'description' => 'fe_editButtons_name.description',
+                        'exclude'     => true,
+                        'inputType'   => 'text',
+                        'eval'        => [
+                            'rgxp'      => 'alias',
+                            'mandatory' => true,
                             'style'     => 'width: 100%;'
                         ]
                     ],
-                    'label'   => [
-                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_label'],
-                        'exclude'   => true,
-                        'inputType' => 'text',
-                        'eval'      => [
-                            'rgxp'   => 'alias',
-                            'style'  => 'width: 100%;'
+                    'label'           => [
+                        'label'       => 'fe_editButtons_label.label',
+                        'description' => 'fe_editButtons_label.description',
+                        'exclude'     => true,
+                        'inputType'   => 'text',
+                        'eval'        => [
+                            'style' => 'width: 100%;'
                         ]
                     ],
-                    'attributes' => [
-                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_attributes'],
-                        'exclude'   => true,
-                        'inputType' => 'text',
-                        'eval'      => [
+                    'attributes'      => [
+                        'label'       => 'fe_editButtons_attributes.label',
+                        'description' => 'fe_editButtons_attributes.description',
+                        'exclude'     => true,
+                        'inputType'   => 'text',
+                        'eval'        => [
                             'style' => 'width:100%;'
                         ]
                     ],
-                    'jumpTo' => [
-                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_jumpTo'],
-                        'exclude'    => true,
+                    'jumpTo'          => [
+                        'label'       => 'fe_editButtons_jumpTo.label',
+                        'description' => 'fe_editButtons_jumpTo.description',
+                        'exclude'     => true,
                         // @codingStandardsIgnoreStart
                         // FIXME: Use page tree if this work with mcw.
                         // @codingStandardsIgnoreEnd
-                        'inputType' => 'text',
-                        'eval'      => [
+                        'inputType'   => 'text',
+                        'eval'        => [
                             'fieldType' => 'radio',
                             'dcaPicker' => ['providers' => ['pagePicker']],
                             'tl_class'  => 'w50 wizard'
                         ]
                     ],
                     'jumpToParameter' => [
-                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_jumpToParameter'],
-                        'exclude'   => true,
-                        'inputType' => 'text',
-                        'eval'      => [
+                        'label'       => 'fe_editButtons_jumpToParameter.label',
+                        'description' => 'fe_editButtons_jumpToParameter.description',
+                        'exclude'     => true,
+                        'inputType'   => 'text',
+                        'eval'        => [
                             'style' => 'width: 100%;'
                         ]
                     ],
-                    'notSave' => [
-                        'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_editButtons_notSave'],
-                        'exclude'   => true,
-                        'inputType' => 'checkbox'
+                    'notSave'         => [
+                        'label'       => 'fe_editButtons_notSave.label',
+                        'description' => 'fe_editButtons_notSave.description',
+                        'exclude'     => true,
+                        'inputType'   => 'checkbox'
                     ]
                 ]
             ]
         ],
         'fe_useMemberPermissions' => [
-            'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_useMemberPermissions'],
-            'exclude'   => true,
-            'inputType' => 'checkbox',
-            'sql'       => ['type' => 'boolean', 'notnull' => false],
-            'eval'      => [
+            'label'       => 'fe_useMemberPermissions.label',
+            'description' => 'fe_useMemberPermissions.description',
+            'exclude'     => true,
+            'inputType'   => 'checkbox',
+            'sql'         => ['type' => 'boolean', 'notnull' => false],
+            'eval'        => [
                 'submitOnChange' => true,
-                'tl_class' => 'w50 cbx'
+                'tl_class'       => 'w50 cbx'
             ]
         ],
-        'fe_memberAttribut' => [
-            'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_memberAttribut'],
-            'exclude'   => true,
-            'inputType' => 'select',
-            'sql'       => 'varchar(255) NOT NULL default \'\'',
-            'eval'      => [
+        'fe_memberAttribut'       => [
+            'label'       => 'fe_memberAttribut.label',
+            'description' => 'fe_memberAttribut.description',
+            'exclude'     => true,
+            'inputType'   => 'select',
+            'sql'         => 'varchar(255) NOT NULL default \'\'',
+            'eval'        => [
                 'includeBlankOption' => true,
                 'mandatory'          => true,
                 'tl_class'           => 'clr w50',
@@ -159,38 +170,42 @@ if (\array_key_exists('notification_center', \Contao\System::getContainer()->get
         (array) $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'],
         [
             'fe_create_notification' => [
-                'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_create_notification'],
-                'exclude'   => true,
-                'inputType' => 'select',
-                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'clr w50'],
-                'sql'       => ['type' => 'integer', 'notnull' => false]
+                'label'       => 'fe_create_notification.label',
+                'description' => 'fe_create_notification.description',
+                'exclude'     => true,
+                'inputType'   => 'select',
+                'eval'        => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'clr w50'],
+                'sql'         => ['type' => 'integer', 'notnull' => false]
             ]
         ],
         [
             'fe_edit_notification' => [
-                'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_edit_notification'],
-                'exclude'   => true,
-                'inputType' => 'select',
-                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'w50'],
-                'sql'       => ['type' => 'integer', 'notnull' => false]
+                'label'       => 'fe_edit_notification.label',
+                'description' => 'fe_edit_notification.description',
+                'exclude'     => true,
+                'inputType'   => 'select',
+                'eval'        => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'w50'],
+                'sql'         => ['type' => 'integer', 'notnull' => false]
             ]
         ],
         [
             'fe_copy_notification' => [
-                'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_copy_notification'],
-                'exclude'   => true,
-                'inputType' => 'select',
-                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'clr w50'],
-                'sql'       => ['type' => 'integer', 'notnull' => false]
+                'label'       => 'fe_copy_notification.label',
+                'description' => 'fe_copy_notification.description',
+                'exclude'     => true,
+                'inputType'   => 'select',
+                'eval'        => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'clr w50'],
+                'sql'         => ['type' => 'integer', 'notnull' => false]
             ]
         ],
         [
             'fe_delete_notification' => [
-                'label'     => &$GLOBALS['TL_LANG']['tl_metamodel_dca']['fe_delete_notification'],
-                'exclude'   => true,
-                'inputType' => 'select',
-                'eval'      => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'w50'],
-                'sql'       => ['type' => 'integer', 'notnull' => false]
+                'label'       => 'fe_delete_notification.label',
+                'description' => 'fe_delete_notification.description',
+                'exclude'     => true,
+                'inputType'   => 'select',
+                'eval'        => ['includeBlankOption' => true, 'chosen' => true, 'tl_class' => 'w50'],
+                'sql'         => ['type' => 'integer', 'notnull' => false]
             ]
         ]
     );

@@ -34,13 +34,15 @@ class MetaModelsContaoFrontendEditingExtension extends Extension
     /**
      * {@inheritDoc}
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('listeners.yml');
         $loader->load('services.yml');
+        $bundles = $container->getParameter('kernel.bundles');
+        assert(\is_array($bundles));
 
-        if (\array_key_exists('notification_center', $container->getParameter('kernel.bundles'))) {
+        if (\array_key_exists('notification_center', $bundles)) {
             $loader->load('notification/backend_listeners.yml');
             $loader->load('notification/frontend_listeners.yml');
         }

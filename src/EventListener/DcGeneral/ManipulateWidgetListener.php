@@ -23,6 +23,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent;
 use MetaModels\Attribute\IInternal;
 use MetaModels\DcGeneral\Data\Model;
+use MetaModels\IItem;
 
 final class ManipulateWidgetListener
 {
@@ -62,7 +63,7 @@ final class ManipulateWidgetListener
         }
 
         $property = $event->getProperty();
-        if (null === $attribute = $model->getItem()->getMetaModel()->getAttribute($property->getName())) {
+        if (null === $attribute = $model->getItem()?->getMetaModel()->getAttribute($property->getName())) {
             return;
         }
 
