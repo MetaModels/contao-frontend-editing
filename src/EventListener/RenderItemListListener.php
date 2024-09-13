@@ -247,16 +247,16 @@ class RenderItemListListener
         if (null === $model) {
             return;
         }
-        /** @psalm-suppress UndefinedMagicPropertyFetch */
-        $tableName  = $this->factory->translateIdToMetaModelName($model->metamodel);
-        $definition = $this->frontendEditor->createDcGeneral($tableName)->getDataDefinition();
-        assert($definition instanceof ContainerInterface);
 
-        $page = null;
         /** @psalm-suppress UndefinedMagicPropertyFetch */
         if (!(bool) $model->metamodel_fe_editing) {
             return;
         }
+
+        /** @psalm-suppress UndefinedMagicPropertyFetch */
+        $tableName  = $this->factory->translateIdToMetaModelName($model->metamodel);
+        $definition = $this->frontendEditor->createDcGeneral($tableName)->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
 
         /** @psalm-suppress UndefinedMagicPropertyFetch */
         $page = $this->getPageDetails($model->metamodel_fe_editing_page);
