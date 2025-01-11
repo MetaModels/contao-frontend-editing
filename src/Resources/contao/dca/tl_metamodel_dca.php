@@ -18,6 +18,8 @@
  * @filesource
  */
 
+use Contao\System;
+
 $GLOBALS['TL_DCA']['tl_metamodel_dca']['metapalettes']['default']['fe_editButtons'] = [
     'fe_overrideEditButtons'
 ];
@@ -34,7 +36,7 @@ $GLOBALS['TL_DCA']['tl_metamodel_dca']['metasubpalettes']['fe_useMemberPermissio
     'fe_memberAttribut'
 ];
 
-$GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = array_merge(
+$GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = \array_merge(
     (array) $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'],
     [
         'fe_overrideEditButtons'  => [
@@ -158,7 +160,10 @@ $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = array_merge(
     ]
 );
 
-if (\array_key_exists('notification_center', \Contao\System::getContainer()->getParameter('kernel.bundles'))) {
+$bundles = System::getContainer()->getParameter('kernel.bundles');
+assert(\is_array($bundles));
+
+if (\array_key_exists('notification_center', $bundles)) {
     $GLOBALS['TL_DCA']['tl_metamodel_dca']['metapalettes']['default']['fe_notification'] = [
         'fe_create_notification',
         'fe_edit_notification',
@@ -166,7 +171,7 @@ if (\array_key_exists('notification_center', \Contao\System::getContainer()->get
         'fe_delete_notification'
     ];
 
-    $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = array_merge(
+    $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = \array_merge(
         (array) $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'],
         [
             'fe_create_notification' => [

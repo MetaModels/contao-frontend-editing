@@ -28,7 +28,10 @@ use MetaModels\ContaoFrontendEditingBundle\Module\ModelEdit as ModuleModelEdit;
 $GLOBALS['FE_MOD']['metamodels']['metamodels_frontendediting'] = ModuleModelEdit::class;
 $GLOBALS['TL_CTE']['metamodels']['metamodels_frontendediting'] = ContentModelEdit::class;
 
-if (\in_array('notification_center', (array) System::getContainer()->getParameter('kernel.bundles'), true)) {
+$bundles = System::getContainer()->getParameter('kernel.bundles');
+assert(\is_array($bundles));
+
+if (\array_key_exists('notification_center', $bundles)) {
     $configCreateSimpleTokens = ['model_*', 'member_*', 'property_label_*' , 'data', 'admin_email'];
     $configEditSimpleTokens   = ['model_*', 'model_original_*', 'member_*', 'property_label_*' , 'data', 'admin_email'];
     $configDeleteSimpleTokens = ['model_*', 'member_*', 'property_label_*' , 'data', 'admin_email'];
