@@ -17,3 +17,9 @@ services:
       - "@cca.dc-general.scope-matcher"
     tags:
       - { name: kernel.event_listener, event: 'dc-general.view.contao2backend.model-to-label', method: modelToLabel }
+
+  MetaModels\ContaoFrontendEditingBundle\Migration\ChangeNotificationTypeMigration:
+    arguments:
+      - '@database_connection'
+    tags:
+      - name: contao.migration
