@@ -596,8 +596,7 @@ class RenderItemListListenerTest extends TestCase
     public function testFrontendEditingInListRenderingAddsWithEditFlag(): void
     {
         $reflection = new \ReflectionProperty(FrontendEditor::class, 'environments');
-        $reflection->setAccessible(true);
-        $reflection->setValue([]);
+        $reflection->setValue(null, []);
 
         $framework = $this->getMockBuilder(ContaoFramework::class)
             ->disableOriginalConstructor()

@@ -50,11 +50,15 @@ class RenderItemListListener
 {
     /**
      * This property will get set on the render setting collection.
+     *
+     * @psalm-suppress MissingClassConstType
      */
     public const FRONTEND_EDITING_ENABLED_FLAG = '$frontend-editing-enabled';
 
     /**
      * This property holds the frontend editing page array.
+     *
+     * @psalm-suppress MissingClassConstType
      */
     public const FRONTEND_EDITING_PAGE = '$frontend-editing-page';
 
