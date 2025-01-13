@@ -22,6 +22,11 @@
     "Symfony\\Component\\Security\\Core\\Security",
     "Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface",
     "Symfony\\Contracts\\Translation\\TranslatorInterface",
+    "Terminal42\\NotificationCenterBundle\\NotificationType\\NotificationTypeInterface",
+    "Terminal42\\NotificationCenterBundle\\Terminal42NotificationCenterBundle",
+    "Terminal42\\NotificationCenterBundle\\Token\\Definition\\AnythingTokenDefinition",
+    "Terminal42\\NotificationCenterBundle\\Token\\Definition\\EmailTokenDefinition",
+    "Terminal42\\NotificationCenterBundle\\Token\\Definition\\Factory\\TokenDefinitionFactoryInterface",
     "tl_user_group"
   ]
 }

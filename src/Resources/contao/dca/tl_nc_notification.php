@@ -23,7 +23,7 @@ use Contao\System;
 $bundles = System::getContainer()->getParameter('kernel.bundles');
 assert(\is_array($bundles));
 
-if (\array_key_exists('notification_center', $bundles)) {
+if (\array_key_exists('notification_center', $bundles) || \array_key_exists('Terminal42NotificationCenterBundle', $bundles)) {
     $GLOBALS['TL_DCA']['tl_nc_notification']['palettes']['mm_fe_create_model'] =
         '{title_legend},title,type;' .
         '{config_legend},flatten_delimiter;' .

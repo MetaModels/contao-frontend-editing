@@ -39,12 +39,22 @@ class MetaModelsContaoFrontendEditingExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('listeners.yml');
         $loader->load('services.yml');
+
         $bundles = $container->getParameter('kernel.bundles');
         assert(\is_array($bundles));
 
-        if (\array_key_exists('notification_center', $bundles)) {
+        // NC 1.7 and 2.0.
+        if (
+            \array_key_exists('notification_center', $bundles)
+            || \array_key_exists('Terminal42NotificationCenterBundle', $bundles)
+        ) {
             $loader->load('notification/backend_listeners.yml');
             $loader->load('notification/frontend_listeners.yml');
+        }
+
+        // NC 2.0.
+        if (\array_key_exists('Terminal42NotificationCenterBundle', $bundles)) {
+            $loader->load('notification/types_listeners.yml');
         }
     }
 }

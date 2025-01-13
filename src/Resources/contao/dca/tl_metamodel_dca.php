@@ -163,7 +163,7 @@ $GLOBALS['TL_DCA']['tl_metamodel_dca']['fields'] = \array_merge(
 $bundles = System::getContainer()->getParameter('kernel.bundles');
 assert(\is_array($bundles));
 
-if (\array_key_exists('notification_center', $bundles)) {
+if (\array_key_exists('notification_center', $bundles) || \array_key_exists('Terminal42NotificationCenterBundle', $bundles)) {
     $GLOBALS['TL_DCA']['tl_metamodel_dca']['metapalettes']['default']['fe_notification'] = [
         'fe_create_notification',
         'fe_edit_notification',

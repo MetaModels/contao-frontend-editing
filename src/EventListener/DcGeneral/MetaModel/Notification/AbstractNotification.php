@@ -61,6 +61,8 @@ abstract class AbstractNotification
      * The notification center.
      *
      * @var Adapter|Notification
+     *
+     * @psalm-suppress UndefinedDocblockClass
      */
     protected $notificationCenter;
 
@@ -129,7 +131,10 @@ abstract class AbstractNotification
 
         $request   = $this->requestStack->getMainRequest();
         assert($request instanceof Request);
-        /** @psalm-suppress UndefinedMagicPropertyFetch */
+        /**
+         * @psalm-suppress UndefinedMagicPropertyFetch
+         * @psalm-suppress UndefinedClass
+         */
         $notification->send(
             $this->generateTokens($event, (string) $notification->flatten_delimiter),
             $request->attributes->get('_locale')
@@ -294,6 +299,8 @@ abstract class AbstractNotification
      * @param AbstractModelAwareEvent $event The event.
      *
      * @return Notification|null
+     *
+     * @psalm-suppress UndefinedClass
      */
     private function findNotification(AbstractModelAwareEvent $event): ?Notification
     {
