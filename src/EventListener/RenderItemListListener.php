@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2024 The MetaModels team.
+ * (c) 2012-2025 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Mini Model <minimodel@metamodel.me>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2024 The MetaModels team.
+ * @copyright  2012-2025 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -189,25 +189,27 @@ class RenderItemListListener
             }
         }
 
-        // Add edit action
+        // Add edit action.
         if ($basicDefinition->isEditable() && $isEditableForMember) {
             $parsed['actions']['edit'] = [
-                'label' => $this->translateLabel('metamodel_edit_item', $definition->getName()),
-                'href'  => $this->generateEditUrl($editingPage, $modelId),
-                'class' => 'edit',
+                'label'     => $this->translateLabel('metamodel_edit_item', $definition->getName()),
+                'href'      => $this->generateEditUrl($editingPage, $modelId),
+                'attribute' => 'data-escargot-ignore rel="nofollow"',
+                'class'     => 'edit',
             ];
         }
 
-        // Add copy action
+        // Add copy action.
         if ($basicDefinition->isCreatable() && $isEditableForMember) {
             $parsed['actions']['copy'] = [
-                'label' => $this->translateLabel('metamodel_copy_item', $definition->getName()),
-                'href'  => $this->generateCopyUrl($editingPage, $modelId),
-                'class' => 'copy',
+                'label'     => $this->translateLabel('metamodel_copy_item', $definition->getName()),
+                'href'      => $this->generateCopyUrl($editingPage, $modelId),
+                'attribute' => 'data-escargot-ignore rel="nofollow"',
+                'class'     => 'copy',
             ];
         }
 
-        // Add create variant action
+        // Add create variant action.
         if (
             false === $item->isVariant()
             && $basicDefinition->isCreatable()
@@ -215,19 +217,20 @@ class RenderItemListListener
             && $isEditableForMember
         ) {
             $parsed['actions']['createvariant'] = [
-                'label' => $this->translateLabel('metamodel_create_variant', $definition->getName()),
-                'href'  => $this->generateCreateVariantUrl($editingPage, $modelId),
-                'class' => 'createvariant',
+                'label'     => $this->translateLabel('metamodel_create_variant', $definition->getName()),
+                'href'      => $this->generateCreateVariantUrl($editingPage, $modelId),
+                'attribute' => 'data-escargot-ignore rel="nofollow"',
+                'class'     => 'createvariant',
             ];
         }
 
-        // Add delete action
+        // Add delete action.
         if ($basicDefinition->isDeletable() && $isEditableForMember) {
             $parsed['actions']['delete'] = [
                 'label'     => $this->translateLabel('metamodel_delete_item', $definition->getName()),
                 'href'      => $this->generateDeleteUrl($editingPage, $modelId),
                 'attribute' => sprintf(
-                    'onclick="if (!confirm(\'%s\')) return false;"',
+                    'onclick="if (!confirm(\'%s\')) return false;" data-escargot-ignore rel="nofollow"',
                     $this->translator->trans('MSC.deleteConfirm', [$item->get('id')], 'contao_default')
                 ),
                 'class'     => 'delete',
