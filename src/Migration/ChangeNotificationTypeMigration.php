@@ -26,6 +26,7 @@ use Contao\CoreBundle\Migration\MigrationResult;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Terminal42\NotificationCenterBundle\Terminal42NotificationCenterBundle;
+
 use function class_exists;
 
 /**
@@ -118,7 +119,8 @@ class ChangeNotificationTypeMigration extends AbstractMigration
         }
 
         return new MigrationResult(
-            true, 'MM-FEE notification types in "tl_nc_notification" for NC version 2.x changed.'
+            true,
+            'MM-FEE notification types in "tl_nc_notification" for NC version 2.x changed.'
         );
     }
 
