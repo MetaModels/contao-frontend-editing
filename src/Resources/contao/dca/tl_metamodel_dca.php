@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2024 The MetaModels team.
+ * (c) 2012-2025 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2024 The MetaModels team.
+ * @copyright  2012-2025 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -21,7 +21,7 @@
 use Contao\System;
 
 $GLOBALS['TL_DCA']['tl_metamodel_dca']['metapalettes']['default']['fe_editButtons'] = [
-    'fe_overrideEditButtons'
+    ':hide', 'fe_overrideEditButtons'
 ];
 
 $GLOBALS['TL_DCA']['tl_metamodel_dca']['metasubpalettes']['fe_overrideEditButtons'] = [
@@ -29,7 +29,7 @@ $GLOBALS['TL_DCA']['tl_metamodel_dca']['metasubpalettes']['fe_overrideEditButton
 ];
 
 $GLOBALS['TL_DCA']['tl_metamodel_dca']['metapalettes']['default']['fe_memberAttribut'] = [
-    'fe_useMemberPermissions'
+    ':hide', 'fe_useMemberPermissions'
 ];
 
 $GLOBALS['TL_DCA']['tl_metamodel_dca']['metasubpalettes']['fe_useMemberPermissions'] = [
@@ -165,6 +165,7 @@ assert(\is_array($bundles));
 
 if (\array_key_exists('notification_center', $bundles) || \array_key_exists('Terminal42NotificationCenterBundle', $bundles)) {
     $GLOBALS['TL_DCA']['tl_metamodel_dca']['metapalettes']['default']['fe_notification'] = [
+        ':hide',
         'fe_create_notification',
         'fe_edit_notification',
         'fe_copy_notification',

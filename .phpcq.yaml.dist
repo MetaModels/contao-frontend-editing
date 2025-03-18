@@ -84,6 +84,7 @@ tasks:
         - tests
         - src/CoreBundle/EventListener/DcGeneral/DefinitionBuilder
         - src/CoreBundle/Resources/contao/dca
+        - src/EventListener/DcGeneral/MetaModel/Notification/
 
   phpmd:
     plugin: phpmd

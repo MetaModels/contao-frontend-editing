@@ -22,6 +22,7 @@
     "Symfony\\Component\\Security\\Core\\Security",
     "Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface",
     "Symfony\\Contracts\\Translation\\TranslatorInterface",
+    "Terminal42\\NotificationCenterBundle\\NotificationCenter",
     "Terminal42\\NotificationCenterBundle\\NotificationType\\NotificationTypeInterface",
     "Terminal42\\NotificationCenterBundle\\Terminal42NotificationCenterBundle",
     "Terminal42\\NotificationCenterBundle\\Token\\Definition\\AnythingTokenDefinition",
