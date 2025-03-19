@@ -62,7 +62,7 @@ abstract class AbstractNotificationCenter
     /**
      * Send the notification.
      *
-     * @param AbstractModelAwareEvent|PostPersistModelEvent $event The event.
+     * @param AbstractModelAwareEvent $event The event.
      *
      * @return void
      */
