@@ -31,3 +31,7 @@ $GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_delete_model']['1']    
 $GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_edit_model']['0']      = 'Datensatz bearbeitet';
 $GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_edit_model']['1']      = 'Dieser Benachrichtigungstyp wird gesendet, wenn ein Datensatz bearbeitet wurde.';
 
+$GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_model_create'][0] = 'MM-FEE: Datensatz erstellen';
+$GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_model_edit'][0]   = 'MM-FEE: Datensatz bearbeitet';
+$GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_model_copy'][0]   = 'MM-FEE: Datensatz kopiert';
+$GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_model_delete'][0] = 'MM-FEE: Datensatz gelöscht';

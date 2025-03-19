@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2023 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2023 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,8 +22,10 @@ declare(strict_types=1);
 
 namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use Doctrine\DBAL\Connection;
@@ -83,19 +85,19 @@ abstract class AbstractNotificationOption
             ->setParameter('type', $this->notificationType())
             ->orderBy('t.title');
 
-        $statement = $builder->execute();
+        $statement = $builder->executeQuery();
         if (!$statement->rowCount()) {
             return [];
         }
 
-        $result = $statement->fetchAll(\PDO::FETCH_OBJ);
+        $result = $statement->fetchAllAssociative();
 
         $options = [];
         foreach ($result as $item) {
-            $options[$item->id] = \sprintf(
+            $options[$item['id']] = \sprintf(
                 '%s [%s]',
-                $item->title,
-                $item->id
+                $item['title'],
+                $item['id']
             );
         }
 
@@ -125,16 +127,23 @@ abstract class AbstractNotificationOption
      */
     private function wantToHandle(AbstractEnvironmentAwareEvent $event): bool
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        $scopeDeterminator = $this->scopeDeterminator;
+        assert($scopeDeterminator instanceof RequestScopeDeterminator);
+
+        if (!$scopeDeterminator->currentScopeIsBackend()) {
             return false;
         }
 
-        if ('tl_metamodel_dca' !== $event->getEnvironment()->getDataDefinition()->getName()) {
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        if ('tl_metamodel_dca' !== $dataDefinition->getName()) {
             return false;
         }
 
-        if (($event instanceof AbstractModelAwareEvent)
-            && ($event->getEnvironment()->getDataDefinition()->getName() !== $event->getModel()->getProviderName())
+        if (
+            ($event instanceof AbstractModelAwareEvent)
+            && ($dataDefinition->getName() !== $event->getModel()->getProviderName())
         ) {
             return false;
         }

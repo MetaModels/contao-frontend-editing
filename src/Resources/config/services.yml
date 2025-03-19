@@ -1,0 +1,25 @@
+services:
+  MetaModels\ContaoFrontendEditingBundle\FilterSetting\MemberFilterSettingTypeFactory:
+    arguments:
+      - '@database_connection'
+      - '@event_dispatcher'
+      - '@MetaModels\Filter\FilterUrlBuilder'
+      - '@cca.dc-general.scope-matcher'
+      - '@Symfony\Component\Security\Core\Security'
+    tags:
+      - { name: metamodels.filter_factory }
+
+  MetaModels\ContaoFrontendEditingBundle\FilterSetting\MemberFilterSettingTypeRendererListener:
+    arguments:
+      - "@metamodels.filter_setting_factory"
+      - "@event_dispatcher"
+      - "@metamodels.assets.icon_builder"
+      - "@cca.dc-general.scope-matcher"
+    tags:
+      - { name: kernel.event_listener, event: 'dc-general.view.contao2backend.model-to-label', method: modelToLabel }
+
+  MetaModels\ContaoFrontendEditingBundle\Migration\ChangeNotificationTypeMigration:
+    arguments:
+      - '@database_connection'
+    tags:
+      - name: contao.migration

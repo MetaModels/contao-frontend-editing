@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca;
 
+use Terminal42\NotificationCenterBundle\Terminal42NotificationCenterBundle;
+
 /**
  * This listener collect options for the property delete model notification.
  */
@@ -40,6 +42,10 @@ final class DeleteModelNotificationOptionListener extends AbstractNotificationOp
      */
     protected function notificationType(): string
     {
-        return 'mm_fe_delete_model';
+        // Remove in MM 2.4
+        if (!\class_exists(Terminal42NotificationCenterBundle::class, true)) {
+            return 'mm_fe_delete_model';
+        }
+        return 'mm_fe_model_delete';
     }
 }

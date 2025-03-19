@@ -19,3 +19,4 @@ composer.lock
 build/
 build.properties
 .phpunit.result.cache
+.phpcq/

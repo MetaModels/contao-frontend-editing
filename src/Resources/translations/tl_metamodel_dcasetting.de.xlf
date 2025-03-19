@@ -1,0 +1,14 @@
+<?xml version="1.0" ?><xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="src/CoreBundle/Resources/translations/tl_metamodel_dcasetting.en.xlf" target-language="de">
+    <body>
+      <trans-unit id="fe_template.label" resname="fe_template.label">
+        <source>Template at frontend edit</source>
+        <target>Template für das Frontend-Editing</target>
+      </trans-unit>
+      <trans-unit id="fe_template.description" resname="fe_template.description">
+        <source>You can chose own template for widget in frontend editing.</source>
+        <target>Hier können Sie ein eigenes Template für das Widget auswählen, was im Frontend-Editing eingesetzt wird.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

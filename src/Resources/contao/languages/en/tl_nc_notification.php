@@ -35,3 +35,8 @@ $GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_delete_model'] = [
     'Delete model',
     'This notification type sent when a model is deleted.'
 ];
+
+$GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_model_create'][0] = 'MM-FEE: Create model';
+$GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_model_edit'][0]   = 'MM-FEE: Edit model';
+$GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_model_copy'][0]   = 'MM-FEE: Copy model';
+$GLOBALS['TL_LANG']['tl_nc_notification']['type']['mm_fe_model_delete'][0] = 'MM-FEE: Delete model';

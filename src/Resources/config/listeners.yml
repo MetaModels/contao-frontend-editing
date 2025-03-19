@@ -6,6 +6,8 @@ services:
           - '@event_dispatcher'
           - '@metamodels.factory'
           - '@cca.dc-general.contao_frontend.editor'
+          - '@Symfony\Component\Security\Core\Security'
+          - '@metamodels.view_combination.input_screen_information_builder'
         tags:
           - { name: kernel.event_listener, event: 'metamodels.render-item-list', method: handleFrontendEditingInListRendering }
           - { name: kernel.event_listener, event: 'metamodels.parse-item', method: handleForItemRendering }
@@ -40,6 +42,9 @@ services:
         arguments:
             - '@MetaModels\ViewCombination\ViewCombination'
             - '@=service("contao.framework").getAdapter("Contao\\PageModel")'
+            - '@=service("contao.framework").getAdapter("Contao\\StringUtil")'
+            - '@contao.string.simple_token_parser'
+            - '@contao.insert_tag.parser'
         tags:
             -   name: kernel.event_listener
                 event: dc-general.action
@@ -55,8 +60,61 @@ services:
             - '@MetaModels\ViewCombination\ViewCombination'
             - '@=service("contao.framework").getAdapter("Contao\\PageModel")'
             - '@=service("contao.framework").getAdapter("Contao\\StringUtil")'
+            - '@contao.insert_tag.parser'
         tags:
             -   name: kernel.event_listener
                 event: dc-general.contao-frontend.handle-submit
                 priority: 128
 
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dca\GetAttributeMemberListener:
+        arguments:
+            - '@cca.dc-general.scope-matcher'
+            - '@metamodels.factory'
+            - '@MetaModels\CoreBundle\Formatter\SelectAttributeOptionLabelFormatter'
+        tags:
+            -
+                name: kernel.event_listener
+                event: 'dc-general.view.contao2backend.get-property-options'
+                method: getPropertyOptions
+                priority: 128
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\FilterSetting\GetAttributeMemberListener:
+        arguments:
+            - '@cca.dc-general.scope-matcher'
+            - '@metamodels.filter_setting_factory'
+            - '@MetaModels\CoreBundle\Formatter\SelectAttributeOptionLabelFormatter'
+        tags:
+            -
+                name: kernel.event_listener
+                event: 'dc-general.view.contao2backend.get-property-options'
+                method: getPropertyOptions
+                priority: 128
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\EditMaskMemberPermissionListener:
+        public: true
+        arguments:
+            - '@cca.dc-general.scope-matcher'
+            - '@Symfony\Component\Security\Core\Security'
+            - '@metamodels.view_combination.input_screen_information_builder'
+        tags:
+            - { name: kernel.event_listener, event: dc-general.model.pre-persist, method: saveMemberId }
+            - { name: kernel.event_listener, event: dc-general.model.pre-edit-model, method: checkPreEditFee }
+            - { name: kernel.event_listener, event: dc-general.model.pre-persist, method: checkSaveFee }
+            - { name: kernel.event_listener, event: dc-general.model.pre-duplicate, method: checkDuplicateFee }
+            - { name: kernel.event_listener, event: dc-general.model.pre-delete, method: checkDeleteFee }
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\ManipulateWidgetListener:
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_listener, event: dc-general.view.contao2backend.manipulate-widget }
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\Table\Dcasetting\TemplateOptionListener:
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+            - "@metamodels.template_list"
+        tags:
+            - name: kernel.event_listener
+              event: dc-general.view.contao2backend.get-property-options
+              method: handle

@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\EditButtons;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\TraitFrontendScope;
 use MetaModels\ViewCombination\ViewCombination;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -39,14 +40,14 @@ class OverrideEditModelButtons
      *
      * @var ViewCombination
      */
-    private $viewCombination;
+    private ViewCombination $viewCombination;
 
     /**
      * The translator.
      *
      * @var TranslatorInterface
      */
-    private $translator;
+    private TranslatorInterface $translator;
 
     /**
      * The constructor.
@@ -89,16 +90,23 @@ class OverrideEditModelButtons
         $addButtons = [];
 
         $buttonTemplate = '<button type="submit" name="%s" id="%s" class="submit %s%s"%s>%s</button>';
+
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         foreach ($buttons as $button) {
             if (empty($button['name'])) {
                 continue;
             }
 
-            $label = $button['label']
-                ?: $event->getEnvironment()->getDataDefinition()->getName() . '.MSC.' . $button['name'];
-            if (false !== ($positionDot = \strpos($label, '.'))) {
-                $label = $this->translator->trans($label, [], 'contao_' . \substr($label, 0, $positionDot));
+            // If label not empty, try to translate at contao default -
+            // if label empty, translate at model name as domain
+            if ('' === $label = $button['label']) {
+                $label = $this->translator->trans($button['name'], [], $dataDefinition->getName());
+            } else {
+                $label = $this->translator->trans($label, [], 'contao_default');
             }
+
 
             $addButton = \sprintf(
                 $buttonTemplate,
@@ -125,8 +133,11 @@ class OverrideEditModelButtons
      */
     private function findOverrides(GetEditModeButtonsEvent $event): ?array
     {
-        $inputScreen = $this->viewCombination->getScreen($event->getEnvironment()->getDataDefinition()->getName());
-        if (!$inputScreen
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+        $inputScreen = $this->viewCombination->getScreen($dataDefinition->getName());
+        if (
+            null === $inputScreen
             || !isset($inputScreen['meta']['fe_overrideEditButtons'], $inputScreen['meta']['fe_editButtons'])
             || !$inputScreen['meta']['fe_overrideEditButtons']
         ) {

@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2020 The MetaModels team.
+ * (c) 2012-2023 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2020 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2023 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -21,6 +22,7 @@ declare(strict_types=1);
 
 namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
@@ -42,16 +44,22 @@ trait TraitFrontendScope
      */
     private function wantToHandle(AbstractEnvironmentAwareEvent $event): bool
     {
-        if (!$this->scopeDeterminator->currentScopeIsFrontend()) {
+        $scopeDeterminator = $this->scopeDeterminator;
+        assert($scopeDeterminator instanceof RequestScopeDeterminator);
+
+        if (!$scopeDeterminator->currentScopeIsFrontend()) {
             return false;
         }
 
-        if (!($event->getEnvironment()->getDataDefinition() instanceof IMetaModelDataDefinition)) {
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+
+        if (!($dataDefinition instanceof IMetaModelDataDefinition)) {
             return false;
         }
 
-        if (($event instanceof AbstractModelAwareEvent)
-            && ($event->getEnvironment()->getDataDefinition()->getName() !== $event->getModel()->getProviderName())
+        if (
+            ($event instanceof AbstractModelAwareEvent)
+            && ($dataDefinition->getName() !== $event->getModel()->getProviderName())
         ) {
             return false;
         }

@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Mini Model <minimodel@metamodel.me>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -36,6 +36,11 @@ use MetaModels\IFactory;
 
 /**
  * This class is the base for the frontend integrations.
+ *
+ * @psalm-import-type TDatabaseResult from \MetaModels\FrontendIntegration\MetaModelHybrid
+ *
+ * @psalm-suppress DeprecatedClass
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 abstract class FrontendEditHybrid extends MetaModelHybrid
 {
@@ -58,26 +63,29 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      *
      * @var IFactory
      */
-    private $factory;
+    private IFactory $factory;
 
     /**
      * The frontend editor.
      *
      * @var FrontendEditor
      */
-    private $editor;
+    private FrontendEditor $editor;
 
     /**
      * FrontendEditHybrid constructor.
      *
-     * @param ContentModel|ModuleModel|FormModel $element The element model, i.e., the module or content element.
-     * @param string                             $column  The column.
+     * @param TDatabaseResult $element The element model, i.e., the module or content element.
+     * @param string          $column  The column.
      */
     public function __construct($element, $column = 'main')
     {
+        /** @psalm-suppress DeprecatedClass */
         parent::__construct($element, $column);
 
+        /** @psalm-suppress PropertyTypeCoercion */
         $this->factory = System::getContainer()->get('metamodels.factory');
+        /** @psalm-suppress PropertyTypeCoercion */
         $this->editor  = System::getContainer()->get('cca.dc-general.contao_frontend.editor');
     }
 
@@ -88,9 +96,13 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      */
     public function generate(): string
     {
+        /** @psalm-suppress UndefinedThisPropertyFetch */
         if ($this->customTpl) {
+            /** @psalm-suppress UndefinedThisPropertyFetch */
             $this->strTemplate = $this->customTpl;
         }
+
+        /** @psalm-suppress DeprecatedClass */
         return parent::generate();
     }
 
@@ -103,9 +115,11 @@ abstract class FrontendEditHybrid extends MetaModelHybrid
      */
     protected function compile(): void
     {
+        /** @psalm-suppress UndefinedThisPropertyFetch */
         $metaModel = $this->factory->translateIdToMetaModelName($this->metamodel);
 
         try {
+            /** @psalm-suppress UndefinedMagicPropertyAssignment */
             $this->Template->editor = $this->editor->editFor($metaModel, 'create');
         } catch (NotEditableException $exception) {
             throw new AccessDeniedException($exception->getMessage());

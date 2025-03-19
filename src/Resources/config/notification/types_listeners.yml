@@ -1,0 +1,28 @@
+services:
+  MetaModels\ContaoFrontendEditingBundle\EventListener\FeeCreateNotificationType:
+    public: true
+    arguments:
+      $factory: '@Terminal42\NotificationCenterBundle\Token\Definition\Factory\TokenDefinitionFactoryInterface'
+    tags:
+      - 'notification_center.notification_type'
+
+  MetaModels\ContaoFrontendEditingBundle\EventListener\FeeEditNotificationType:
+    public: true
+    arguments:
+      $factory: '@Terminal42\NotificationCenterBundle\Token\Definition\Factory\TokenDefinitionFactoryInterface'
+    tags:
+      - 'notification_center.notification_type'
+
+  MetaModels\ContaoFrontendEditingBundle\EventListener\FeeCopyNotificationType:
+    public: true
+    arguments:
+      $factory: '@Terminal42\NotificationCenterBundle\Token\Definition\Factory\TokenDefinitionFactoryInterface'
+    tags:
+      - 'notification_center.notification_type'
+
+  MetaModels\ContaoFrontendEditingBundle\EventListener\FeeDeleteNotificationType:
+    public: true
+    arguments:
+      $factory: '@Terminal42\NotificationCenterBundle\Token\Definition\Factory\TokenDefinitionFactoryInterface'
+    tags:
+      - 'notification_center.notification_type'

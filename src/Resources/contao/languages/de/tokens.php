@@ -43,3 +43,16 @@ $GLOBALS['TL_LANG']['NOTIFICATION_CENTER_TOKEN']['mm_fe_edit_model']['model_*'] 
 $GLOBALS['TL_LANG']['NOTIFICATION_CENTER_TOKEN']['mm_fe_edit_model']['model_original_*']   = 'Alle Attribute des ursprünglichen Datensatzes.';
 $GLOBALS['TL_LANG']['NOTIFICATION_CENTER_TOKEN']['mm_fe_edit_model']['property_label_*']   = 'Alle Attribut-Bezeichnungen.';
 
+// NC 2.0
+$GLOBALS['TL_LANG']['nc_tokens']['mm_fe']['model_*']          =
+    'Alle Attribute des bearbeiteten Datensatzes.';
+$GLOBALS['TL_LANG']['nc_tokens']['mm_fe']['model_original_*'] =
+    'Alle Attribute des ursprünglichen Datensatzes.';
+$GLOBALS['TL_LANG']['nc_tokens']['mm_fe']['member_*'] =
+    'Alle Daten des Mitglieds. Diese Daten sind verfügbar, wenn das Frontend-Mitglied eingeloggt ist.';
+$GLOBALS['TL_LANG']['nc_tokens']['mm_fe']['property_label_*'] =
+    'Alle Attribut-Bezeichnungen.';
+$GLOBALS['TL_LANG']['nc_tokens']['mm_fe']['data']             =
+    'Alle verfügbaren Daten.';
+$GLOBALS['TL_LANG']['nc_tokens']['mm_fe']['admin_email']      =
+    'E-Mail-Adresse des Administrators der aktuellen Seite.';

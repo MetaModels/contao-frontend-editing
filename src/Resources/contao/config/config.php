@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2019 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,23 +15,29 @@
  * @author     Mini Model <minimodel@metamodel.me>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2019 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
+use Contao\System;
 use MetaModels\ContaoFrontendEditingBundle\Content\ModelEdit as ContentModelEdit;
 use MetaModels\ContaoFrontendEditingBundle\Module\ModelEdit as ModuleModelEdit;
 
 $GLOBALS['FE_MOD']['metamodels']['metamodels_frontendediting'] = ModuleModelEdit::class;
 $GLOBALS['TL_CTE']['metamodels']['metamodels_frontendediting'] = ContentModelEdit::class;
 
-if (\array_key_exists('notification_center', \Contao\System::getContainer()->getParameter('kernel.bundles'))) {
+$bundles = System::getContainer()->getParameter('kernel.bundles');
+assert(\is_array($bundles));
+
+// NC 1.7.
+if (\array_key_exists('notification_center', $bundles)) {
     $configCreateSimpleTokens = ['model_*', 'member_*', 'property_label_*' , 'data', 'admin_email'];
     $configEditSimpleTokens   = ['model_*', 'model_original_*', 'member_*', 'property_label_*' , 'data', 'admin_email'];
     $configDeleteSimpleTokens = ['model_*', 'member_*', 'property_label_*' , 'data', 'admin_email'];
 
-    $GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE'] = array_merge(
+    $GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE'] = \array_merge(
         (array) $GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE'],
         [
             'metamodels_frontendediting' => [

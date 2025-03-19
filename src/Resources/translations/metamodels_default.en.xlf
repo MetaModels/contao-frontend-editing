@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="src/CoreBundle/Resources/translations/metamodels_default.en.xlf">
+    <body>
+      <trans-unit id="metamodel_add_item" resname="metamodel_add_item">
+        <source>Add item</source>
+      </trans-unit>
+      <trans-unit id="metamodel_edit_item" resname="metamodel_edit_item">
+        <source>Edit item</source>
+      </trans-unit>
+      <trans-unit id="metamodel_copy_item" resname="metamodel_copy_item">
+        <source>Copy item</source>
+      </trans-unit>
+      <trans-unit id="metamodel_delete_item" resname="metamodel_delete_item">
+        <source>Delete item</source>
+      </trans-unit>
+      <trans-unit id="metamodel_create_variant" resname="metamodel_create_variant">
+        <source>Create variant</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

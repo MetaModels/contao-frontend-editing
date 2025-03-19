@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    MetaModels/contao-frontend-editing
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,10 +24,13 @@ namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaMod
 
 use Contao\CoreBundle\Exception\RedirectResponseException;
 use Contao\CoreBundle\Framework\Adapter;
+use Contao\CoreBundle\InsertTag\InsertTagParser;
 use Contao\PageModel;
 use Contao\StringUtil;
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\ContaoFrontend\Event\HandleSubmitEvent;
-use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\TraitFrontendScope;
 use MetaModels\ViewCombination\ViewCombination;
 
@@ -43,21 +46,28 @@ class ForwardSaveEditModelButton
      *
      * @var ViewCombination
      */
-    private $viewCombination;
+    private ViewCombination $viewCombination;
 
     /**
      * The page model service.
      *
      * @var Adapter|PageModel
      */
-    private $pageService;
+    private Adapter|PageModel $pageService;
 
     /**
      * The string util service.
      *
      * @var Adapter|StringUtil
      */
-    private $stringUtilService;
+    private Adapter|StringUtil $stringUtilService;
+
+    /**
+     * The insert-tags parser.
+     *
+     * @var InsertTagParser
+     */
+    private InsertTagParser $insertTagParser;
 
     /**
      * The constructor.
@@ -65,12 +75,18 @@ class ForwardSaveEditModelButton
      * @param ViewCombination $viewCombination   The view combination.
      * @param Adapter         $pageService       The page model service.
      * @param Adapter         $stringUtilService The string util service.
+     * @param InsertTagParser $insertTagParser   The insert-tags parser.
      */
-    public function __construct(ViewCombination $viewCombination, Adapter $pageService, Adapter $stringUtilService)
-    {
+    public function __construct(
+        ViewCombination $viewCombination,
+        Adapter $pageService,
+        Adapter $stringUtilService,
+        InsertTagParser $insertTagParser
+    ) {
         $this->viewCombination   = $viewCombination;
         $this->pageService       = $pageService;
         $this->stringUtilService = $stringUtilService;
+        $this->insertTagParser   = $insertTagParser;
     }
 
     /**
@@ -82,7 +98,8 @@ class ForwardSaveEditModelButton
      */
     public function __invoke(HandleSubmitEvent $event): void
     {
-        if (!$this->wantToHandle($event)
+        if (
+            !$this->wantToHandle($event)
             || (null === ($button = $this->findButton($event)))
         ) {
             return;
@@ -96,6 +113,8 @@ class ForwardSaveEditModelButton
 
         // Replace simple tokens.
         $button = $this->replaceSimpleTokensAtJumpToParameter($button, $tokenData);
+
+        $button['jumpToParameter'] = $this->insertTagParser->replace($button['jumpToParameter']);
 
         $this->forwardTo($button);
     }
@@ -115,11 +134,14 @@ class ForwardSaveEditModelButton
         // FIXME: Use page tree if this work with mcw.
         // @codingStandardsIgnoreEnd
         $pageId = \explode('::', \trim($button['jumpTo'], '{{}}'))[1];
-        /** @var PageModel $pageModel */
+        /**
+         * @var PageModel $pageModel
+         * @psalm-suppress InternalMethod - Class ContaoFramework is internal, not the getAdapter() method.
+         */
         $pageModel       = $this->pageService->findByIdOrAlias($pageId);
         $jumpToParameter = \html_entity_decode(($button['jumpToParameter'] ?? ''));
 
-        if (0 === \strpos($jumpToParameter, '?')) {
+        if (\str_starts_with($jumpToParameter, '?')) {
             $url = $pageModel->getAbsoluteUrl() . $jumpToParameter;
         } else {
             $url = $pageModel->getAbsoluteUrl($jumpToParameter ? '/' . \ltrim($jumpToParameter, '/') : '');
@@ -137,8 +159,11 @@ class ForwardSaveEditModelButton
      */
     private function findButton(HandleSubmitEvent $event): ?array
     {
-        $inputScreen = $this->viewCombination->getScreen($event->getEnvironment()->getDataDefinition()->getName());
-        if (!$inputScreen
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+        $inputScreen = $this->viewCombination->getScreen($dataDefinition->getName());
+        if (
+            null === $inputScreen
             || !isset($inputScreen['meta']['fe_overrideEditButtons'], $inputScreen['meta']['fe_editButtons'])
             || !$inputScreen['meta']['fe_overrideEditButtons']
             || !($buttons = $inputScreen['meta']['fe_editButtons'])
@@ -152,6 +177,8 @@ class ForwardSaveEditModelButton
 
         $findButton    = null;
         $inputProvider = $event->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         foreach ($buttons as $button) {
             if (!$button['jumpTo'] || !$inputProvider->hasValue($button['name'])) {
                 continue;
@@ -174,10 +201,12 @@ class ForwardSaveEditModelButton
      */
     private function replaceSimpleTokensAtJumpToParameter(array $button, array $tokenData): array
     {
-        if (false !== \strpos($button['jumpToParameter'], '&#35;&#35;')
-            || false !== \strpos($button['jumpToParameter'], '##')) {
+        if (
+            \str_contains($button['jumpToParameter'], '&#35;&#35;')
+            || \str_contains($button['jumpToParameter'], '##')
+        ) {
             $button['jumpToParameter'] =
-                $this->stringUtilService->parseSimpleTokens(
+                System::getContainer()->get('contao.string.simple_token_parser')?->parse(
                     \str_replace('&#35;', '#', $button['jumpToParameter']),
                     $tokenData
                 );
