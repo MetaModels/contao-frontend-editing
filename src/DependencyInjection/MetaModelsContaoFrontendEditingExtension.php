@@ -44,18 +44,21 @@ class MetaModelsContaoFrontendEditingExtension extends Extension
         $bundles = $container->getParameter('kernel.bundles');
         assert(\is_array($bundles));
 
-        // NC 1.7 and 2.0.
-        if (
-            \array_key_exists('notification_center', $bundles)
-            || \class_exists(Terminal42NotificationCenterBundle::class, true)
-        ) {
-            $loader->load('notification/backend_listeners.yml');
+        $is17 = \array_key_exists('notification_center', $bundles);
+        $is20 = \class_exists(Terminal42NotificationCenterBundle::class, true);
+
+        // NC 1.7
+        if ($is17) {
             $loader->load('notification/frontend_listeners.yml');
         }
-
+        // NC 1.7 and 2.0.
+        if ($is17 || $is20) {
+            $loader->load('notification/backend_listeners.yml');
+        }
         // NC 2.0.
-        if (\class_exists(Terminal42NotificationCenterBundle::class, true)) {
+        if ($is20) {
             $loader->load('notification/types_listeners.yml');
+            $loader->load('notification/frontend_nc_listeners.yml');
         }
     }
 }

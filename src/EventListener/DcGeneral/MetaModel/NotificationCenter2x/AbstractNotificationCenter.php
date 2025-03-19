@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/contao-frontend-editing.
  *
- * (c) 2012-2024 The MetaModels team.
+ * (c) 2012-2025 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,34 +11,33 @@
  * This project is provided in good faith and hope to be usable by anyone.
  *
  * @package    MetaModels/contao-frontend-editing
- * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2012-2024 The MetaModels team.
+ * @copyright  2012-2025 The MetaModels team.
  * @license    https://github.com/MetaModels/contao-frontend-editing/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 declare(strict_types=1);
 
-namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\Notification;
+namespace MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\NotificationCenter2x;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use Contao\CoreBundle\Framework\Adapter;
+use Contao\FrontendUser;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
-use Contao\Config;
-use Contao\CoreBundle\Framework\Adapter;
-use Contao\FrontendUser;
 use MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\TraitFrontendScope;
 use MetaModels\DcGeneral\Data\Model;
 use MetaModels\IItem;
 use MetaModels\ViewCombination\ViewCombination;
-use NotificationCenter\Model\Notification;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Terminal42\NotificationCenterBundle\NotificationCenter;
 
 /**
  * This is for send notification.
@@ -46,68 +45,18 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  */
-abstract class AbstractNotification
+abstract class AbstractNotificationCenter
 {
     use TraitFrontendScope;
 
-    /**
-     * The view combination.
-     *
-     * @var ViewCombination
-     */
-    protected $viewCombination;
-
-    /**
-     * The notification center.
-     *
-     * @var Adapter
-     *
-     * @psalm-suppress UndefinedDocblockClass
-     */
-    protected $notificationCenter;
-
-    /**
-     * The token storage.
-     *
-     * @var TokenStorageInterface
-     */
-    protected $tokenStorage;
-
-    /**
-     * The request stack.
-     *
-     * @var RequestStack
-     */
-    private RequestStack $requestStack;
-
-    /**
-     * The config service.
-     *
-     * @var Adapter|Config
-     */
-    private Adapter|Config $config;
-
-    /**
-     * The constructor.
-     *
-     * @param ViewCombination       $viewCombination    The view combination.
-     * @param Adapter               $notificationCenter The notification center.
-     * @param TokenStorageInterface $tokenStorage       The token storage.
-     * @param RequestStack          $requestStack       The request stack.
-     * @param Adapter               $config             The config service.
-     */
     public function __construct(
-        ViewCombination $viewCombination,
-        Adapter $notificationCenter,
-        TokenStorageInterface $tokenStorage,
-        RequestStack $requestStack,
-        Adapter $config
+        private readonly ViewCombination $viewCombination,
+        private readonly NotificationCenter $notificationCenter,
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly RequestStack $requestStack,
+        private readonly Adapter $config,
+        private readonly TranslatorInterface $translator,
     ) {
-        $this->viewCombination    = $viewCombination;
-        $this->notificationCenter = $notificationCenter;
-        $this->tokenStorage       = $tokenStorage;
-        $this->requestStack       = $requestStack;
-        $this->config             = $config;
     }
 
     /**
@@ -123,8 +72,8 @@ abstract class AbstractNotification
         assert($inputProvider instanceof InputProviderInterface);
         if (
             !$this->wantToHandle($event)
+            || null === ($notificationId = $this->findNotificationId($event))
             || ($this->actionName() !== $inputProvider->getParameter('act'))
-            || !($notification = $this->findNotification($event))
         ) {
             return;
         }
@@ -135,8 +84,9 @@ abstract class AbstractNotification
          * @psalm-suppress UndefinedMagicPropertyFetch
          * @psalm-suppress UndefinedClass
          */
-        $notification->send(
-            $this->generateTokens($event, (string) $notification->flatten_delimiter),
+        $this->notificationCenter->sendNotification(
+            $notificationId,
+            $this->generateTokens($event, ','),
             $request->attributes->get('_locale')
         );
     }
@@ -230,7 +180,7 @@ abstract class AbstractNotification
         foreach ($array as $item) {
             $result[] = \is_array($item) ? $this->recursiveImplode($delimiter, $item) : $item;
         }
-        return implode($delimiter, $result);
+        return \implode($delimiter, $result);
     }
 
     /**
@@ -293,8 +243,11 @@ abstract class AbstractNotification
         assert($dataDefinition instanceof ContainerInterface);
         $tokens     = [];
         $properties = $dataDefinition->getPropertiesDefinition()->getProperties();
+
+        $defName = $dataDefinition->getName();
         foreach ($properties as $property) {
-            $tokens['property_label_' . $property->getName()] = ($property->getLabel() ?? $property->getName());
+            $tokens['property_label_' . $property->getName()] =
+                $this->translator->trans($property->getLabel(), [], $defName);
         }
 
         return $tokens;
@@ -305,25 +258,22 @@ abstract class AbstractNotification
      *
      * @param AbstractModelAwareEvent $event The event.
      *
-     * @return Notification|null
-     *
-     * @psalm-suppress UndefinedClass
+     * @return int|null
      */
-    private function findNotification(AbstractModelAwareEvent $event): ?Notification
+    private function findNotificationId(AbstractModelAwareEvent $event): ?int
     {
         $dataDefinition = $event->getEnvironment()->getDataDefinition();
         assert($dataDefinition instanceof ContainerInterface);
         $inputScreen = $this->viewCombination->getScreen($dataDefinition->getName());
-        /** @psalm-suppress InternalMethod - Class ContaoFramework is internal, not the getAdapter() method. */
+
         if (
             null === $inputScreen
             || '' === ($notificationID = ($inputScreen['meta'][$this->metaName()] ?? ''))
-            || null === ($notification = $this->notificationCenter->findByPk($notificationID))
         ) {
             return null;
         }
 
-        return $notification;
+        return (int) $notificationID;
     }
 
     /**

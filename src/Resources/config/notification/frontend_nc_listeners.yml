@@ -1,0 +1,43 @@
+services:
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\NotificationCenter2x\AbstractNotificationCenter:
+        public: false
+        abstract: true
+        calls:
+            -   method: setScopeDeterminator
+                arguments:
+                    - "@cca.dc-general.scope-matcher"
+        arguments:
+            - '@metamodels.view_combination'
+            - '@Terminal42\NotificationCenterBundle\NotificationCenter'
+            - '@security.token_storage'
+            - '@request_stack'
+            - '@=service("contao.framework").getAdapter("Contao\\Config")'
+            - '@translator'
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\NotificationCenter2x\CopyModelNotificationListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\NotificationCenter2x\AbstractNotificationCenter'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-duplicate
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\NotificationCenter2x\CreateModelNotificationListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\NotificationCenter2x\AbstractNotificationCenter'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-persist
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\NotificationCenter2x\EditModelNotificationListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\NotificationCenter2x\AbstractNotificationCenter'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-persist
+
+    MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\NotificationCenter2x\DeleteModelNotificationListener:
+        public: false
+        parent: 'MetaModels\ContaoFrontendEditingBundle\EventListener\DcGeneral\MetaModel\NotificationCenter2x\AbstractNotificationCenter'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-delete
